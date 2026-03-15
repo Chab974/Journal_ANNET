@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Petit Journal d'Annet - Projet Éditorial</title>
+    <title>Le Petit Journal d'Annet - N°1 - Édition de Printemps</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
@@ -77,6 +77,9 @@
             <p class="text-2xl md:text-3xl font-heading italic text-ink">
                 "Ensemble, Réveillons Annet"
             </p>
+            <p class="text-lg md:text-xl font-heading uppercase tracking-widest text-vintage-red">
+                Village oui, mais pas village isolé.
+            </p>
         </header>
 
         <section id="contexte" class="newspaper-border-double p-6 md:p-10 bg-[#fdfcfa]">
@@ -107,7 +110,7 @@
 
         <section id="piliers">
             <div class="text-center mb-10 border-b-2 border-ink pb-6">
-                <h2 class="text-4xl font-heading font-black uppercase tracking-wider mb-4">Nos 6 Piliers Éditoriaux</h2>
+                <h2 class="text-4xl font-heading font-black uppercase tracking-wider mb-4">Nos 7 Piliers Éditoriaux</h2>
                 <p class="max-w-2xl mx-auto italic">
                     Découvrez l'ADN de notre journal en naviguant dans les rubriques ci-dessous.
                 </p>
@@ -125,7 +128,8 @@
         <section id="maquette" class="newspaper-border-double p-2 bg-ink text-paper">
             <div class="border-2 border-paper p-6 md:p-10">
                 <div class="text-center mb-10 border-b border-paper pb-6">
-                    <h2 class="text-3xl font-heading font-black uppercase tracking-widest mb-4">Aperçu du Numéro 1</h2>
+                    <h2 class="text-3xl font-heading font-black uppercase tracking-widest mb-2">Le Petit Journal d'Annet - N°1 - Édition de Printemps</h2>
+                    <p class="italic text-paper/80 font-serif mb-2">Village oui, mais pas village isolé.</p>
                     <p class="italic text-paper/80 font-serif">Feuilletez virtuellement les rubriques de notre première édition.</p>
                 </div>
 
@@ -151,7 +155,7 @@
                 <div class="p-8 md:border-r-2 border-ink text-center flex flex-col items-center border-t-2 md:border-t-0 border-ink">
                     <div class="text-4xl mb-4 grayscale">💻</div>
                     <h3 class="text-xl font-heading font-bold uppercase mb-3">Le Numérique</h3>
-                    <p class="text-sm">Une version interactive diffusée via une newsletter par email et partagée sur les réseaux sociaux.</p>
+                    <p class="text-sm">Une version PDF envoyée par newsletter email et partagée sur Facebook, en complément du site.</p>
                 </div>
                 <div class="p-8 text-center flex flex-col items-center border-t-2 md:border-t-0 border-ink">
                     <div class="text-4xl mb-4 grayscale">⏱️</div>
@@ -213,12 +217,13 @@
 
         // --- 2. Piliers Éditoriaux ---
         const pillarsData = [
-            { id: 'p1', title: 'Info & Politique', icon: '⚖️', theme: 'vintage-red', principe: 'Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.', objectif: 'Permettre à chaque citoyen de comprendre les enjeux locaux sans filtre partisan ou animosité.' },
-            { id: 'p2', title: 'Intercommunalité', icon: '🤝', theme: 'vintage-red', principe: "Annet n'est pas une île. Donner la parole aux communes voisines et relayer leurs événements.", objectif: "Mutualiser les bonnes idées, encourager les échanges culturels et associatifs au-delà des panneaux d'entrée." },
-            { id: 'p3', title: 'Guide Citoyen', icon: '🛡️', theme: 'vintage-red', principe: 'Lutter activement contre les exclusions (sociale, administrative) en apportant des solutions concrètes.', objectif: 'Aider pour les démarches, faire connaître les aides, créer des ponts entre les générations.' },
-            { id: 'p4', title: 'Lien Social', icon: '☕', theme: 'vintage-red', principe: 'Mettre en valeur les habitants, les initiatives locales et ouvrir le débat sur l\'avenir.', objectif: 'Donner envie de se rencontrer, créer des moments de convivialité et réfléchir collectivement.' },
-            { id: 'p5', title: 'Écologie', icon: '🌱', theme: 'vintage-green', principe: "Valoriser les initiatives éco-responsables, protéger notre patrimoine naturel (la Marne) et accompagner la transition.", objectif: "Informer sur les bonnes pratiques, promouvoir les circuits courts et impliquer les citoyens dans le cadre de vie." },
-            { id: 'p6', title: 'Numérique', icon: '📠', theme: 'vintage-blue', principe: "Accompagner la transition numérique, informer sur les outils locaux et lutter contre la fracture numérique.", objectif: "Rendre les démarches en ligne accessibles à tous et valoriser les innovations de notre territoire." }
+            { id: 'p1', title: 'Info & Politique Locale', icon: '⚖️', theme: 'vintage-red', principe: 'Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.', objectif: 'Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.' },
+            { id: 'p2', title: 'Ouverture & Intercommunalité', icon: '🤝', theme: 'vintage-red', principe: "Annet n'est pas une île. Donner la parole aux communes voisines (Claye-Souilly, Fresnes-sur-Marne, Carnetin, Jablines...) et relayer leurs événements.", objectif: "Mutualiser les bonnes idées et encourager les échanges culturels et associatifs au-delà des panneaux d'entrée de ville." },
+            { id: 'p3', title: 'Guide Citoyen', icon: '🛡️', theme: 'vintage-red', principe: 'Lutter activement contre les exclusions sociales, numériques et identitaires en apportant des solutions concrètes.', objectif: 'Aider pour les démarches administratives, faire connaître les aides existantes et créer des ponts entre les générations.' },
+            { id: 'p4', title: 'Lien Social', icon: '☕', theme: 'vintage-red', principe: 'Mettre en valeur les habitants, les initiatives locales et ouvrir le débat sur l\'avenir.', objectif: 'Donner envie de dire bonjour à son voisin, créer des moments de convivialité et réfléchir collectivement à l\'évolution du village.' },
+            { id: 'p5', title: 'Écologie & Cadre de Vie', icon: '🌱', theme: 'vintage-green', principe: 'Traiter les sujets environnementaux locaux de façon concrète et non idéologique.', objectif: 'Aider les habitants à comprendre les projets (eau, déchets, mobilité, biodiversité), à s\'équiper et à participer aux initiatives locales.' },
+            { id: 'p6', title: 'Vie Associative', icon: '🎗️', theme: 'vintage-blue', principe: 'Mettre en lumière les associations, leurs bénévoles et leurs besoins, sans communication vitrine.', objectif: 'Donner de la visibilité aux initiatives, faciliter le recrutement de bénévoles et renforcer les coopérations entre assos.' },
+            { id: 'p7', title: 'Soloprenariat & Économie Locale', icon: '🛍️', theme: 'vintage-blue', principe: 'Valoriser les artisans, indépendants, micro-entreprises et commerces de proximité, sans pub déguisée.', objectif: 'Rendre ces activités identifiables, utiles et connectées aux habitants via des portraits, des services et des projets.' }
         ];
 
         const btnContainer = document.getElementById('pillar-buttons');
@@ -266,7 +271,7 @@
         // --- 3. Maquette (Pagination interactive vintage) ---
         const pagesData = [
             {
-                id: 'page1', title: 'Page 1 : L\'Ouverture',
+                id: 'page1', title: 'Page 1 : L\'Édito & L\'Essentiel',
                 content: `
                     <div class="columns-1 md:columns-2 gap-8 space-y-6">
                         <div class="break-inside-avoid border-b-2 border-ink pb-4">
@@ -279,12 +284,13 @@
                             <ul class="mt-2 space-y-2 text-sm font-bold">
                                 <li class="border-b border-ink/20 pb-1">☛ Mairie : Nouveaux horaires de la médiathèque</li>
                                 <li class="border-b border-ink/20 pb-1">☛ Sécurité : Rappel sur les vitesses en centre-ville</li>
+                                <li class="border-b border-ink/20 pb-1">☛ Agenda : Marché local et forum des associations ce samedi</li>
                             </ul>
                         </div>
                     </div>`
             },
             {
-                id: 'page2', title: 'Page 2 : Décryptage',
+                id: 'page2', title: 'Page 2 : Décryptage & Voisins',
                 content: `
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="md:border-r border-ink md:pr-8">
@@ -300,65 +306,36 @@
                     </div>`
             },
             {
-                id: 'page3', title: 'Page 3 : Écologie',
+                id: 'page3', title: 'Page 3 : Le Guide Citoyen',
                 content: `
-                    <div class="border-4 border-double border-vintage-green p-6">
+                    <div class="border-4 border-double border-vintage-blue p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-green mb-1">Environnement</h3>
-                                <h4 class="text-2xl font-heading font-black leading-tight mb-2">Préserver nos bords de Marne</h4>
-                                <p class="text-sm text-justify">Focus sur la biodiversité locale. Retour sur le nettoyage citoyen et dates des prochaines actions.</p>
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-blue mb-1">Dossier Inclusion Numérique</h3>
+                                <h4 class="text-2xl font-heading font-black leading-tight mb-2">Face à la dématérialisation : comment faire ?</h4>
+                                <p class="text-sm text-justify">Liste des points d'accès numériques gratuits autour d'Annet, ateliers d'initiation et contacts pour se faire accompagner dans les démarches.</p>
                             </div>
-                            <div class="md:border-l md:border-vintage-green md:pl-6">
-                                <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-green mb-1">Circuits Courts</h3>
-                                <h4 class="text-2xl font-heading font-black leading-tight mb-2">Producteurs de chez nous</h4>
-                                <p class="text-sm text-justify">Focus sur un agriculteur local, points de vente directe et comment soutenir l'agriculture du territoire.</p>
-                            </div>
-                        </div>
-                    </div>`
-            },
-            {
-                id: 'page4', title: 'Page 4 : Solidarité',
-                content: `
-                    <div class="space-y-6">
-                        <div class="border-b-2 border-ink pb-6">
-                            <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-red mb-1">Le Guide Citoyen</h3>
-                            <h4 class="text-3xl font-heading font-black mt-1 mb-2">Dossier : Démarches & Aides</h4>
-                            <p class="text-sm text-justify">Comment s'y retrouver dans les aides locales ? Focus sur les associations d'aide à la personne et les permanences sociales de la mairie.</p>
-                        </div>
-                        <div>
-                            <h3 class="text-xs font-bold uppercase tracking-widest mb-3 text-center border-y border-ink py-1">Petites Annonces & Entraide</h3>
-                            <div class="grid grid-cols-2 gap-4 text-sm font-heading italic">
-                                <div class="border border-ink p-2 text-center">"Cherche covoiturage pour Lagny..."</div>
-                                <div class="border border-ink p-2 text-center">"Donne vieux vélo à réparer..."</div>
+                            <div class="md:border-l md:border-vintage-blue md:pl-6">
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-blue mb-1">Le Coin de l'Entraide</h3>
+                                <h4 class="text-2xl font-heading font-black leading-tight mb-2">Petites annonces gratuites</h4>
+                                <p class="text-sm text-justify">Don d'objets, covoiturage, aide aux devoirs, coups de main ponctuels : une rubrique simple pour connecter les besoins et les bonnes volontés.</p>
                             </div>
                         </div>
                     </div>`
             },
             {
-                id: 'page5', title: 'Page 5 : Numérique',
-                content: `
-                    <div class="border-4 border-double border-vintage-blue p-6 text-center">
-                        <div class="text-4xl mb-4 grayscale">📠</div>
-                        <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-blue mb-2">Inclusion & Technologie</h3>
-                        <h4 class="text-3xl font-heading font-black mt-1 mb-4">Lutter contre la fracture numérique</h4>
-                        <p class="text-sm text-justify max-w-lg mx-auto mb-4">Face à la dématérialisation croissante, nous faisons le point sur les ateliers d'initiation informatique proposés par la communauté d'agglomération, et les points d'accès gratuits à Internet autour d'Annet.</p>
-                        <span class="inline-block border border-vintage-blue text-vintage-blue px-4 py-2 font-bold text-xs uppercase tracking-widest">Prochain atelier: Jeudi 14h</span>
-                    </div>`
-            },
-            {
-                id: 'page6', title: 'Page 6 : Échanges',
+                id: 'page4', title: 'Page 4 : Rencontre & Agora',
                 content: `
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="md:border-r border-ink md:pr-8">
                             <h3 class="text-xs font-bold uppercase tracking-widest mb-1 text-vintage-red">Le Portrait</h3>
                             <h4 class="text-2xl font-heading font-black leading-tight mb-2">Rencontre au village</h4>
-                            <p class="text-sm text-justify">Interview exclusive d'un artisan, d'un ancien du village ou d'un bénévole associatif d'Annet-sur-Marne.</p>
+                            <p class="text-sm text-justify">Interview du boulanger, d'un agriculteur local ou d'un président d'association pour raconter un parcours utile à la vie locale.</p>
                         </div>
                         <div class="bg-ink text-paper p-6 text-center">
                             <h3 class="text-xs font-bold uppercase tracking-widest mb-2 border-b border-paper/30 pb-1">L'Agora</h3>
-                            <h4 class="text-2xl font-heading font-black mb-3 text-vintage-red">"Quelles animations pour cet été ?"</h4>
-                            <p class="text-sm italic mb-4">La tribune est à vous. Écrivez-nous vos idées !</p>
+                            <h4 class="text-2xl font-heading font-black mb-3 text-vintage-red">"Quelles animations pour cet été à Annet ?"</h4>
+                            <p class="text-sm italic mb-4">Partagez vos idées constructives, elles seront publiées dans le prochain numéro.</p>
                             <span class="border border-paper px-3 py-1 font-bold text-xs">courrier@petitjournal-annet.fr</span>
                         </div>
                     </div>`
