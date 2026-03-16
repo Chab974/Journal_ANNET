@@ -2,6 +2,8 @@
 
 Site statique prêt pour GitHub Pages.
 
+URL du site : https://chab974.github.io/Journal_ANNET/
+
 ## Fichiers
 
 - `index.html` : page principale (Tailwind CDN + Chart.js)
@@ -14,4 +16,4 @@ Site statique prêt pour GitHub Pages.
 3. Dans `Build and deployment`, choisissez `Source: GitHub Actions`.
 4. Faites un `git push` sur `main` (ou lancez le workflow manuellement depuis `Actions`).
 
-Le site sera ensuite disponible à l'URL GitHub Pages du dépôt.
+Le site est disponible ici : https://chab974.github.io/Journal_ANNET/
