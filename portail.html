@@ -638,6 +638,24 @@
                 return renderMenuDays(post);
             }
 
+            const postVisual = post.image || post.cover_image;
+            const visualLabel = post.type === 'coup_de_coeur'
+                ? `Couverture du livre ${post.titre || ''}`
+                : `Visuel de ${post.titre || 'la publication'}`;
+            const visualCard = postVisual ? `
+                <div class="portal-book-cover-card">
+                    <img
+                        src="${escapeHtml(resolveAssetUrl(postVisual))}"
+                        alt="${escapeHtml(visualLabel)}"
+                        class="portal-book-cover"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="high"
+                    >
+                    ${(post.image_caption || post.type === 'coup_de_coeur') ? `<p class="portal-book-cover-caption">${escapeHtml(post.image_caption || 'Sélection de la semaine')}</p>` : ''}
+                </div>
+            ` : '';
+
             const textBlock = `
                 <div class="portal-note text-sm md:text-base leading-relaxed whitespace-pre-wrap">
                     ${escapeHtml(post.contenu_texte || post.resume || '')}
@@ -649,6 +667,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
                         <div class="paper-card p-5 md:p-6 bg-white/80">${textBlock}</div>
                         <aside class="paper-card p-5 md:p-6 space-y-4">
+                            ${visualCard}
                             ${post.lieu ? `
                                 <div>
                                     <p class="text-xs uppercase tracking-widest font-bold mb-2 text-vintage-blue">📍 Localisation</p>
@@ -679,19 +698,7 @@
                             ${textBlock}
                         </div>
                         <aside class="paper-card p-5 md:p-6 space-y-4">
-                            ${post.cover_image ? `
-                                <div class="portal-book-cover-card">
-                                    <img
-                                        src="${escapeHtml(resolveAssetUrl(post.cover_image))}"
-                                        alt="Couverture du livre ${escapeHtml(post.titre || '')}"
-                                        class="portal-book-cover"
-                                        loading="eager"
-                                        decoding="async"
-                                        fetchpriority="high"
-                                    >
-                                    <p class="portal-book-cover-caption">Sélection de la semaine</p>
-                                </div>
-                            ` : ''}
+                            ${visualCard}
                             ${post.lien_externe ? `
                                 <a class="portal-link text-sm" href="${escapeHtml(post.lien_externe)}" target="_blank" rel="noopener noreferrer">
                                     <span aria-hidden="true">↗</span>
@@ -712,10 +719,15 @@
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
                     <div class="paper-card p-5 md:p-6 bg-white/80">${textBlock}</div>
-                    ${post.lieu ? `
-                        <aside class="paper-card p-5 md:p-6">
-                            <p class="text-xs uppercase tracking-widest font-bold mb-2">📍 Localisation</p>
-                            <p class="text-sm">${escapeHtml(post.lieu)}</p>
+                    ${(post.lieu || visualCard) ? `
+                        <aside class="paper-card p-5 md:p-6 space-y-4">
+                            ${visualCard}
+                            ${post.lieu ? `
+                                <div>
+                                    <p class="text-xs uppercase tracking-widest font-bold mb-2">📍 Localisation</p>
+                                    <p class="text-sm">${escapeHtml(post.lieu)}</p>
+                                </div>
+                            ` : ''}
                         </aside>
                     ` : ''}
                 </div>

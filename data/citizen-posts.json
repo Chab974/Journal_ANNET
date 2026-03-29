@@ -136,5 +136,17 @@
     "lieu": "Départ place de l'église",
     "resume": "Une promenade guidée pour redécouvrir l'histoire du village, ses rues, ses paysages et ses anecdotes locales.",
     "contenu_texte": "La commune relance une balade patrimoniale mensuelle ouverte à tous. Le parcours mettra à l'honneur les rues anciennes, les paysages bordant la Marne et plusieurs repères historiques racontés en format court."
+  },
+  {
+    "id": "post-9",
+    "slug": "instant-gourmand-place-eglise",
+    "rubrique": "Vie du village",
+    "type": "info",
+    "titre": "Instant Gourmand revient place de l'Église",
+    "date": "30 mars, 13 avril, 4-11-18 mai et les dimanches de juin",
+    "lieu": "Place de l'Église, Annet-sur-Marne",
+    "image_caption": "Affiche du rendez-vous gourmand",
+    "resume": "Un rendez-vous de quartier de 15h à 18h autour du goûter, avec boissons fraîches, café, cookies, brownies et crumble.",
+    "contenu_texte": "ShareWith.otes propose un Instant Gourmand place de l'Église à Annet-sur-Marne. Rendez-vous les 9, 16 et 23 mars, le 30 mars, le 13 avril, les 4, 11 et 18 mai, puis les 1, 8, 15, 22 et 29 juin. L'affiche annonce également une présence le 30 mars. Retrouvez ce moment convivial à l'heure du goûter, de 15h à 18h, avec café, limonade, thé glacé, cookies, brownies et crumble. Compte Instagram : sharewithotes."
   }
 ]
