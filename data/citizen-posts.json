@@ -26,7 +26,7 @@
         "day": "Lundi",
         "items": [
           { "name": "Paëlla végétarienne au riz", "badges": ["bio"] },
-          { "name": "Gouda", "badges": ["bio"] },
+          { "name": "Gouda Bio", "badges": ["bio"] },
           { "name": "Beignet chocolat noisette", "badges": [] }
         ]
       },
@@ -37,7 +37,7 @@
           { "name": "Boulettes au boeuf", "description": "Sauce tomate", "badges": ["france"] },
           { "name": "Boulettes végétariennes", "description": "Sauce tomate", "badges": [] },
           { "name": "Haricots verts persillés", "badges": ["bio"] },
-          { "name": "Yaourt arôme", "badges": ["regional"] }
+          { "name": "Yaourt arôme", "description": "Régional", "badges": ["regional"] }
         ]
       },
       {
