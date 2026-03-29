@@ -1,14 +1,17 @@
 [
   {
     "id": "post-8",
-    "slug": "instant-gourmand-place-eglise",
-    "rubrique": "Événements",
-    "type": "evenement",
-    "titre": "Instant Gourmand place de l'Église",
-    "date": "30 mars, 13 avril, 4-11-18 mai et les dimanches de juin",
-    "lieu": "Place de l'Église, Annet-sur-Marne",
-    "resume": "Un rendez-vous gourmand de 15h à 18h avec café, limonade, thé glacé, cookies, brownies et crumble, proposé par ShareWith.otes.",
-    "contenu_texte": "ShareWith.otes propose un Instant Gourmand place de l'Église à Annet-sur-Marne. Rendez-vous les 9, 16 et 23 mars, le 30 mars, le 13 avril, les 4, 11 et 18 mai, puis les 1, 8, 15, 22 et 29 juin. Présence annoncée aussi le 30 mars. Retrouvez l'équipe pour l'heure du goûter de 15h à 18h avec café, limonade, thé glacé, cookies, brownies et crumble. Compte Instagram : sharewithotes."
+    "slug": "cadre-noir-alix-de-saint-andre",
+    "rubrique": "Coup de cœur littéraire",
+    "type": "coup_de_coeur",
+    "titre": "Cadre noir",
+    "date": "Cette semaine",
+    "auteur": "Alix de Saint-André",
+    "edition": "Gallimard",
+    "cover_image": "assets/books/cadre-noir.jpg",
+    "lien_externe": "https://www.casadellibro.com/libro-cadre-noir/9782073009470/17921140",
+    "resume": "Un deuxième coup de cœur de Médi'Annet, entre récit familial, enquête intime et plongée dans l'histoire du Cadre noir de Saumur.",
+    "contenu_texte": "Alix de Saint-André se penche sur le passé de son père adoré, grand écuyer du Cadre noir de Saumur. Cet homme à la forte personnalité, qui faisait vivre sa famille dans la fantaisie, l'humour et la bonne humeur, sombre dans la dépression après son renvoi brutal en 1972 et décède en 1998.\n\nVingt-cinq ans plus tard, à la mort de la reine d'Angleterre devant qui le colonel de Saint-André avait donné plusieurs exhibitions, l'autrice se lance dans une enquête. L'ouvrage laisse peu à peu place à des pages rigoureuses et techniques sur le fonctionnement du Cadre noir, son histoire et ses codes, tout en revenant sur le contexte politique des années 1968 à 1981.\n\nUn récit dense, personnel et documenté, qui éclaire autant une figure paternelle qu'un monde équestre méconnu."
   },
   {
     "id": "post-2",
