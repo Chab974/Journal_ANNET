@@ -344,11 +344,26 @@
             position: relative;
             display: block;
             width: 100%;
+            aspect-ratio: 2 / 3;
+            object-fit: cover;
             border-radius: 14px;
+            background: linear-gradient(180deg, rgba(227, 235, 241, 0.92), rgba(209, 220, 229, 0.92));
             box-shadow: 0 18px 30px rgba(22, 49, 74, 0.18);
             transform-origin: center;
             animation: bookFloat 4.8s ease-in-out infinite;
             transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .portal-book-cover.is-fallback {
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.5;
         }
         .portal-book-cover-card:hover .portal-book-cover {
             transform: translateY(-3px) rotate(-1deg) scale(1.01);
@@ -431,13 +446,6 @@
                     </div>
                 </div>
 
-                <div class="mb-8">
-                    <div id="portal-rubriques" class="paper-card p-6 md:p-8">
-                        <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-blue mb-4">Rubriques</p>
-                        <p class="text-sm text-[color:var(--muted)]">Chargement des catégories...</p>
-                    </div>
-                </div>
-
                 <div class="portal-toolbar">
                     <div class="space-y-3">
                         <input id="portal-search" class="portal-search" type="search" placeholder="Rechercher un titre, une rubrique, un lieu, un auteur..." />
@@ -459,7 +467,6 @@
     <script>
         const portalPostsContainer = document.getElementById('portal-posts');
         const portalStatus = document.getElementById('portal-status');
-        const portalRubriques = document.getElementById('portal-rubriques');
         const portalSearchInput = document.getElementById('portal-search');
         const portalFiltersContainer = document.getElementById('portal-filters');
         const portalCount = document.getElementById('portal-count');
@@ -499,6 +506,18 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function resolveAssetUrl(assetPath = '') {
+            if (!assetPath) {
+                return '';
+            }
+
+            if (/^https?:\/\//i.test(assetPath)) {
+                return assetPath;
+            }
+
+            return new URL(assetPath.replace(/^\.\//, ''), window.location.href).href;
         }
 
         function getBadgeLabel(type) {
@@ -663,10 +682,12 @@
                             ${post.cover_image ? `
                                 <div class="portal-book-cover-card">
                                     <img
-                                        src="${escapeHtml(post.cover_image)}"
+                                        src="${escapeHtml(resolveAssetUrl(post.cover_image))}"
                                         alt="Couverture du livre ${escapeHtml(post.titre || '')}"
                                         class="portal-book-cover"
-                                        loading="lazy"
+                                        loading="eager"
+                                        decoding="async"
+                                        fetchpriority="high"
                                     >
                                     <p class="portal-book-cover-caption">Sélection de la semaine</p>
                                 </div>
@@ -758,34 +779,6 @@
             return null;
         }
 
-        function renderPortalRubriques(posts) {
-            const counts = posts.reduce((accumulator, post) => {
-                const key = post.rubrique || 'Autres';
-                accumulator[key] = (accumulator[key] || 0) + 1;
-                return accumulator;
-            }, {});
-
-            portalRubriques.innerHTML = `
-                <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-blue mb-4">Rubriques</p>
-                <div class="space-y-4">
-                    ${Object.entries(counts).map(([rubrique, count]) => `
-                        <button type="button" class="w-full text-left border border-ink/10 rounded-2xl px-4 py-4 bg-white hover:bg-[var(--paper)] transition-colors" data-rubrique="${escapeHtml(rubrique)}">
-                            <div class="flex items-center justify-between gap-4">
-                                <span class="font-heading font-black text-2xl uppercase leading-none">${escapeHtml(rubrique)}</span>
-                                <span class="category-chip">${count} sujet${count > 1 ? 's' : ''}</span>
-                            </div>
-                        </button>
-                    `).join('')}
-                </div>
-            `;
-
-            portalRubriques.querySelectorAll('[data-rubrique]').forEach((button) => {
-                button.addEventListener('click', () => {
-                    applyPortalFilter(button.getAttribute('data-rubrique'));
-                });
-            });
-        }
-
         function renderPortalFilters() {
             portalFiltersContainer.innerHTML = '';
             getPortalFilterOptions().forEach((option) => {
@@ -848,6 +841,18 @@
                 });
             });
 
+            portalPostsContainer.querySelectorAll('.portal-book-cover').forEach((image) => {
+                image.addEventListener('error', () => {
+                    image.removeAttribute('src');
+                    image.classList.add('is-fallback');
+                    image.alt = 'Couverture indisponible';
+                    image.replaceWith(Object.assign(document.createElement('div'), {
+                        className: `${image.className} is-fallback`,
+                        textContent: 'Couverture indisponible'
+                    }));
+                }, { once: true });
+            });
+
             if (portalState.targetSlug || portalState.targetPostId) {
                 requestAnimationFrame(() => {
                     scrollToPortalPost();
@@ -906,7 +911,6 @@
 
         function rerenderPortal() {
             const filteredPosts = getFilteredPortalPosts();
-            renderPortalRubriques(filteredPosts);
             renderPortalFilters();
             renderPortalPosts(filteredPosts);
         }
