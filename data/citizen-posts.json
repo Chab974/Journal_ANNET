@@ -1,10 +1,24 @@
 [
   {
+    "id": "post-2",
+    "rubrique": "Événements",
+    "featured": true,
+    "type": "evenement",
+    "titre": "Brocante de printemps au centre-ville",
+    "date": "Dimanche 24 mai 2026",
+    "lieu": "Centre-ville, Annet-sur-Marne",
+    "date_debut_iso": "20260524T060000Z",
+    "date_fin_iso": "20260524T180000Z",
+    "resume": "Plus de 200 exposants, une buvette, des animations enfants et une journée complète pour faire revenir les habitants en cœur de village.",
+    "contenu_texte": "Le comité des fêtes d'Annet-sur-Marne organise sa grande brocante de printemps au centre-ville. Plus de 200 exposants sont attendus. Une buvette et plusieurs animations familiales accompagneront la journée. L'objectif est de recréer un rendez-vous populaire, accessible et convivial, visible à l'échelle de tout le village."
+  },
+  {
     "id": "post-1",
+    "rubrique": "Scolaire",
     "type": "menu",
-    "titre": "Menu de la cantine",
+    "titre": "Le menu de la semaine à la cantine",
     "date": "Cette semaine",
-    "resume": "Découvrez les plats servis à vos enfants à la cantine scolaire.",
+    "resume": "Repères clairs pour les familles : plats du jour, mentions bio, produits labellisés et information spéciale du mercredi.",
     "menu_jours": [
       {
         "day": "Lundi",
@@ -49,34 +63,55 @@
     ]
   },
   {
-    "id": "post-2",
-    "type": "evenement",
-    "titre": "Brocante de Printemps",
-    "date": "Dimanche 24 mai 2026",
-    "lieu": "Centre-ville, Annet-sur-Marne",
-    "date_debut_iso": "20260524T060000Z",
-    "date_fin_iso": "20260524T180000Z",
-    "resume": "Venez nombreux chiner à la brocante annuelle organisée par le comité des fêtes.",
-    "contenu_texte": "Le comité des fêtes d'Annet-sur-Marne est heureux de vous annoncer le retour de sa grande brocante de printemps. Plus de 200 exposants sont attendus au centre-ville. Restauration sur place avec buvette et animations pour les enfants toute la journée."
+    "id": "post-5",
+    "rubrique": "Scolaire",
+    "type": "info",
+    "titre": "Nouvelle permanence numérique parents-élèves",
+    "date": "Dès le 3 juin",
+    "lieu": "Espace familles - mairie annexe",
+    "resume": "Une aide hebdomadaire pour les démarches liées au portail famille, aux inscriptions et à la restauration scolaire.",
+    "contenu_texte": "À partir du 3 juin, une permanence numérique sera proposée chaque mercredi après-midi à l'espace familles. Les agents accompagneront les parents pour les réservations cantine, les mises à jour de dossiers et les questions liées au portail famille."
   },
   {
     "id": "post-3",
+    "rubrique": "Travaux et mobilité",
     "type": "alerte",
-    "titre": "Travaux Rue de la Marne",
+    "titre": "Travaux rue de la Marne",
     "date": "Jusqu'au 15 avril",
     "lieu": "Rue de la Marne",
-    "resume": "Circulation alternée en raison de travaux.",
+    "resume": "Circulation alternée en raison de travaux d'enfouissement des réseaux.",
     "contenu_texte": "Des travaux d'enfouissement des réseaux auront lieu rue de la Marne. La circulation se fera sur une seule voie avec des feux alternés. Le stationnement sera interdit sur la zone concernée de 8h à 17h. Merci de votre prudence et de votre compréhension."
   },
   {
+    "id": "post-6",
+    "rubrique": "Vie associative",
+    "type": "evenement",
+    "titre": "Forum des associations : appel aux bénévoles",
+    "date": "Samedi 14 septembre",
+    "lieu": "Gymnase municipal",
+    "resume": "Les associations du village préparent la rentrée et cherchent des bénévoles, des encadrants et de nouveaux adhérents.",
+    "contenu_texte": "Le forum des associations réunira les clubs sportifs, les acteurs culturels et les collectifs solidaires de la commune. Une attention particulière sera portée aux missions bénévoles accessibles dès la rentrée."
+  },
+  {
     "id": "post-4",
+    "rubrique": "Coup de cœur littéraire",
     "type": "coup_de_coeur",
     "titre": "Qui se ressemble",
     "date": "Cette semaine",
     "auteur": "Agnès Desarthe",
     "edition": "Ed La Résonnante",
     "lien_externe": "https://www.google.com/search?q=Livre+Qui+se+ressemble+Agn%C3%A8s+Desarthe",
-    "resume": "Découvrez le coup de cœur littéraire de la semaine proposé par Médi'Annet.",
+    "resume": "Le coup de cœur de Médi'Annet : un récit intime, politique et familial à mettre en avant cette semaine.",
     "contenu_texte": "Après avoir exploré ses origines familiales du côté de sa mère dans « Château des rentiers », Agnès Desarthe s'intéresse maintenant à la branche paternelle.\n\nSa grand-mère, juive illettrée originaire de Libye s'est installée à Orléansville en Algérie dans les années 20. Elle épouse sans amour un homme violent qui disparaît après la naissance de son dixième enfant et elle élève seule sa progéniture.\n\nLe petit dernier, père d'Agnès, vient faire ses études de médecine en France et s'installe en France.\n\nAgnès a 7 ans quand, un jour de shabbat en octobre elle apprend le déclenchement du conflit d'Israel contre la Palestine. C'est la guerre des Juifs contre les Arabes, mais comment comprendre pour un enfant qui est à la fois Juive et Arabe ?\n\nUn récit sensible, accompagné en filigrane par les chansons égyptiennes de l'immense Oum Kalsoum qui avait l'âge de cette grand-mère adorée à la forte personnalité."
+  },
+  {
+    "id": "post-7",
+    "rubrique": "Vie du village",
+    "type": "info",
+    "titre": "Balade patrimoniale du dimanche matin",
+    "date": "Tous les premiers dimanches du mois",
+    "lieu": "Départ place de l'église",
+    "resume": "Une promenade guidée pour redécouvrir l'histoire du village, ses rues, ses paysages et ses anecdotes locales.",
+    "contenu_texte": "La commune relance une balade patrimoniale mensuelle ouverte à tous. Le parcours mettra à l'honneur les rues anciennes, les paysages bordant la Marne et plusieurs repères historiques racontés en format court."
   }
 ]
