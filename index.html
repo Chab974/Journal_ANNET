@@ -6,7 +6,7 @@
     <title>Le Petit Journal d'Annet - N°1 - Édition de Printemps</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,700;6..96,800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script id="portal-inline-data" type="application/json">
 [
   {
@@ -138,7 +138,8 @@
                 extend: {
                     fontFamily: {
                         body: ['Manrope', 'sans-serif'],
-                        heading: ['Bodoni Moda', 'serif'],
+                        heading: ['Syne', 'sans-serif'],
+                        accent: ['Caveat', 'cursive'],
                     },
                     colors: {
                         'paper': '#f7f2e8',
@@ -153,21 +154,24 @@
     </script>
     <style>
         :root {
-            --paper: #f6efe5;
-            --paper-strong: #fcf7f1;
-            --ink: #34241f;
-            --muted: #625650;
-            --vintage-red: #a56b5d;
-            --vintage-green: #7f9988;
-            --vintage-blue: #8d94b0;
-            --gold: #c6a884;
-            --shadow-soft: 0 24px 70px rgba(47, 28, 22, 0.08);
-            --shadow-card: 0 16px 32px rgba(47, 28, 22, 0.08);
-            --radius-xl: 32px;
+            --paper: #f7f5f1;
+            --paper-strong: #ffffff;
+            --ink: #1f1f1c;
+            --muted: #5f5a55;
+            --vintage-red: #d96d46;
+            --vintage-green: #7a917d;
+            --vintage-blue: #9fb6de;
+            --gold: #f3c565;
+            --line: #dad2c9;
+            --shadow-soft: 0 18px 48px rgba(31, 31, 28, 0.06);
+            --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
+            --radius-xl: 18px;
         }
         body {
             color: var(--ink);
-            background: linear-gradient(180deg, #fbf5ee 0%, #f6efe5 52%, #f1e7db 100%);
+            background:
+                radial-gradient(circle at top left, rgba(217,109,70,0.08), transparent 22%),
+                linear-gradient(180deg, #fbfaf7 0%, #f4f1ec 100%);
         }
         .chart-container { position: relative; width: 100%; max-width: 350px; margin: 0 auto; height: 300px; max-height: 350px; }
         @media (min-width: 768px) { .chart-container { height: 350px; } }
@@ -188,20 +192,23 @@
         .nav-link:hover::after { transform: scaleX(1); }
         .fade-in { animation: fadeIn 0.45s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .newspaper-border { border: 1px solid rgba(15, 23, 42, 0.08); border-radius: var(--radius-xl); }
-        .newspaper-border-double { border: 1px solid rgba(15, 23, 42, 0.08); border-radius: calc(var(--radius-xl) + 4px); }
-        .drop-cap::first-letter { font-family: 'Bodoni Moda', serif; font-size: 3.5rem; float: left; line-height: 0.95; padding-right: 0.5rem; color: var(--vintage-red); font-weight: 700; }
+        .newspaper-border { border: 1px solid var(--line); border-radius: var(--radius-xl); }
+        .newspaper-border-double { border: 1px solid var(--line); border-radius: calc(var(--radius-xl) + 2px); }
+        .drop-cap::first-letter { font-family: 'Syne', sans-serif; font-size: 3.25rem; float: left; line-height: 0.9; padding-right: 0.5rem; color: var(--vintage-red); font-weight: 800; }
         .glass-nav {
-            background: rgba(250, 244, 237, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(14px);
-            box-shadow: 0 10px 24px rgba(47, 28, 22, 0.08);
+            box-shadow: 0 8px 20px rgba(31, 31, 28, 0.05);
         }
         .hero-shell {
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(47, 28, 22, 0.18);
-            border-radius: 28px;
-            background: linear-gradient(180deg, rgba(252,247,241,0.98), rgba(243,233,223,0.98));
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98)),
+                repeating-linear-gradient(0deg, transparent, transparent 42px, rgba(31,31,28,0.025) 43px),
+                repeating-linear-gradient(90deg, transparent, transparent 42px, rgba(31,31,28,0.02) 43px);
             box-shadow: var(--shadow-soft);
         }
         .hero-shell::before {
@@ -209,9 +216,8 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 12% 20%, rgba(165,107,93,0.14), transparent 20%),
-                radial-gradient(circle at 85% 18%, rgba(141,148,176,0.12), transparent 22%),
-                radial-gradient(circle at 68% 78%, rgba(127,153,136,0.14), transparent 18%);
+                radial-gradient(circle at 88% 16%, rgba(217,109,70,0.12), transparent 18%),
+                radial-gradient(circle at 18% 82%, rgba(159,182,222,0.16), transparent 18%);
             pointer-events: none;
         }
         .eyebrow {
@@ -226,22 +232,22 @@
             font-weight: 700;
             letter-spacing: 0.24em;
             text-transform: uppercase;
-            color: #73655e;
-            border-bottom: 1px solid rgba(47, 28, 22, 0.18);
+            color: var(--muted);
+            border-bottom: 1px solid var(--line);
         }
         .hero-stat {
-            border: 1px solid rgba(47, 28, 22, 0.16);
-            border-radius: 0;
-            padding: 1rem 0;
-            background: rgba(255,255,255,0.18);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1rem;
+            background: rgba(255,255,255,0.92);
         }
         .section-shell {
             position: relative;
             overflow: hidden;
             padding: 1.5rem;
-            border: 1px solid rgba(47, 28, 22, 0.16);
-            border-radius: 26px;
-            background: rgba(252, 247, 241, 0.98);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.94);
             box-shadow: var(--shadow-card);
         }
         .section-shell::before {
@@ -257,14 +263,14 @@
             gap: 0.9rem;
             margin-bottom: 2rem;
             padding-bottom: 1.25rem;
-            border-bottom: 1px solid rgba(47, 28, 22, 0.14);
+            border-bottom: 1px solid var(--line);
         }
         .section-kicker {
             font-size: 0.72rem;
             letter-spacing: 0.24em;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--muted);
+            color: var(--vintage-red);
         }
         .quick-grid {
             display: grid;
@@ -278,27 +284,27 @@
             display: block;
             height: 100%;
             padding: 1.15rem;
-            border: 1px solid rgba(15, 23, 42, 0.08);
-            border-radius: 18px;
-            background: rgba(253,250,245,0.96);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.96);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
         .quick-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(47, 28, 22, 0.08);
-            border-color: rgba(47, 28, 22, 0.24);
+            box-shadow: 0 12px 24px rgba(31, 31, 28, 0.08);
+            border-color: rgba(217,109,70,0.35);
         }
         .highlight-panel {
-            border: 1px solid rgba(47, 28, 22, 0.14);
-            border-radius: 22px;
-            background: linear-gradient(180deg, rgba(250,243,236,0.98), rgba(242,232,223,0.98));
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98));
             color: var(--ink);
         }
         .paper-card {
-            border: 1px solid rgba(47, 28, 22, 0.14);
-            border-radius: 18px;
-            background: rgba(253,248,242,0.96);
-            box-shadow: 0 10px 20px rgba(47, 28, 22, 0.08);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 10px 20px rgba(31, 31, 28, 0.05);
         }
         .portal-toolbar {
             display: grid;
@@ -312,15 +318,15 @@
         .portal-search {
             width: 100%;
             padding: 0.9rem 1rem;
-            border: 1px solid rgba(47, 28, 22, 0.16);
-            border-radius: 10px;
-            background: rgba(255,252,248,0.98);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.98);
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .portal-search:focus {
-            border-color: rgba(165,107,93,0.45);
-            box-shadow: 0 0 0 4px rgba(165,107,93,0.10);
+            border-color: rgba(217,109,70,0.45);
+            box-shadow: 0 0 0 4px rgba(217,109,70,0.1);
         }
         .portal-help-card {
             display: flex;
@@ -328,9 +334,9 @@
             justify-content: center;
             gap: 0.6rem;
             padding: 1rem 1.1rem;
-            border: 1px solid rgba(47, 28, 22, 0.12);
-            border-radius: 24px;
-            background: rgba(255, 252, 248, 0.94);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(255,247,241,0.96), rgba(255,255,255,0.96));
         }
         .portal-filters {
             display: flex;
@@ -343,9 +349,9 @@
             justify-content: center;
             min-height: 42px;
             padding: 0.7rem 0.95rem;
-            border: 1px solid rgba(47, 28, 22, 0.14);
+            border: 1px solid var(--line);
             border-radius: 999px;
-            background: rgba(255,251,247,0.96);
+            background: rgba(255,255,255,0.96);
             font-size: 0.76rem;
             font-weight: 700;
             letter-spacing: 0.08em;
@@ -354,9 +360,9 @@
         }
         .portal-filter:hover,
         .portal-filter[aria-pressed="true"] {
-            background: #4a332d;
-            color: #f7f2e8;
-            border-color: #4a332d;
+            background: var(--vintage-red);
+            color: #fff;
+            border-color: var(--vintage-red);
         }
         .portal-count {
             font-size: 0.85rem;
@@ -367,15 +373,15 @@
         }
         .portal-card {
             position: relative;
-            border: 1px solid rgba(47, 28, 22, 0.14);
-            border-radius: 20px;
-            background: linear-gradient(180deg, rgba(255,252,248,0.98), rgba(247,239,232,0.98));
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,246,242,0.98));
             box-shadow: var(--shadow-card);
             transition: transform 0.22s ease, box-shadow 0.22s ease;
         }
         .portal-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 34px rgba(47, 28, 22, 0.08);
+            box-shadow: 0 18px 30px rgba(31, 31, 28, 0.08);
         }
         .portal-card-header {
             display: flex;
@@ -396,9 +402,9 @@
             align-items: center;
             gap: 0.55rem;
             padding: 0.55rem 0.85rem;
-            border-radius: 18px;
-            background: rgba(255, 252, 248, 0.94);
-            border: 1px solid rgba(47, 28, 22, 0.12);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.94);
+            border: 1px solid var(--line);
             font-size: 0.74rem;
             font-weight: 800;
             letter-spacing: 0.12em;
@@ -410,18 +416,18 @@
             justify-content: center;
             width: 2.2rem;
             height: 2.2rem;
-            border-radius: 16px;
+            border-radius: 10px;
             font-size: 1rem;
-            box-shadow: inset 0 0 0 1px rgba(47, 28, 22, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(31, 31, 28, 0.08);
         }
         .portal-date-pill {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             padding: 0.7rem 0.9rem;
-            border-radius: 18px;
-            border: 1px solid rgba(47, 28, 22, 0.12);
-            background: rgba(255,255,255,0.88);
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.92);
             font-size: 0.72rem;
             font-weight: 800;
             letter-spacing: 0.12em;
@@ -434,16 +440,16 @@
             justify-content: center;
             width: 2.5rem;
             height: 2.5rem;
-            border: 1px solid rgba(47, 28, 22, 0.12);
-            border-radius: 18px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
             background: rgba(255,255,255,0.86);
             font-size: 1rem;
             transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
         }
         .portal-action-button:hover {
             transform: translateY(-1px);
-            background: rgba(255, 247, 243, 0.98);
-            border-color: rgba(165,107,93,0.28);
+            background: rgba(255, 245, 240, 0.98);
+            border-color: rgba(217,109,70,0.28);
         }
         .portal-delete-button:hover {
             background: #fff1ef;
@@ -467,19 +473,19 @@
             position: absolute;
             top: 1.15rem;
             right: 1.15rem;
-            border: 1px solid rgba(47, 28, 22, 0.14);
+            border: 1px solid var(--line);
             border-radius: 999px;
             padding: 0.4rem 0.8rem;
             font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.14em;
-            background: rgba(255,251,247,0.98);
+            background: rgba(255,255,255,0.98);
         }
         .portal-menu-day {
-            border: 1px solid rgba(47, 28, 22, 0.12);
-            border-radius: 22px;
-            background: rgba(252,246,240,0.98);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.98);
         }
         .portal-menu-item {
             display: flex;
@@ -487,7 +493,7 @@
             justify-content: space-between;
             gap: 1rem;
             padding: 0.95rem 0;
-            border-bottom: 1px solid rgba(47, 28, 22, 0.08);
+            border-bottom: 1px solid rgba(31, 31, 28, 0.08);
         }
         .portal-menu-item:last-child {
             border-bottom: none;
@@ -499,9 +505,9 @@
             justify-content: center;
             width: 2.5rem;
             height: 2.5rem;
-            border: 1px solid rgba(47, 28, 22, 0.12);
+            border: 1px solid var(--line);
             border-radius: 999px;
-            background: rgba(255,255,255,0.82);
+            background: rgba(255,255,255,0.92);
             font-size: 1rem;
             transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
         }
@@ -518,14 +524,14 @@
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            border: 1px solid rgba(47, 28, 22, 0.12);
+            border: 1px solid var(--line);
             border-radius: 999px;
             padding: 0.22rem 0.58rem;
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             font-weight: 700;
-            background: rgba(255,252,248,0.96);
+            background: rgba(255,255,255,0.96);
         }
         .portal-badge--bio {
             background: #eef7ef;
@@ -554,23 +560,23 @@
             color: #92531f;
         }
         .portal-note {
-            border-left: 2px solid rgba(47, 28, 22, 0.4);
+            border-left: 3px solid var(--vintage-red);
             padding-left: 1rem;
         }
         .portal-link {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            border-bottom: 1px solid rgba(47, 28, 22, 0.25);
+            border-bottom: 1px solid rgba(217,109,70,0.35);
             font-weight: 700;
             color: var(--ink);
         }
         .portal-status-box {
             margin-bottom: 1.2rem;
             padding: 1rem 1.1rem;
-            border: 1px solid rgba(47, 28, 22, 0.14);
-            border-radius: 20px;
-            background: rgba(255,252,248,0.94);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.94);
             font-size: 0.9rem;
             font-weight: 700;
             color: var(--muted);
@@ -592,7 +598,7 @@
             gap: 1rem;
             padding-bottom: 0.8rem;
             margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(47, 28, 22, 0.18);
+            border-bottom: 1px solid var(--line);
             font-size: 0.82rem;
             letter-spacing: 0.12em;
             text-transform: uppercase;
@@ -603,10 +609,10 @@
             flex-wrap: wrap;
             gap: 0.75rem;
             padding-top: 1rem;
-            border-top: 1px solid rgba(47, 28, 22, 0.18);
-            font-family: 'Bodoni Moda', serif;
-            font-size: 1.35rem;
-            font-weight: 700;
+            border-top: 1px solid var(--line);
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
             letter-spacing: 0.03em;
             text-transform: uppercase;
         }
@@ -614,27 +620,55 @@
             display: inline-flex;
             align-items: center;
             padding: 0.2rem 0.65rem;
-            border: 1px solid rgba(47, 28, 22, 0.12);
+            border: 1px solid var(--line);
             border-radius: 999px;
-            background: rgba(255,255,255,0.62);
+            background: rgba(255,255,255,0.92);
             font-size: 0.7rem;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--muted);
+            color: var(--vintage-red);
         }
         .feature-visual {
             min-height: 280px;
-            border: 1px solid rgba(47, 28, 22, 0.12);
-            border-radius: 18px;
-            background:
-                linear-gradient(135deg, rgba(167,175,201,0.24), rgba(191,143,131,0.18)),
-                linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.22));
+            border: 1px solid rgba(217,109,70,0.18);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(217,109,70,0.98), rgba(232,136,92,0.98));
+            color: #fff;
         }
         .section-divider {
             height: 1px;
             width: 100%;
-            background: rgba(47, 28, 22, 0.18);
+            background: var(--line);
+        }
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(3.8rem, 10vw, 8rem);
+            font-weight: 800;
+            line-height: 0.86;
+            letter-spacing: -0.08em;
+            text-transform: uppercase;
+        }
+        .hero-title span {
+            display: block;
+        }
+        .hero-quote {
+            margin-top: 0.85rem;
+            font-family: 'Caveat', cursive;
+            font-size: clamp(1.75rem, 3vw, 2.4rem);
+            line-height: 1;
+            color: var(--muted);
+        }
+        .hero-feature-copy {
+            max-width: 34rem;
+        }
+        .hero-feature-copy .category-chip {
+            background: rgba(255,255,255,0.18);
+            border-color: rgba(255,255,255,0.28);
+            color: #fff;
+        }
+        .hero-feature-copy p {
+            color: rgba(255,255,255,0.88);
         }
     </style>
 </head>
@@ -644,9 +678,9 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center gap-4">
                 <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer font-heading font-bold text-2xl tracking-tight" onclick="window.scrollTo(0,0)">
-                    <span class="flex items-center justify-center w-11 h-11 rounded-2xl bg-ink text-paper text-lg shadow-lg">📰</span>
+                    <span class="flex items-center justify-center w-11 h-11 rounded-xl bg-vintage-red text-white text-lg shadow-lg shadow-orange-200/70">✦</span>
                     <div>
-                        <div>Le Petit Journal</div>
+                        <div>Le Bulletin</div>
                         <div class="text-[10px] uppercase tracking-[0.28em] text-vintage-red font-body">Annet-sur-Marne</div>
                     </div>
                 </div>
@@ -670,22 +704,24 @@
             <div class="relative z-10">
                 <div class="masthead-line">
                     <span>Issue No. 01</span>
-                    <span>Website exclusive</span>
+                    <span>Village newsletter</span>
                     <span>Annet-sur-Marne 2026</span>
                 </div>
-                <h1 class="text-6xl md:text-8xl xl:text-[7rem] font-heading font-black uppercase tracking-[-0.04em] leading-[0.92] text-center md:text-left">
-                    Le Journal d'Annet
+                <h1 class="hero-title text-center md:text-left">
+                    <span>Le Journal</span>
+                    <span>d'Annet</span>
                 </h1>
+                <p class="hero-quote text-center md:text-left">L'actualité du village, claire, utile et bien envoyée.</p>
                 <div class="section-divider my-6"></div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-start">
                     <div>
                         <div class="feature-visual mb-6 flex items-end p-6 md:p-8">
-                            <div class="max-w-xl">
+                            <div class="hero-feature-copy">
                                 <span class="category-chip mb-4">Edition locale</span>
-                                <h2 class="text-3xl md:text-5xl font-heading font-black uppercase leading-[0.95] mb-3">L'actualité du village pensée comme une vraie une éditoriale</h2>
-                                <p class="text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                                    Une mise en page inspirée du magazine, mais orientée usage réel : scolaire, événements, travaux, vie associative et coup de cœur littéraire.
+                                <h2 class="text-3xl md:text-5xl font-heading font-black uppercase leading-[0.92] mb-3">Une édition plus graphique, plus directe, plus pratique au quotidien</h2>
+                                <p class="text-base md:text-lg leading-relaxed">
+                                    Une esthétique inspirée des newsletters visuelles : fond clair, lignes franches, accent orange et rubriques qui se lisent d’un coup d’œil.
                                 </p>
                             </div>
                         </div>
@@ -695,28 +731,29 @@
                             <span>Travaux</span>
                             <span>Associations</span>
                             <span>Littérature</span>
+                            <span>Agenda</span>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="hero-stat sm:col-span-2">
                             <p class="text-xs uppercase tracking-[0.22em] font-bold text-vintage-red mb-3">Édito</p>
-                            <p class="text-2xl font-heading font-black uppercase leading-[1] mb-3">Un journal plus contemporain, sans effet vieilli</p>
-                            <p class="text-sm leading-relaxed text-[color:var(--muted)]">Le site devient une couverture éditoriale claire, avec des rubriques village bien identifiées et une lecture plus incarnée.</p>
+                            <p class="text-2xl font-heading font-black uppercase leading-[1] mb-3">Une direction plus newsletter que magazine rétro</p>
+                            <p class="text-sm leading-relaxed text-[color:var(--muted)]">Le site devient un support éditorial blanc, structuré et rythmé, pensé pour faire ressortir les informations locales immédiatement.</p>
                         </div>
                         <div class="hero-stat">
-                            <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-green mb-2">Rubriques</p>
+                            <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Rubriques</p>
                             <p class="text-4xl font-heading font-black leading-none">6</p>
                             <p class="text-sm mt-2 text-[color:var(--muted)]">Pour hiérarchiser l'information locale.</p>
                         </div>
                         <div class="hero-stat">
                             <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Format</p>
-                            <p class="text-4xl font-heading font-black leading-none">Static</p>
-                            <p class="text-sm mt-2 text-[color:var(--muted)]">Toujours publié facilement sur GitHub Pages.</p>
+                            <p class="text-4xl font-heading font-black leading-none">Web</p>
+                            <p class="text-sm mt-2 text-[color:var(--muted)]">Toujours publié simplement sur GitHub Pages.</p>
                         </div>
                         <div class="hero-stat sm:col-span-2">
                             <div class="flex flex-wrap gap-3">
-                                <a href="#portail" class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-paper text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-black/10 hover:bg-vintage-red transition-colors">Explorer le portail</a>
+                                <a href="#portail" class="inline-flex items-center gap-2 rounded-full bg-vintage-red px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-orange-200/70 hover:bg-ink transition-colors">Explorer le portail</a>
                                 <a href="#maquette" class="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-ink text-sm font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors">Voir la maquette</a>
                             </div>
                         </div>
