@@ -42,6 +42,13 @@
         .newspaper-border { border: 2px solid #1a1a1a; }
         .newspaper-border-double { border: 4px double #1a1a1a; }
         .drop-cap::first-letter { font-family: 'Playfair Display', serif; font-size: 3.5rem; float: left; line-height: 1; padding-right: 0.5rem; color: #8b1e1e; }
+        .portal-card { position: relative; border: 2px solid #1a1a1a; background: #fdfcf9; box-shadow: 6px 6px 0 rgba(26, 26, 26, 0.08); }
+        .portal-ribbon { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid #1a1a1a; padding: 0.45rem 0.9rem; background: rgba(255,255,255,0.9); font-family: 'Playfair Display', serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; }
+        .portal-stamp { position: absolute; top: 1rem; right: 1rem; border: 1px solid #1a1a1a; padding: 0.35rem 0.7rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; background: rgba(255,255,255,0.92); }
+        .portal-menu-day { border: 1px solid #1a1a1a; background: rgba(255,255,255,0.75); }
+        .portal-badge { display: inline-flex; align-items: center; border: 1px solid #1a1a1a; padding: 0.15rem 0.45rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; background: #fff; }
+        .portal-note { border-left: 4px solid #8b1e1e; padding-left: 1rem; }
+        .portal-link { display: inline-flex; align-items: center; gap: 0.45rem; border-bottom: 1px solid #1a1a1a; font-weight: 700; }
     </style>
 </head>
 <body class="font-body antialiased text-ink bg-paper">
@@ -56,6 +63,7 @@
                     <a href="#contexte" class="nav-link">Contexte</a>
                     <a href="#piliers" class="nav-link">Ligne Éditoriale</a>
                     <a href="#maquette" class="nav-link">Maquette N°1</a>
+                    <a href="#portail" class="nav-link">Portail Citoyen</a>
                     <a href="#diffusion" class="nav-link">Diffusion</a>
                 </div>
             </div>
@@ -139,6 +147,48 @@
                     </div>
                     <div class="lg:col-span-3 bg-paper text-ink p-8 newspaper-border relative fade-in" id="page-content">
                         <!-- Dynamique -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portail" class="newspaper-border-double p-2 bg-[#fdfcfa]">
+            <div class="border-2 border-ink p-6 md:p-10">
+                <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 border-b-2 border-ink pb-6 mb-8">
+                    <div class="max-w-3xl">
+                        <p class="text-xs uppercase tracking-[0.3em] font-heading font-bold text-vintage-red mb-3">Publication locale structurée</p>
+                        <h2 class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">Portail Citoyen</h2>
+                        <p class="text-base md:text-lg leading-relaxed">
+                            Cette rubrique reprend la logique du portail municipal en l'adaptant au format statique du site. Le contenu affiché ici provient d'un fichier JSON versionné, idéal pour GitHub Pages.
+                        </p>
+                    </div>
+                    <div class="bg-paper border-2 border-ink p-4 md:p-5 max-w-md">
+                        <p class="text-xs uppercase tracking-widest font-bold mb-2 text-vintage-red">Mode GitHub Pages</p>
+                        <p class="text-sm leading-relaxed">
+                            L'affichage est public et statique. L'analyse d'image et la génération des contenus se feront en amont, puis les résultats seront publiés dans <code>data/citizen-posts.json</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 mb-8">
+                    <div class="border-2 border-ink p-5 bg-paper/70">
+                        <p class="text-xs uppercase tracking-widest font-bold mb-2">Flux éditorial</p>
+                        <p class="text-sm leading-relaxed">
+                            <span class="font-bold">Image ou affiche source</span> → extraction manuelle ou backend privé → <span class="font-bold">JSON canonique</span> → publication sur GitHub → affichage sur GitHub Pages.
+                        </p>
+                    </div>
+                    <div class="border-2 border-vintage-blue p-5 bg-white">
+                        <p class="text-xs uppercase tracking-widest font-bold mb-2 text-vintage-blue">Fichier source</p>
+                        <p class="text-sm leading-relaxed">
+                            Les cartes ci-dessous sont rendues dynamiquement à partir de <code>/data/citizen-posts.json</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="portal-status" class="hidden mb-6 border-2 p-4 text-sm font-bold"></div>
+                <div id="portal-posts" class="space-y-8">
+                    <div class="newspaper-border p-8 text-center">
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Chargement des publications...</p>
                     </div>
                 </div>
             </div>
@@ -373,9 +423,197 @@
             }, 30);
         }
 
+        // --- 4. Portail citoyen (rendu statique depuis JSON) ---
+        const portalPostsContainer = document.getElementById('portal-posts');
+        const portalStatus = document.getElementById('portal-status');
+        const portalTypeConfig = {
+            menu: { label: 'Menu cantine', theme: 'border-vintage-green', accent: 'text-vintage-green', stamp: 'Restauration' },
+            evenement: { label: 'Événement', theme: 'border-vintage-blue', accent: 'text-vintage-blue', stamp: 'Agenda' },
+            alerte: { label: 'Alerte / Travaux', theme: 'border-vintage-red', accent: 'text-vintage-red', stamp: 'Vigilance' },
+            info: { label: 'Information', theme: 'border-ink', accent: 'text-ink', stamp: 'Infos' },
+            coup_de_coeur: { label: 'Médiathèque', theme: 'border-vintage-red', accent: 'text-vintage-red', stamp: 'Lecture' }
+        };
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getBadgeLabel(type) {
+            const labels = {
+                bio: 'Bio',
+                france: 'France',
+                regional: 'Régional',
+                msc: 'MSC',
+                ce2: 'Qualité',
+                'certifié': 'Qualité'
+            };
+            return labels[type] || type;
+        }
+
+        function getGoogleCalendarUrl(post) {
+            const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+            const title = encodeURIComponent(post.titre || '');
+            const details = encodeURIComponent(post.contenu_texte || post.resume || '');
+            const location = encodeURIComponent(post.lieu || 'Annet-sur-Marne');
+            const start = post.date_debut_iso || '';
+            const end = post.date_fin_iso || start;
+            const dates = start ? `&dates=${start}/${end}` : '';
+            return `${baseUrl}&text=${title}&details=${details}&location=${location}${dates}`;
+        }
+
+        function renderMenuDays(days = []) {
+            return `
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-6">
+                    ${days.map((day) => `
+                        <div class="portal-menu-day p-4">
+                            <div class="flex items-center justify-between gap-4 border-b border-ink pb-2 mb-3">
+                                <h4 class="font-heading font-black uppercase tracking-widest text-lg">${escapeHtml(day.day || '')}</h4>
+                                <span class="text-xs uppercase tracking-widest font-bold">${day.isSpecial ? 'Note' : 'Service'}</span>
+                            </div>
+                            ${day.isSpecial ? `
+                                <p class="text-sm leading-relaxed italic">${escapeHtml(day.message || 'Aucun menu communiqué.')}</p>
+                            ` : `
+                                <ul class="space-y-3">
+                                    ${(day.items || []).map((item) => `
+                                        <li class="border-b border-ink/10 pb-3 last:border-b-0 last:pb-0">
+                                            <div class="flex flex-wrap gap-2 items-center mb-1">
+                                                <span class="font-bold">${escapeHtml(item.name || '')}</span>
+                                                ${(item.badges || []).map((badge) => `<span class="portal-badge">${escapeHtml(getBadgeLabel(badge))}</span>`).join('')}
+                                            </div>
+                                            ${item.description ? `<p class="text-sm text-gray-700">${escapeHtml(item.description)}</p>` : ''}
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            `}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderPostBody(post) {
+            if (post.type === 'menu') {
+                return renderMenuDays(post.menu_jours || []);
+            }
+
+            const textBlock = `
+                <div class="portal-note text-sm md:text-base leading-relaxed whitespace-pre-wrap">
+                    ${escapeHtml(post.contenu_texte || post.resume || '')}
+                </div>
+            `;
+
+            if (post.type === 'evenement') {
+                return `
+                    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
+                        ${textBlock}
+                        <aside class="border border-ink p-4 bg-white">
+                            ${post.lieu ? `<p class="text-xs uppercase tracking-widest font-bold mb-2">Lieu</p><p class="text-sm mb-4">${escapeHtml(post.lieu)}</p>` : ''}
+                            ${post.date_debut_iso ? `<a class="portal-link text-sm" href="${escapeHtml(getGoogleCalendarUrl(post))}" target="_blank" rel="noopener noreferrer">Ajouter à l'agenda ↗</a>` : ''}
+                        </aside>
+                    </div>
+                `;
+            }
+
+            if (post.type === 'coup_de_coeur') {
+                return `
+                    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
+                        <div>
+                            ${(post.auteur || post.edition) ? `
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    ${post.auteur ? `<span class="portal-badge">${escapeHtml(post.auteur)}</span>` : ''}
+                                    ${post.edition ? `<span class="portal-badge">${escapeHtml(post.edition)}</span>` : ''}
+                                </div>
+                            ` : ''}
+                            ${textBlock}
+                        </div>
+                        <aside class="border border-ink p-4 bg-white space-y-4">
+                            ${post.lien_externe ? `<a class="portal-link text-sm" href="${escapeHtml(post.lien_externe)}" target="_blank" rel="noopener noreferrer">En savoir plus ↗</a>` : ''}
+                            <div>
+                                <p class="text-xs uppercase tracking-widest font-bold mb-2">Médi'Annet</p>
+                                <p class="text-sm">Réservation : <a class="underline" href="tel:0160038596">01 60 03 85 96</a></p>
+                                <p class="text-sm break-all"><a class="underline" href="mailto:mediatheque@annetsurmarne.fr">mediatheque@annetsurmarne.fr</a></p>
+                            </div>
+                        </aside>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
+                    ${textBlock}
+                    ${post.lieu ? `
+                        <aside class="border border-ink p-4 bg-white">
+                            <p class="text-xs uppercase tracking-widest font-bold mb-2">Lieu</p>
+                            <p class="text-sm">${escapeHtml(post.lieu)}</p>
+                        </aside>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderPortalPosts(posts) {
+            if (!Array.isArray(posts) || posts.length === 0) {
+                portalPostsContainer.innerHTML = `
+                    <div class="newspaper-border p-8 text-center">
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune publication disponible.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            portalPostsContainer.innerHTML = posts.map((post) => {
+                const config = portalTypeConfig[post.type] || portalTypeConfig.info;
+                return `
+                    <article class="portal-card p-6 md:p-8 ${config.theme}">
+                        <div class="portal-stamp">${escapeHtml(config.stamp)}</div>
+                        <div class="flex flex-wrap items-start justify-between gap-4 mb-5 pr-20">
+                            <div>
+                                <div class="portal-ribbon ${config.accent}">${escapeHtml(config.label)}</div>
+                                <h3 class="text-3xl font-heading font-black leading-tight mt-4">${escapeHtml(post.titre || '')}</h3>
+                                <p class="mt-3 text-base leading-relaxed max-w-3xl">${escapeHtml(post.resume || '')}</p>
+                            </div>
+                            ${post.date ? `<div class="text-xs uppercase tracking-widest font-bold border border-ink px-3 py-2 bg-white">${escapeHtml(post.date)}</div>` : ''}
+                        </div>
+                        ${renderPostBody(post)}
+                    </article>
+                `;
+            }).join('');
+        }
+
+        async function loadPortalPosts() {
+            try {
+                const response = await fetch('./data/citizen-posts.json');
+                if (!response.ok) {
+                    throw new Error('Le fichier de publications est introuvable.');
+                }
+
+                const posts = await response.json();
+                renderPortalPosts(posts);
+                portalStatus.className = 'mb-6 border-2 border-vintage-green bg-green-50 p-4 text-sm font-bold';
+                portalStatus.innerHTML = 'Publication chargée depuis <code>data/citizen-posts.json</code>. Ce flux est compatible avec GitHub Pages.';
+            } catch (error) {
+                portalPostsContainer.innerHTML = `
+                    <div class="newspaper-border p-8 text-center bg-white">
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm text-vintage-red">Impossible de charger les publications.</p>
+                        <p class="mt-3 text-sm">${escapeHtml(error.message)}</p>
+                    </div>
+                `;
+                portalStatus.className = 'mb-6 border-2 border-vintage-red bg-red-50 p-4 text-sm font-bold';
+                portalStatus.textContent = 'Le portail n’a pas pu charger son fichier JSON.';
+            }
+
+            portalStatus.classList.remove('hidden');
+        }
+
         // Init
         renderPillars(); renderPillarContent();
         renderPages(); renderPageContent();
+        loadPortalPosts();
     </script>
 </body>
 </html>
