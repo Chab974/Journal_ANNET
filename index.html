@@ -779,22 +779,22 @@
                 </div>
             </div>
             <div class="quick-grid">
-                <a href="#portail" class="quick-card">
+                <a href="#portail" class="quick-card" data-portal-rubrique="Scolaire">
                     <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Scolaire</p>
                     <h3 class="text-2xl font-heading font-black mb-2">Menus & familles</h3>
                     <p class="text-sm leading-relaxed text-[color:var(--muted)]">Cantine, portail famille et informations pratiques pour les parents.</p>
                 </a>
-                <a href="#portail" class="quick-card">
+                <a href="#portail" class="quick-card" data-portal-rubrique="Événements">
                     <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-green mb-2">Événements</p>
                     <h3 class="text-2xl font-heading font-black mb-2">Temps forts</h3>
                     <p class="text-sm leading-relaxed text-[color:var(--muted)]">Brocante, agenda du week-end et rendez-vous fédérateurs.</p>
                 </a>
-                <a href="#portail" class="quick-card">
+                <a href="#portail" class="quick-card" data-portal-rubrique="Travaux et mobilité">
                     <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Travaux</p>
                     <h3 class="text-2xl font-heading font-black mb-2">Vigilance</h3>
                     <p class="text-sm leading-relaxed text-[color:var(--muted)]">Chantiers, circulation, alertes utiles au quotidien.</p>
                 </a>
-                <a href="#portail" class="quick-card">
+                <a href="#portail" class="quick-card" data-portal-rubrique="Coup de cœur littéraire">
                     <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Culture</p>
                     <h3 class="text-2xl font-heading font-black mb-2">Coup de cœur</h3>
                     <p class="text-sm leading-relaxed text-[color:var(--muted)]">Suggestions de lecture et mise en avant de la médiathèque.</p>
@@ -872,32 +872,11 @@
         <section id="portail" class="section-shell">
             <div class="p-2">
                 <div class="section-header">
-                    <div class="max-w-3xl">
+                    <div class="max-w-4xl">
                         <p class="section-kicker mb-3">Publication locale structurée</p>
                         <h2 class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">Portail Citoyen</h2>
                         <p class="text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                            Une une numérique pour la vie du village : grands sujets, rubriques, lecture rapide et actualités chargées depuis un flux JSON versionné.
-                        </p>
-                    </div>
-                    <div class="paper-card p-4 md:p-5 max-w-md">
-                        <p class="text-xs uppercase tracking-widest font-bold mb-2 text-vintage-red">Mode GitHub Pages</p>
-                        <p class="text-sm leading-relaxed text-[color:var(--muted)]">
-                            L'affichage est public et statique. L'analyse d'image et la génération des contenus se feront en amont, puis les résultats seront publiés dans <code>data/citizen-posts.json</code>.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8 mb-8">
-                    <div class="paper-card p-5">
-                        <p class="text-xs uppercase tracking-widest font-bold mb-2">Flux éditorial</p>
-                        <p class="text-sm leading-relaxed text-[color:var(--muted)]">
-                            <span class="font-bold">Image ou affiche source</span> → traitement ici avec <span class="font-bold">Codex</span> → mise à jour du <span class="font-bold">JSON canonique</span> → publication sur GitHub → affichage sur GitHub Pages.
-                        </p>
-                    </div>
-                    <div class="portal-help-card">
-                        <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue">Mode publication</p>
-                        <p class="text-sm leading-relaxed text-[color:var(--muted)]">
-                            Le site n’analyse rien lui-même. Il affiche uniquement les contenus déjà préparés et versionnés dans <code>/data/citizen-posts.json</code>.
+                            Une lecture claire de la vie du village : événements, scolaire, travaux, vie associative et coups de cœur réunis dans une même édition numérique.
                         </p>
                     </div>
                 </div>
@@ -1496,9 +1475,7 @@
 
             portalRubriques.querySelectorAll('[data-rubrique]').forEach((button) => {
                 button.addEventListener('click', () => {
-                    portalState.activeFilter = button.getAttribute('data-rubrique');
-                    renderPortalFilters();
-                    renderPortalPosts(getFilteredPortalPosts());
+                    applyPortalFilter(button.getAttribute('data-rubrique'));
                 });
             });
         }
@@ -1512,12 +1489,22 @@
                 button.textContent = option.label;
                 button.setAttribute('aria-pressed', String(portalState.activeFilter === option.value));
                 button.onclick = () => {
-                    portalState.activeFilter = option.value;
-                    renderPortalFilters();
-                    renderPortalPosts(getFilteredPortalPosts());
+                    applyPortalFilter(option.value, { scroll: false });
                 };
                 portalFiltersContainer.appendChild(button);
             });
+        }
+
+        function applyPortalFilter(filterValue, options = {}) {
+            const { scroll = true } = options;
+            portalState.activeFilter = filterValue || 'all';
+            renderPortalFilters();
+            renderPortalPosts(getFilteredPortalPosts());
+
+            if (scroll) {
+                const target = portalPostsContainer.closest('#portail') || portalPostsContainer;
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function rerenderPortal() {
@@ -1652,6 +1639,13 @@
         portalSearchInput.addEventListener('input', (event) => {
             portalState.searchTerm = event.target.value || '';
             renderPortalPosts(getFilteredPortalPosts());
+        });
+
+        document.querySelectorAll('[data-portal-rubrique]').forEach((card) => {
+            card.addEventListener('click', (event) => {
+                event.preventDefault();
+                applyPortalFilter(card.getAttribute('data-portal-rubrique'));
+            });
         });
 
         // Init
