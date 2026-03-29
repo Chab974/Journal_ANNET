@@ -6,7 +6,7 @@
     <title>Le Petit Journal d'Annet - N°1 - Édition de Printemps</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Manrope:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <script id="portal-inline-data" type="application/json">
 [
   {
@@ -138,8 +138,7 @@
                 extend: {
                     fontFamily: {
                         body: ['Manrope', 'sans-serif'],
-                        heading: ['Syne', 'sans-serif'],
-                        accent: ['Caveat', 'cursive'],
+                        heading: ['Sora', 'sans-serif'],
                     },
                     colors: {
                         'paper': '#f7f2e8',
@@ -154,15 +153,15 @@
     </script>
     <style>
         :root {
-            --paper: #f7f5f1;
+            --paper: #f7faf7;
             --paper-strong: #ffffff;
-            --ink: #1f1f1c;
-            --muted: #5f5a55;
-            --vintage-red: #d96d46;
-            --vintage-green: #7a917d;
-            --vintage-blue: #9fb6de;
-            --gold: #f3c565;
-            --line: #dad2c9;
+            --ink: #16314a;
+            --muted: #536679;
+            --vintage-red: #f6a318;
+            --vintage-green: #7fbf25;
+            --vintage-blue: #2894e3;
+            --gold: #ffd45e;
+            --line: #d9e5ec;
             --shadow-soft: 0 18px 48px rgba(31, 31, 28, 0.06);
             --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
             --radius-xl: 18px;
@@ -170,8 +169,9 @@
         body {
             color: var(--ink);
             background:
-                radial-gradient(circle at top left, rgba(217,109,70,0.08), transparent 22%),
-                linear-gradient(180deg, #fbfaf7 0%, #f4f1ec 100%);
+                radial-gradient(circle at top left, rgba(246,163,24,0.10), transparent 22%),
+                radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
+                linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
         }
         .chart-container { position: relative; width: 100%; max-width: 350px; margin: 0 auto; height: 300px; max-height: 350px; }
         @media (min-width: 768px) { .chart-container { height: 350px; } }
@@ -194,7 +194,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .newspaper-border { border: 1px solid var(--line); border-radius: var(--radius-xl); }
         .newspaper-border-double { border: 1px solid var(--line); border-radius: calc(var(--radius-xl) + 2px); }
-        .drop-cap::first-letter { font-family: 'Syne', sans-serif; font-size: 3.25rem; float: left; line-height: 0.9; padding-right: 0.5rem; color: var(--vintage-red); font-weight: 800; }
+        .drop-cap::first-letter { font-family: 'Sora', sans-serif; font-size: 2.9rem; float: left; line-height: 0.9; padding-right: 0.5rem; color: var(--vintage-red); font-weight: 800; }
         .glass-nav {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(14px);
@@ -207,8 +207,8 @@
             border-radius: 20px;
             background:
                 linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98)),
-                repeating-linear-gradient(0deg, transparent, transparent 42px, rgba(31,31,28,0.025) 43px),
-                repeating-linear-gradient(90deg, transparent, transparent 42px, rgba(31,31,28,0.02) 43px);
+                repeating-linear-gradient(0deg, transparent, transparent 42px, rgba(22,49,74,0.025) 43px),
+                repeating-linear-gradient(90deg, transparent, transparent 42px, rgba(22,49,74,0.015) 43px);
             box-shadow: var(--shadow-soft);
         }
         .hero-shell::before {
@@ -216,8 +216,9 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 88% 16%, rgba(217,109,70,0.12), transparent 18%),
-                radial-gradient(circle at 18% 82%, rgba(159,182,222,0.16), transparent 18%);
+                radial-gradient(circle at 88% 16%, rgba(246,163,24,0.14), transparent 18%),
+                radial-gradient(circle at 18% 82%, rgba(40,148,227,0.16), transparent 18%),
+                radial-gradient(circle at 52% 62%, rgba(127,191,37,0.10), transparent 20%);
             pointer-events: none;
         }
         .eyebrow {
@@ -270,7 +271,7 @@
             letter-spacing: 0.24em;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--vintage-red);
+            color: var(--vintage-blue);
         }
         .quick-grid {
             display: grid;
@@ -291,8 +292,8 @@
         }
         .quick-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(31, 31, 28, 0.08);
-            border-color: rgba(217,109,70,0.35);
+            box-shadow: 0 12px 24px rgba(22, 49, 74, 0.08);
+            border-color: rgba(40,148,227,0.35);
         }
         .highlight-panel {
             border: 1px solid var(--line);
@@ -325,8 +326,8 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .portal-search:focus {
-            border-color: rgba(217,109,70,0.45);
-            box-shadow: 0 0 0 4px rgba(217,109,70,0.1);
+            border-color: rgba(40,148,227,0.42);
+            box-shadow: 0 0 0 4px rgba(40,148,227,0.1);
         }
         .portal-help-card {
             display: flex;
@@ -336,7 +337,7 @@
             padding: 1rem 1.1rem;
             border: 1px solid var(--line);
             border-radius: 14px;
-            background: linear-gradient(135deg, rgba(255,247,241,0.96), rgba(255,255,255,0.96));
+            background: linear-gradient(135deg, rgba(245,251,255,0.98), rgba(248,252,244,0.98));
         }
         .portal-filters {
             display: flex;
@@ -360,9 +361,9 @@
         }
         .portal-filter:hover,
         .portal-filter[aria-pressed="true"] {
-            background: var(--vintage-red);
+            background: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
             color: #fff;
-            border-color: var(--vintage-red);
+            border-color: var(--vintage-blue);
         }
         .portal-count {
             font-size: 0.85rem;
@@ -449,7 +450,7 @@
         .portal-action-button:hover {
             transform: translateY(-1px);
             background: rgba(255, 245, 240, 0.98);
-            border-color: rgba(217,109,70,0.28);
+            border-color: rgba(40,148,227,0.28);
         }
         .portal-delete-button:hover {
             background: #fff1ef;
@@ -541,7 +542,7 @@
         .portal-badge--france {
             background: #eef3fb;
             border-color: rgba(88, 115, 171, 0.18);
-            color: #3e537f;
+            color: #1f69a3;
         }
         .portal-badge--regional {
             background: #fbf0df;
@@ -560,14 +561,14 @@
             color: #92531f;
         }
         .portal-note {
-            border-left: 3px solid var(--vintage-red);
+            border-left: 3px solid var(--vintage-blue);
             padding-left: 1rem;
         }
         .portal-link {
             display: inline-flex;
             align-items: center;
             gap: 0.45rem;
-            border-bottom: 1px solid rgba(217,109,70,0.35);
+            border-bottom: 1px solid rgba(40,148,227,0.35);
             font-weight: 700;
             color: var(--ink);
         }
@@ -627,13 +628,13 @@
             letter-spacing: 0.12em;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--vintage-red);
+            color: var(--vintage-blue);
         }
         .feature-visual {
             min-height: 280px;
-            border: 1px solid rgba(217,109,70,0.18);
+            border: 1px solid rgba(40,148,227,0.18);
             border-radius: 16px;
-            background: linear-gradient(135deg, rgba(217,109,70,0.98), rgba(232,136,92,0.98));
+            background: linear-gradient(135deg, rgba(246,163,24,0.96), rgba(127,191,37,0.92) 48%, rgba(40,148,227,0.92));
             color: #fff;
         }
         .section-divider {
@@ -642,21 +643,22 @@
             background: var(--line);
         }
         .hero-title {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(3.8rem, 10vw, 8rem);
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.7rem, 6vw, 4.8rem);
             font-weight: 800;
-            line-height: 0.86;
-            letter-spacing: -0.08em;
-            text-transform: uppercase;
+            line-height: 0.96;
+            letter-spacing: -0.04em;
+            text-transform: none;
         }
         .hero-title span {
             display: block;
         }
         .hero-quote {
             margin-top: 0.85rem;
-            font-family: 'Caveat', cursive;
-            font-size: clamp(1.75rem, 3vw, 2.4rem);
-            line-height: 1;
+            font-family: 'Manrope', sans-serif;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            line-height: 1.4;
+            font-weight: 600;
             color: var(--muted);
         }
         .hero-feature-copy {
@@ -670,6 +672,10 @@
         .hero-feature-copy p {
             color: rgba(255,255,255,0.88);
         }
+        .hero-feature-copy h2 {
+            font-size: clamp(2rem, 4vw, 3.15rem);
+            line-height: 0.98;
+        }
     </style>
 </head>
 <body class="font-body antialiased text-ink">
@@ -678,7 +684,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center gap-4">
                 <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer font-heading font-bold text-2xl tracking-tight" onclick="window.scrollTo(0,0)">
-                    <span class="flex items-center justify-center w-11 h-11 rounded-xl bg-vintage-red text-white text-lg shadow-lg shadow-orange-200/70">✦</span>
+                    <span class="flex items-center justify-center w-11 h-11 rounded-xl text-white text-lg shadow-lg shadow-sky-200/70" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-green) 48%, var(--vintage-blue));">✦</span>
                     <div>
                         <div>Le Bulletin</div>
                         <div class="text-[10px] uppercase tracking-[0.28em] text-vintage-red font-body">Annet-sur-Marne</div>
@@ -691,7 +697,7 @@
                     <a href="#portail" class="nav-link">Portail Citoyen</a>
                     <a href="#diffusion" class="nav-link">Diffusion</a>
                 </div>
-                <a href="#portail" class="hidden lg:inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-paper text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-black/10 hover:bg-vintage-blue transition-colors">
+                <a href="#portail" class="hidden lg:inline-flex items-center gap-2 rounded-full px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));">
                     Ouvrir le portail
                 </a>
             </div>
@@ -703,13 +709,13 @@
         <header id="hero" class="hero-shell mb-16 px-6 py-8 md:px-10 md:py-10">
             <div class="relative z-10">
                 <div class="masthead-line">
-                    <span>Issue No. 01</span>
+                    <span>Édition locale</span>
                     <span>Village newsletter</span>
                     <span>Annet-sur-Marne 2026</span>
                 </div>
                 <h1 class="hero-title text-center md:text-left">
                     <span>Le Journal</span>
-                    <span>d'Annet</span>
+                    <span>d'Annet-sur-Marne</span>
                 </h1>
                 <p class="hero-quote text-center md:text-left">L'actualité du village, claire, utile et bien envoyée.</p>
                 <div class="section-divider my-6"></div>
