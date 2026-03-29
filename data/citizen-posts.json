@@ -1,6 +1,7 @@
 [
   {
     "id": "post-2",
+    "slug": "brocante-printemps-centre-ville",
     "rubrique": "Événements",
     "featured": true,
     "type": "evenement",
@@ -14,6 +15,7 @@
   },
   {
     "id": "post-1",
+    "slug": "menu-cantine-semaine",
     "rubrique": "Scolaire",
     "type": "menu",
     "titre": "Le menu de la semaine à la cantine",
@@ -32,7 +34,8 @@
         "day": "Mardi",
         "items": [
           { "name": "Nems de légumes", "badges": [] },
-          { "name": "Boulettes au boeuf / végétariennes", "description": "Sauce tomate", "badges": ["france"] },
+          { "name": "Boulettes au boeuf", "description": "Sauce tomate", "badges": ["france"] },
+          { "name": "Boulettes végétariennes", "description": "Sauce tomate", "badges": [] },
           { "name": "Haricots verts persillés", "badges": ["bio"] },
           { "name": "Yaourt arôme", "badges": ["regional"] }
         ]
@@ -64,6 +67,7 @@
   },
   {
     "id": "post-5",
+    "slug": "permanence-numerique-parents",
     "rubrique": "Scolaire",
     "type": "info",
     "titre": "Nouvelle permanence numérique parents-élèves",
@@ -74,6 +78,7 @@
   },
   {
     "id": "post-3",
+    "slug": "travaux-rue-de-la-marne",
     "rubrique": "Travaux et mobilité",
     "type": "alerte",
     "titre": "Travaux rue de la Marne",
@@ -84,6 +89,7 @@
   },
   {
     "id": "post-6",
+    "slug": "forum-associations-benevoles",
     "rubrique": "Vie associative",
     "type": "evenement",
     "titre": "Forum des associations : appel aux bénévoles",
@@ -94,6 +100,7 @@
   },
   {
     "id": "post-4",
+    "slug": "qui-se-ressemble-agnes-desarthe",
     "rubrique": "Coup de cœur littéraire",
     "type": "coup_de_coeur",
     "titre": "Qui se ressemble",
@@ -106,6 +113,7 @@
   },
   {
     "id": "post-7",
+    "slug": "balade-patrimoniale-dimanche",
     "rubrique": "Vie du village",
     "type": "info",
     "titre": "Balade patrimoniale du dimanche matin",

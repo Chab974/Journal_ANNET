@@ -6,125 +6,6 @@
     <title>Portail Citoyen - Le Journal d'Annet-sur-Marne</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-    <script id="portal-inline-data" type="application/json">
-[
-  {
-    "id": "post-2",
-    "rubrique": "Événements",
-    "featured": true,
-    "type": "evenement",
-    "titre": "Brocante de printemps au centre-ville",
-    "date": "Dimanche 24 mai 2026",
-    "lieu": "Centre-ville, Annet-sur-Marne",
-    "date_debut_iso": "20260524T060000Z",
-    "date_fin_iso": "20260524T180000Z",
-    "resume": "Plus de 200 exposants, une buvette, des animations enfants et une journée complète pour faire revenir les habitants en cœur de village.",
-    "contenu_texte": "Le comité des fêtes d'Annet-sur-Marne organise sa grande brocante de printemps au centre-ville. Plus de 200 exposants sont attendus. Une buvette et plusieurs animations familiales accompagneront la journée. L'objectif est de recréer un rendez-vous populaire, accessible et convivial, visible à l'échelle de tout le village."
-  },
-  {
-    "id": "post-1",
-    "rubrique": "Scolaire",
-    "type": "menu",
-    "titre": "Le menu de la semaine à la cantine",
-    "date": "Cette semaine",
-    "resume": "Repères clairs pour les familles : plats du jour, mentions bio, produits labellisés et information spéciale du mercredi.",
-    "menu_jours": [
-      {
-        "day": "Lundi",
-        "items": [
-          { "name": "Paëlla végétarienne au riz", "badges": ["bio"] },
-          { "name": "Gouda", "badges": ["bio"] },
-          { "name": "Beignet chocolat noisette", "badges": [] }
-        ]
-      },
-      {
-        "day": "Mardi",
-        "items": [
-          { "name": "Nems de légumes", "badges": [] },
-          { "name": "Boulettes au boeuf / végétariennes", "description": "Sauce tomate", "badges": ["france"] },
-          { "name": "Haricots verts persillés", "badges": ["bio"] },
-          { "name": "Yaourt arôme", "badges": ["regional"] }
-        ]
-      },
-      {
-        "day": "Mercredi",
-        "isSpecial": true,
-        "message": "Les menus du mercredi seront affichés sur le panneau d'affichage de l'accueil de loisirs"
-      },
-      {
-        "day": "Jeudi",
-        "items": [
-          { "name": "Crêpe au fromage", "badges": [] },
-          { "name": "Galette végétale", "description": "Sauce aux épices", "badges": [] },
-          { "name": "Carottes Ce2 persillées", "badges": ["ce2"] },
-          { "name": "Yaourt aromatisé", "badges": [] }
-        ]
-      },
-      {
-        "day": "Vendredi",
-        "items": [
-          { "name": "Filet de saumon MSC", "description": "Sauce aneth", "badges": ["msc"] },
-          { "name": "Brocolis", "badges": ["bio"] },
-          { "name": "Mimolette", "badges": ["bio"] },
-          { "name": "Tarte au flan", "badges": [] }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "post-5",
-    "rubrique": "Scolaire",
-    "type": "info",
-    "titre": "Nouvelle permanence numérique parents-élèves",
-    "date": "Dès le 3 juin",
-    "lieu": "Espace familles - mairie annexe",
-    "resume": "Une aide hebdomadaire pour les démarches liées au portail famille, aux inscriptions et à la restauration scolaire.",
-    "contenu_texte": "À partir du 3 juin, une permanence numérique sera proposée chaque mercredi après-midi à l'espace familles. Les agents accompagneront les parents pour les réservations cantine, les mises à jour de dossiers et les questions liées au portail famille."
-  },
-  {
-    "id": "post-3",
-    "rubrique": "Travaux et mobilité",
-    "type": "alerte",
-    "titre": "Travaux rue de la Marne",
-    "date": "Jusqu'au 15 avril",
-    "lieu": "Rue de la Marne",
-    "resume": "Circulation alternée en raison de travaux d'enfouissement des réseaux.",
-    "contenu_texte": "Des travaux d'enfouissement des réseaux auront lieu rue de la Marne. La circulation se fera sur une seule voie avec des feux alternés. Le stationnement sera interdit sur la zone concernée de 8h à 17h. Merci de votre prudence et de votre compréhension."
-  },
-  {
-    "id": "post-6",
-    "rubrique": "Vie associative",
-    "type": "evenement",
-    "titre": "Forum des associations : appel aux bénévoles",
-    "date": "Samedi 14 septembre",
-    "lieu": "Gymnase municipal",
-    "resume": "Les associations du village préparent la rentrée et cherchent des bénévoles, des encadrants et de nouveaux adhérents.",
-    "contenu_texte": "Le forum des associations réunira les clubs sportifs, les acteurs culturels et les collectifs solidaires de la commune. Une attention particulière sera portée aux missions bénévoles accessibles dès la rentrée."
-  },
-  {
-    "id": "post-4",
-    "rubrique": "Coup de cœur littéraire",
-    "type": "coup_de_coeur",
-    "titre": "Qui se ressemble",
-    "date": "Cette semaine",
-    "auteur": "Agnès Desarthe",
-    "edition": "Ed La Résonnante",
-    "lien_externe": "https://www.google.com/search?q=Livre+Qui+se+ressemble+Agn%C3%A8s+Desarthe",
-    "resume": "Le coup de cœur de Médi'Annet : un récit intime, politique et familial à mettre en avant cette semaine.",
-    "contenu_texte": "Après avoir exploré ses origines familiales du côté de sa mère dans « Château des rentiers », Agnès Desarthe s'intéresse maintenant à la branche paternelle.\n\nSa grand-mère, juive illettrée originaire de Libye s'est installée à Orléansville en Algérie dans les années 20. Elle épouse sans amour un homme violent qui disparaît après la naissance de son dixième enfant et elle élève seule sa progéniture.\n\nLe petit dernier, père d'Agnès, vient faire ses études de médecine en France et s'installe en France.\n\nAgnès a 7 ans quand, un jour de shabbat en octobre elle apprend le déclenchement du conflit d'Israel contre la Palestine. C'est la guerre des Juifs contre les Arabes, mais comment comprendre pour un enfant qui est à la fois Juive et Arabe ?\n\nUn récit sensible, accompagné en filigrane par les chansons égyptiennes de l'immense Oum Kalsoum qui avait l'âge de cette grand-mère adorée à la forte personnalité."
-  },
-  {
-    "id": "post-7",
-    "rubrique": "Vie du village",
-    "type": "info",
-    "titre": "Balade patrimoniale du dimanche matin",
-    "date": "Tous les premiers dimanches du mois",
-    "lieu": "Départ place de l'église",
-    "resume": "Une promenade guidée pour redécouvrir l'histoire du village, ses rues, ses paysages et ses anecdotes locales.",
-    "contenu_texte": "La commune relance une balade patrimoniale mensuelle ouverte à tous. Le parcours mettra à l'honneur les rues anciennes, les paysages bordant la Marne et plusieurs repères historiques racontés en format court."
-  }
-]
-    </script>
     <script>
         tailwind.config = {
             safelist: [
@@ -540,9 +421,9 @@
         const portalSearchInput = document.getElementById('portal-search');
         const portalFiltersContainer = document.getElementById('portal-filters');
         const portalCount = document.getElementById('portal-count');
-        const portalInlineData = document.getElementById('portal-inline-data');
         const initialSearchParams = new URLSearchParams(window.location.search);
         const initialRubrique = initialSearchParams.get('rubrique');
+        const initialSlug = initialSearchParams.get('slug');
         const initialPostId = initialSearchParams.get('post');
         const portalTypeConfig = {
             menu: { label: 'Menu cantine', theme: 'border-vintage-green', accent: 'text-vintage-green', stamp: 'Restauration', icon: '🍽️', iconBg: '#ebf5ee' },
@@ -565,6 +446,7 @@
             activeFilter: initialRubrique || 'all',
             searchTerm: '',
             favoriteItems: new Set(),
+            targetSlug: initialSlug || '',
             targetPostId: initialPostId || ''
         };
 
@@ -805,8 +687,26 @@
                 }));
         }
 
-        function renderPortalFeatured() {
-            const featuredPost = portalState.posts.find((post) => post.featured) || portalState.posts[0];
+        function getTargetPortalPost() {
+            if (portalState.targetSlug) {
+                const postBySlug = portalState.posts.find((post) => post.slug === portalState.targetSlug);
+                if (postBySlug) {
+                    return postBySlug;
+                }
+            }
+
+            if (portalState.targetPostId) {
+                const postById = portalState.posts.find((post) => post.id === portalState.targetPostId);
+                if (postById) {
+                    return postById;
+                }
+            }
+
+            return null;
+        }
+
+        function renderPortalFeatured(posts) {
+            const featuredPost = posts.find((post) => post.featured) || posts[0];
             if (!featuredPost) {
                 portalFeatured.innerHTML = '<p class="text-sm text-[color:var(--muted)]">Aucun sujet principal disponible.</p>';
                 return;
@@ -830,8 +730,8 @@
             `;
         }
 
-        function renderPortalRubriques() {
-            const counts = portalState.posts.reduce((accumulator, post) => {
+        function renderPortalRubriques(posts) {
+            const counts = posts.reduce((accumulator, post) => {
                 const key = post.rubrique || 'Autres';
                 accumulator[key] = (accumulator[key] || 0) + 1;
                 return accumulator;
@@ -886,7 +786,7 @@
             portalPostsContainer.innerHTML = posts.map((post) => {
                 const config = portalTypeConfig[post.type] || portalTypeConfig.info;
                 return `
-                    <article class="portal-card p-6 md:p-8 ${config.theme}" data-post-id="${escapeHtml(post.id || '')}">
+                    <article class="portal-card p-6 md:p-8 ${config.theme}" data-post-id="${escapeHtml(post.id || '')}" data-post-slug="${escapeHtml(post.slug || '')}">
                         <div class="portal-stamp">${escapeHtml(config.stamp)}</div>
                         <div class="portal-card-header">
                             <div>
@@ -920,9 +820,9 @@
                 });
             });
 
-            if (portalState.targetPostId) {
+            if (portalState.targetSlug || portalState.targetPostId) {
                 requestAnimationFrame(() => {
-                    scrollToPortalPost(portalState.targetPostId);
+                    scrollToPortalPost();
                 });
             }
         }
@@ -931,10 +831,10 @@
             const { scroll = true, preserveTargetPost = false } = options;
             portalState.activeFilter = filterValue || 'all';
             if (!preserveTargetPost) {
+                portalState.targetSlug = '';
                 portalState.targetPostId = '';
             }
-            renderPortalFilters();
-            renderPortalPosts(getFilteredPortalPosts());
+            rerenderPortal();
 
             if (scroll) {
                 portalPostsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -951,11 +851,25 @@
             } else {
                 url.searchParams.delete('post');
             }
+            if (portalState.targetSlug) {
+                url.searchParams.set('slug', portalState.targetSlug);
+            } else {
+                url.searchParams.delete('slug');
+            }
             window.history.replaceState({}, '', url);
         }
 
-        function scrollToPortalPost(postId) {
-            const targetCard = portalPostsContainer.querySelector(`[data-post-id="${CSS.escape(postId)}"]`);
+        function scrollToPortalPost() {
+            let targetCard = null;
+
+            if (portalState.targetSlug) {
+                targetCard = portalPostsContainer.querySelector(`[data-post-slug="${CSS.escape(portalState.targetSlug)}"]`);
+            }
+
+            if (!targetCard && portalState.targetPostId) {
+                targetCard = portalPostsContainer.querySelector(`[data-post-id="${CSS.escape(portalState.targetPostId)}"]`);
+            }
+
             if (!targetCard) {
                 return;
             }
@@ -963,58 +877,36 @@
         }
 
         function rerenderPortal() {
-            renderPortalFeatured();
-            renderPortalRubriques();
+            const filteredPosts = getFilteredPortalPosts();
+            renderPortalFeatured(filteredPosts);
+            renderPortalRubriques(filteredPosts);
             renderPortalFilters();
-            renderPortalPosts(getFilteredPortalPosts());
-        }
-
-        function getInlinePortalPosts() {
-            if (!portalInlineData) {
-                return [];
-            }
-            try {
-                const parsed = JSON.parse(portalInlineData.textContent || '[]');
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (error) {
-                return [];
-            }
+            renderPortalPosts(filteredPosts);
         }
 
         async function loadPortalPosts() {
-            const candidateUrls = ['./data/citizen-posts.json', 'data/citizen-posts.json'];
-
             try {
-                let loadedPosts = null;
-                for (const url of candidateUrls) {
-                    try {
-                        const response = await fetch(url, { cache: 'no-store' });
-                        if (response.ok) {
-                            loadedPosts = await response.json();
-                            break;
-                        }
-                    } catch (error) {
-                        // Try next URL.
-                    }
+                const response = await fetch('./data/citizen-posts.json', { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error('Le fichier de publications est introuvable.');
                 }
 
-                if (!Array.isArray(loadedPosts) || loadedPosts.length === 0) {
-                    loadedPosts = getInlinePortalPosts();
-                }
+                const loadedPosts = await response.json();
 
                 if (!Array.isArray(loadedPosts) || loadedPosts.length === 0) {
                     throw new Error('Le fichier de publications est introuvable.');
                 }
 
                 portalState.posts = loadedPosts;
+                const targetPost = getTargetPortalPost();
+                if (targetPost) {
+                    portalState.activeFilter = targetPost.rubrique || 'all';
+                }
                 const availableRubriques = new Set(getPortalFilterOptions().map((option) => option.value));
                 if (!availableRubriques.has(portalState.activeFilter)) {
                     portalState.activeFilter = 'all';
                 }
                 rerenderPortal();
-                if (portalState.targetPostId) {
-                    applyPortalFilter(portalState.activeFilter, { scroll: false, preserveTargetPost: true });
-                }
                 setPortalStatus('');
             } catch (error) {
                 portalPostsContainer.innerHTML = `
@@ -1029,7 +921,7 @@
 
         portalSearchInput.addEventListener('input', (event) => {
             portalState.searchTerm = event.target.value || '';
-            renderPortalPosts(getFilteredPortalPosts());
+            rerenderPortal();
         });
 
         renderPortalFilters();
