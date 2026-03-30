@@ -1,4 +1,5 @@
 # Journal ANNET
+https://chab974.github.io/Journal_ANNET/index.html#diffusion
 
 Guide complet de la chaîne éditoriale `Notion -> snapshots -> Eleventy -> GitHub Pages`.
 
