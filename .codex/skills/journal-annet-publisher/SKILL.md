@@ -1,6 +1,6 @@
 ---
 name: journal-annet-publisher
-description: Use when maintaining the Journal ANNET editorial pipeline: sync Notion data sources, validate generated snapshots, build the Eleventy site, diagnose webhook/media/schema issues, and follow the repository runbook without re-deriving the workflow.
+description: "Use when maintaining the Journal ANNET editorial pipeline: sync Notion data sources, validate generated snapshots, build the Eleventy site, diagnose webhook/media/schema issues, and follow the repository runbook without re-deriving the workflow."
 ---
 
 # Journal ANNET Publisher
