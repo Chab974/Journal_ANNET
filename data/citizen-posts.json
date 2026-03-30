@@ -147,6 +147,18 @@
     "lieu": "Maison des Associations, chemin des Merisiers, 77410 Villevaudé",
     "date_debut_iso": "20260411T120000Z",
     "date_fin_iso": "20260411T160000Z",
+    "images": [
+      {
+        "src": "assets/events/forum-metiers-villevaude-choisis-ton-metier.jpeg",
+        "caption": "Affiche principale du forum des métiers",
+        "alt": "Affiche Choisis ton métier pour le forum des métiers à Villevaudé"
+      },
+      {
+        "src": "assets/events/forum-metiers-villevaude-partage-ton-metier.jpeg",
+        "caption": "Appel à participation pour parents et professionnels",
+        "alt": "Affiche Partage ton métier pour le forum des métiers à Villevaudé"
+      }
+    ],
     "resume": "Une première édition locale portée par Loisirs Jeunes et la mairie de Villevaudé pour faire découvrir des métiers aux collégiens, lycéens et étudiants.",
     "highlights": [
       "Samedi 11 avril 2026, de 14h à 18h, à la Maison des Associations de Villevaudé.",
