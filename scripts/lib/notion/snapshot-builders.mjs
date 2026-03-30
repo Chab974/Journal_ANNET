@@ -27,10 +27,10 @@ import {
 const publishedStatusSlugs = new Set(['publie', 'published', 'public']);
 const publicationTypeDefaults = {
   alerte: 'Travaux et mobilité',
+  cantine: 'Scolaire',
   coup_de_coeur: 'Coup de cœur littéraire',
   evenement: 'Événements',
   info: 'Vie locale',
-  menu: 'Scolaire',
 };
 const dayOrder = new Map([
   ['lundi', 1],
@@ -80,7 +80,7 @@ const agendaFieldCandidates = {
   title: ['Titre', 'Nom', 'Name'],
 };
 
-const menuFieldCandidates = {
+const cantineFieldCandidates = {
   badges: ['Badges', 'Labels'],
   day: ['Jour', 'Day'],
   dayOrder: ['Ordre jour', 'Ordre journée', 'Ordre journee'],
@@ -121,7 +121,8 @@ function readTitle(page, candidates) {
 }
 
 function normalizePublicationType(value) {
-  return slugify(value).replaceAll('-', '_') || 'info';
+  const normalized = slugify(value).replaceAll('-', '_') || 'info';
+  return normalized === 'menu' ? 'cantine' : normalized;
 }
 
 function readDateValue(page, candidates) {
@@ -173,23 +174,23 @@ async function resolveFiles(files, { mediaResolver, pageId, title, warnings }) {
   return resolved;
 }
 
-export function buildMenusSnapshot(menuItemPages, { publishedPublicationIds, warnings }) {
+export function buildCantineSnapshot(cantinePages, { publishedPublicationIds, warnings }) {
   const groups = new Map();
 
-  for (const page of ensureArray(menuItemPages)) {
-    if (!isPublished(page, menuFieldCandidates.status)) {
+  for (const page of ensureArray(cantinePages)) {
+    if (!isPublished(page, cantineFieldCandidates.status)) {
       continue;
     }
 
-    const publicationId = readRelationId(page, menuFieldCandidates.publicationRelation);
+    const publicationId = readRelationId(page, cantineFieldCandidates.publicationRelation);
     if (!publicationId || !publishedPublicationIds.has(publicationId)) {
-      warnings.push(`Menu item ${page.id} ignoré: publication liée absente ou non publiée.`);
+      warnings.push(`Entrée cantine ${page.id} ignorée: publication liée absente ou non publiée.`);
       continue;
     }
 
-    const dayLabel = readFirstText(page, menuFieldCandidates.day);
+    const dayLabel = readFirstText(page, cantineFieldCandidates.day);
     if (!dayLabel) {
-      warnings.push(`Menu item ${page.id} ignoré: jour absent.`);
+      warnings.push(`Entrée cantine ${page.id} ignorée: jour absent.`);
       continue;
     }
 
@@ -204,37 +205,37 @@ export function buildMenusSnapshot(menuItemPages, { publishedPublicationIds, war
     if (!currentGroup.days.has(dayLabel)) {
       currentGroup.days.set(dayLabel, {
         day: dayLabel,
-        dayOrder: propertyToNumber(findProperty(page, menuFieldCandidates.dayOrder)) ?? dayOrder.get(slugify(dayLabel)) ?? 99,
-        isSpecial: propertyToCheckbox(findProperty(page, menuFieldCandidates.special)),
+        dayOrder: propertyToNumber(findProperty(page, cantineFieldCandidates.dayOrder)) ?? dayOrder.get(slugify(dayLabel)) ?? 99,
+        isSpecial: propertyToCheckbox(findProperty(page, cantineFieldCandidates.special)),
         items: [],
-        message: readFirstText(page, menuFieldCandidates.specialMessage),
+        message: readFirstText(page, cantineFieldCandidates.specialMessage),
       });
     }
 
     const dayEntry = currentGroup.days.get(dayLabel);
-    const itemName = readFirstText(page, menuFieldCandidates.name);
+    const itemName = readFirstText(page, cantineFieldCandidates.name);
 
     if (dayEntry.isSpecial) {
-      dayEntry.message ||= readFirstText(page, menuFieldCandidates.specialMessage);
+      dayEntry.message ||= readFirstText(page, cantineFieldCandidates.specialMessage);
       continue;
     }
 
     if (!itemName) {
-      warnings.push(`Menu item ${page.id} ignoré: nom absent.`);
+      warnings.push(`Entrée cantine ${page.id} ignorée: nom absent.`);
       continue;
     }
 
     dayEntry.items.push({
-      badges: propertyToMultiSelect(findProperty(page, menuFieldCandidates.badges)),
-      description: readFirstText(page, menuFieldCandidates.description),
+      badges: propertyToMultiSelect(findProperty(page, cantineFieldCandidates.badges)),
+      description: readFirstText(page, cantineFieldCandidates.description),
       name: itemName,
-      order: propertyToNumber(findProperty(page, menuFieldCandidates.order)) ?? 999,
+      order: propertyToNumber(findProperty(page, cantineFieldCandidates.order)) ?? 999,
     });
   }
 
   return [...groups.values()]
     .map((group) => ({
-      menu_jours: [...group.days.values()]
+      cantine_jours: [...group.days.values()]
         .sort((left, right) => compareOptionalNumbers(left.dayOrder, right.dayOrder))
         .map((day) => ({
           day: day.day,
@@ -269,7 +270,7 @@ async function buildPublicationSnapshot(page, context) {
   const rubrique = readFirstText(page, publicationFieldCandidates.rubrique) || publicationTypeDefaults[type] || 'Vie locale';
   const slug = readFirstText(page, publicationFieldCandidates.slug) || slugify(title) || page.id;
   const warnings = [];
-  const menuGroup = context.menuGroupsByPublicationId.get(page.id);
+  const cantineGroup = context.cantineGroupsByPublicationId.get(page.id);
   const blockTree = await context.fetchBlocks(page.id);
   const blockContent = await renderBlocksToHtml(blockTree, {
     mediaResolver: context.mediaResolver,
@@ -304,7 +305,7 @@ async function buildPublicationSnapshot(page, context) {
     id: page.id,
     lien_externe: readFirstText(page, publicationFieldCandidates.externalUrl),
     lieu: readFirstText(page, publicationFieldCandidates.location),
-    menu_jours: menuGroup?.menu_jours ?? [],
+    cantine_jours: cantineGroup?.cantine_jours ?? [],
     resume: readFirstText(page, publicationFieldCandidates.resume) || blockContent.plainText || title,
     titre: title,
     type,
@@ -472,9 +473,9 @@ async function buildSiteSections(sectionPages, context) {
 
 export async function buildSnapshotsFromSources({
   agendaPages,
+  cantinePages,
   fetchBlocks,
   mediaResolver,
-  menuItemPages,
   publicationPages,
   sectionPages,
 }) {
@@ -483,15 +484,15 @@ export async function buildSnapshotsFromSources({
     isPublished(page, publicationFieldCandidates.status),
   );
   const publishedPublicationIds = new Set(publishedPublicationPages.map((page) => page.id));
-  const menus = buildMenusSnapshot(menuItemPages, { publishedPublicationIds, warnings });
-  const menuGroupsByPublicationId = new Map(menus.map((group) => [group.publication_id, group]));
+  const cantine = buildCantineSnapshot(cantinePages, { publishedPublicationIds, warnings });
+  const cantineGroupsByPublicationId = new Map(cantine.map((group) => [group.publication_id, group]));
 
   const builtPublications = [];
   for (const page of publishedPublicationPages) {
     const snapshot = await buildPublicationSnapshot(page, {
       fetchBlocks,
       mediaResolver,
-      menuGroupsByPublicationId,
+      cantineGroupsByPublicationId,
     });
     builtPublications.push(snapshot.publication);
     warnings.push(...snapshot.warnings.map((warning) => `Publication ${page.id}: ${warning}`));
@@ -519,7 +520,7 @@ export async function buildSnapshotsFromSources({
 
   return {
     agenda,
-    menus,
+    cantine,
     publications,
     siteSections,
     warnings,

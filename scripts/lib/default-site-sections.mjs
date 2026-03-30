@@ -56,8 +56,8 @@ export const defaultSiteSections = {
     ],
     ctaLinks: [
       {
-        href: 'portail.html?rubrique=Scolaire&slug=menu-cantine-semaine',
-        label: 'Menus & familles',
+        href: 'portail.html?rubrique=Scolaire&slug=cantine-scolaire-semaine',
+        label: 'Cantine & familles',
       },
       {
         href: 'portail.html?rubrique=%C3%89v%C3%A9nements&slug=brocante-printemps-centre-ville',
@@ -80,7 +80,7 @@ export const defaultSiteSections = {
       'Les actualités du village sont désormais consultables dans une page à part, pensée pour filtrer les contenus par rubrique et accéder directement aux informations utiles.',
     eyebrow: 'Page dédiée',
     highlightDescription:
-      'Menus scolaires, événements, travaux, vie associative et coups de cœur littéraires sont réunis dans un espace unique, plus simple à parcourir depuis le menu principal.',
+      'Cantine scolaire, événements, travaux, vie associative et coups de cœur littéraires sont réunis dans un espace unique, plus simple à parcourir depuis la navigation principale.',
     highlightEyebrow: 'Nouveau format',
     highlightTitle: 'Une page complète pour les infos locales',
     quickLinksEyebrow: 'Accès rapide',
@@ -138,10 +138,10 @@ export const defaultSiteSections = {
     items: [
       {
         description: 'Cantine, portail famille et informations pratiques pour les parents.',
-        href: 'portail.html?rubrique=Scolaire&slug=menu-cantine-semaine',
+        href: 'portail.html?rubrique=Scolaire&slug=cantine-scolaire-semaine',
         kicker: 'Scolaire',
         theme: 'text-vintage-red',
-        title: 'Menus & familles',
+        title: 'Cantine & familles',
       },
       {
         description: 'Brocante, agenda du week-end et rendez-vous fédérateurs.',

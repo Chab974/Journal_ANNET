@@ -29,29 +29,66 @@
   },
   {
     "id": "post-1",
-    "slug": "menu-cantine-semaine",
+    "slug": "cantine-scolaire-semaine",
     "rubrique": "Scolaire",
-    "type": "menu",
-    "titre": "Le menu de la semaine à la cantine",
+    "type": "cantine",
+    "titre": "La cantine de la semaine",
     "date": "Cette semaine",
     "resume": "Repères clairs pour les familles : plats du jour, mentions bio, produits labellisés et information spéciale du mercredi.",
-    "menu_jours": [
+    "cantine_jours": [
       {
         "day": "Lundi",
         "items": [
-          { "name": "Paëlla végétarienne au riz", "badges": ["bio"] },
-          { "name": "Gouda Bio", "badges": ["bio"] },
-          { "name": "Beignet chocolat noisette", "badges": [] }
+          {
+            "name": "Paëlla végétarienne au riz",
+            "badges": [
+              "bio"
+            ]
+          },
+          {
+            "name": "Gouda Bio",
+            "badges": [
+              "bio"
+            ]
+          },
+          {
+            "name": "Beignet chocolat noisette",
+            "badges": []
+          }
         ]
       },
       {
         "day": "Mardi",
         "items": [
-          { "name": "Nems de légumes", "badges": [] },
-          { "name": "Boulettes au boeuf", "description": "Sauce tomate", "badges": ["france"] },
-          { "name": "Boulettes végétariennes", "description": "Sauce tomate", "badges": [] },
-          { "name": "Haricots verts persillés", "badges": ["bio"] },
-          { "name": "Yaourt arôme", "description": "Régional", "badges": ["regional"] }
+          {
+            "name": "Nems de légumes",
+            "badges": []
+          },
+          {
+            "name": "Boulettes au boeuf",
+            "description": "Sauce tomate",
+            "badges": [
+              "france"
+            ]
+          },
+          {
+            "name": "Boulettes végétariennes",
+            "description": "Sauce tomate",
+            "badges": []
+          },
+          {
+            "name": "Haricots verts persillés",
+            "badges": [
+              "bio"
+            ]
+          },
+          {
+            "name": "Yaourt arôme",
+            "description": "Régional",
+            "badges": [
+              "regional"
+            ]
+          }
         ]
       },
       {
@@ -62,19 +99,53 @@
       {
         "day": "Jeudi",
         "items": [
-          { "name": "Crêpe au fromage", "badges": [] },
-          { "name": "Galette végétale", "description": "Sauce aux épices", "badges": [] },
-          { "name": "Carottes Ce2 persillées", "badges": ["ce2"] },
-          { "name": "Yaourt aromatisé", "badges": [] }
+          {
+            "name": "Crêpe au fromage",
+            "badges": []
+          },
+          {
+            "name": "Galette végétale",
+            "description": "Sauce aux épices",
+            "badges": []
+          },
+          {
+            "name": "Carottes Ce2 persillées",
+            "badges": [
+              "ce2"
+            ]
+          },
+          {
+            "name": "Yaourt aromatisé",
+            "badges": []
+          }
         ]
       },
       {
         "day": "Vendredi",
         "items": [
-          { "name": "Filet de saumon MSC", "description": "Sauce aneth", "badges": ["msc"] },
-          { "name": "Brocolis", "badges": ["bio"] },
-          { "name": "Mimolette", "badges": ["bio"] },
-          { "name": "Tarte au flan", "badges": [] }
+          {
+            "name": "Filet de saumon MSC",
+            "description": "Sauce aneth",
+            "badges": [
+              "msc"
+            ]
+          },
+          {
+            "name": "Brocolis",
+            "badges": [
+              "bio"
+            ]
+          },
+          {
+            "name": "Mimolette",
+            "badges": [
+              "bio"
+            ]
+          },
+          {
+            "name": "Tarte au flan",
+            "badges": []
+          }
         ]
       }
     ]

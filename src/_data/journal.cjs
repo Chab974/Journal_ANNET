@@ -27,10 +27,28 @@ async function readJson(fileName, fallback) {
   }
 }
 
+function normalizePublicationEntry(entry = {}) {
+  const cantineDays = Array.isArray(entry.cantine_jours) ? entry.cantine_jours : [];
+
+  return {
+    ...entry,
+    cantine_jours: cantineDays,
+  };
+}
+
+function normalizeCantineEntry(entry = {}) {
+  const cantineDays = Array.isArray(entry.cantine_jours) ? entry.cantine_jours : [];
+
+  return {
+    ...entry,
+    cantine_jours: cantineDays,
+  };
+}
+
 module.exports = async function loadJournalData() {
-  const publications = await readJson('publications.json', []);
+  const publications = (await readJson('publications.json', [])).map(normalizePublicationEntry);
   const agenda = await readJson('agenda.json', []);
-  const menus = await readJson('menus.json', []);
+  const cantine = (await readJson('cantine.json', [])).map(normalizeCantineEntry);
   const siteSections = await readJson('site-sections.json', {});
   const pathPrefix = normalizePathPrefix(process.env.SITE_PATH_PREFIX);
   const deployTarget = process.env.SITE_DEPLOY_TARGET || 'vercel';
@@ -38,7 +56,7 @@ module.exports = async function loadJournalData() {
   return {
     agenda,
     buildTimeIso: new Date().toISOString(),
-    menus,
+    cantine,
     publications,
     site: {
       deployTarget,

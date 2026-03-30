@@ -1,0 +1,5 @@
+Nom,Statut,Publication liée (helper),Jour,Ordre,Badges,Description,Spécial,Message spécial,Ordre jour
+Paëlla végétarienne au riz,Publié,La cantine de la semaine,Lundi,1,bio,Plat principal,false,,1
+Gouda Bio,Publié,La cantine de la semaine,Lundi,2,bio,Produit laitier,false,,1
+Compote de pommes,Publié,La cantine de la semaine,Lundi,3,,Dessert,false,,1
+Information accueil de loisirs,Publié,La cantine de la semaine,Mercredi,,,,true,Les informations de cantine du mercredi seront affichées à l'accueil de loisirs.,3

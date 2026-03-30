@@ -1,33 +1,51 @@
 {
   "publicationPages": [
     {
-      "id": "pub-menu-1",
-      "url": "https://notion.so/pub-menu-1",
+      "id": "pub-cantine-1",
+      "url": "https://notion.so/pub-cantine-1",
       "last_edited_time": "2026-03-20T09:00:00.000Z",
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Le menu de la semaine à la cantine" }]
+          "title": [
+            {
+              "plain_text": "La cantine de la semaine"
+            }
+          ]
         },
         "Type": {
           "type": "select",
-          "select": { "name": "menu" }
+          "select": {
+            "name": "cantine"
+          }
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Rubrique": {
           "type": "select",
-          "select": { "name": "Scolaire" }
+          "select": {
+            "name": "Scolaire"
+          }
         },
         "Résumé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Repères clairs pour les familles." }]
+          "rich_text": [
+            {
+              "plain_text": "Repères clairs pour les familles."
+            }
+          ]
         },
         "Date affichée": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Cette semaine" }]
+          "rich_text": [
+            {
+              "plain_text": "Cette semaine"
+            }
+          ]
         },
         "Ordre manuel": {
           "type": "number",
@@ -35,7 +53,11 @@
         },
         "Slug": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "menu-cantine-semaine" }]
+          "rich_text": [
+            {
+              "plain_text": "cantine-scolaire-semaine"
+            }
+          ]
         }
       }
     },
@@ -46,39 +68,67 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Forum des métiers à Villevaudé" }]
+          "title": [
+            {
+              "plain_text": "Forum des métiers à Villevaudé"
+            }
+          ]
         },
         "Type": {
           "type": "select",
-          "select": { "name": "evenement" }
+          "select": {
+            "name": "evenement"
+          }
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Rubrique": {
           "type": "select",
-          "select": { "name": "Vie locale" }
+          "select": {
+            "name": "Vie locale"
+          }
         },
         "Résumé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Une édition locale du forum des métiers." }]
+          "rich_text": [
+            {
+              "plain_text": "Une édition locale du forum des métiers."
+            }
+          ]
         },
         "Lieu": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Maison des Associations, Villevaudé" }]
+          "rich_text": [
+            {
+              "plain_text": "Maison des Associations, Villevaudé"
+            }
+          ]
         },
         "Date de début": {
           "type": "date",
-          "date": { "start": "2026-04-11T12:00:00.000Z", "end": null }
+          "date": {
+            "start": "2026-04-11T12:00:00.000Z",
+            "end": null
+          }
         },
         "Date de fin": {
           "type": "date",
-          "date": { "start": "2026-04-11T16:00:00.000Z", "end": null }
+          "date": {
+            "start": "2026-04-11T16:00:00.000Z",
+            "end": null
+          }
         },
         "Slug": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "forum-metiers-villevaude-11-avril-2026" }]
+          "rich_text": [
+            {
+              "plain_text": "forum-metiers-villevaude-11-avril-2026"
+            }
+          ]
         },
         "Image": {
           "type": "files",
@@ -101,31 +151,53 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Nouvelle permanence numérique parents-élèves" }]
+          "title": [
+            {
+              "plain_text": "Nouvelle permanence numérique parents-élèves"
+            }
+          ]
         },
         "Type": {
           "type": "select",
-          "select": { "name": "info" }
+          "select": {
+            "name": "info"
+          }
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Rubrique": {
           "type": "select",
-          "select": { "name": "Scolaire" }
+          "select": {
+            "name": "Scolaire"
+          }
         },
         "Résumé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Aide hebdomadaire pour le portail famille." }]
+          "rich_text": [
+            {
+              "plain_text": "Aide hebdomadaire pour le portail famille."
+            }
+          ]
         },
         "Lieu": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Mairie annexe" }]
+          "rich_text": [
+            {
+              "plain_text": "Mairie annexe"
+            }
+          ]
         },
         "Slug": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "permanence-numerique-parents" }]
+          "rich_text": [
+            {
+              "plain_text": "permanence-numerique-parents"
+            }
+          ]
         }
       }
     },
@@ -136,31 +208,53 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Travaux rue de la Marne" }]
+          "title": [
+            {
+              "plain_text": "Travaux rue de la Marne"
+            }
+          ]
         },
         "Type": {
           "type": "select",
-          "select": { "name": "alerte" }
+          "select": {
+            "name": "alerte"
+          }
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Rubrique": {
           "type": "select",
-          "select": { "name": "Travaux et mobilité" }
+          "select": {
+            "name": "Travaux et mobilité"
+          }
         },
         "Résumé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Circulation alternée en raison de travaux." }]
+          "rich_text": [
+            {
+              "plain_text": "Circulation alternée en raison de travaux."
+            }
+          ]
         },
         "Lieu": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Rue de la Marne" }]
+          "rich_text": [
+            {
+              "plain_text": "Rue de la Marne"
+            }
+          ]
         },
         "Slug": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "travaux-rue-de-la-marne" }]
+          "rich_text": [
+            {
+              "plain_text": "travaux-rue-de-la-marne"
+            }
+          ]
         }
       }
     },
@@ -171,31 +265,53 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Cadre noir" }]
+          "title": [
+            {
+              "plain_text": "Cadre noir"
+            }
+          ]
         },
         "Type": {
           "type": "select",
-          "select": { "name": "coup_de_coeur" }
+          "select": {
+            "name": "coup_de_coeur"
+          }
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Rubrique": {
           "type": "select",
-          "select": { "name": "Coup de cœur littéraire" }
+          "select": {
+            "name": "Coup de cœur littéraire"
+          }
         },
         "Résumé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Un récit personnel et documenté." }]
+          "rich_text": [
+            {
+              "plain_text": "Un récit personnel et documenté."
+            }
+          ]
         },
         "Auteur": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Alix de Saint-André" }]
+          "rich_text": [
+            {
+              "plain_text": "Alix de Saint-André"
+            }
+          ]
         },
         "Édition": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Gallimard" }]
+          "rich_text": [
+            {
+              "plain_text": "Gallimard"
+            }
+          ]
         },
         "Image": {
           "type": "files",
@@ -211,11 +327,19 @@
         },
         "Highlights": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Enquête intime\nHistoire du Cadre noir" }]
+          "rich_text": [
+            {
+              "plain_text": "Enquête intime\nHistoire du Cadre noir"
+            }
+          ]
         },
         "Slug": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "cadre-noir-alix-de-saint-andre" }]
+          "rich_text": [
+            {
+              "plain_text": "cadre-noir-alix-de-saint-andre"
+            }
+          ]
         }
       }
     },
@@ -226,23 +350,39 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Publication archivée" }]
+          "title": [
+            {
+              "plain_text": "Publication archivée"
+            }
+          ]
         },
         "Type": {
           "type": "select",
-          "select": { "name": "info" }
+          "select": {
+            "name": "info"
+          }
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Brouillon" }
+          "status": {
+            "name": "Brouillon"
+          }
         },
         "Résumé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Ne doit pas sortir." }]
+          "rich_text": [
+            {
+              "plain_text": "Ne doit pas sortir."
+            }
+          ]
         },
         "Slug": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "publication-archivee" }]
+          "rich_text": [
+            {
+              "plain_text": "publication-archivee"
+            }
+          ]
         }
       }
     }
@@ -255,23 +395,39 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Forum des métiers à Villevaudé" }]
+          "title": [
+            {
+              "plain_text": "Forum des métiers à Villevaudé"
+            }
+          ]
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Publication liée": {
           "type": "relation",
-          "relation": [{ "id": "pub-event-1" }]
+          "relation": [
+            {
+              "id": "pub-event-1"
+            }
+          ]
         },
         "Date de début": {
           "type": "date",
-          "date": { "start": "2026-04-11T12:00:00.000Z", "end": null }
+          "date": {
+            "start": "2026-04-11T12:00:00.000Z",
+            "end": null
+          }
         },
         "Date de fin": {
           "type": "date",
-          "date": { "start": "2026-04-11T16:00:00.000Z", "end": null }
+          "date": {
+            "start": "2026-04-11T16:00:00.000Z",
+            "end": null
+          }
         }
       }
     },
@@ -282,43 +438,68 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Agenda brouillon" }]
+          "title": [
+            {
+              "plain_text": "Agenda brouillon"
+            }
+          ]
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Publication liée": {
           "type": "relation",
-          "relation": [{ "id": "pub-archived-1" }]
+          "relation": [
+            {
+              "id": "pub-archived-1"
+            }
+          ]
         },
         "Date de début": {
           "type": "date",
-          "date": { "start": "2026-05-01T09:00:00.000Z", "end": null }
+          "date": {
+            "start": "2026-05-01T09:00:00.000Z",
+            "end": null
+          }
         }
       }
     }
   ],
-  "menuItemPages": [
+  "cantinePages": [
     {
-      "id": "menu-1",
-      "url": "https://notion.so/menu-1",
+      "id": "cantine-1",
+      "url": "https://notion.so/cantine-1",
       "properties": {
         "Nom": {
           "type": "title",
-          "title": [{ "plain_text": "Paëlla végétarienne au riz" }]
+          "title": [
+            {
+              "plain_text": "Paëlla végétarienne au riz"
+            }
+          ]
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Publication liée": {
           "type": "relation",
-          "relation": [{ "id": "pub-menu-1" }]
+          "relation": [
+            {
+              "id": "pub-cantine-1"
+            }
+          ]
         },
         "Jour": {
           "type": "select",
-          "select": { "name": "Lundi" }
+          "select": {
+            "name": "Lundi"
+          }
         },
         "Ordre": {
           "type": "number",
@@ -326,29 +507,45 @@
         },
         "Badges": {
           "type": "multi_select",
-          "multi_select": [{ "name": "bio" }]
+          "multi_select": [
+            {
+              "name": "bio"
+            }
+          ]
         }
       }
     },
     {
-      "id": "menu-2",
-      "url": "https://notion.so/menu-2",
+      "id": "cantine-2",
+      "url": "https://notion.so/cantine-2",
       "properties": {
         "Nom": {
           "type": "title",
-          "title": [{ "plain_text": "Gouda Bio" }]
+          "title": [
+            {
+              "plain_text": "Gouda Bio"
+            }
+          ]
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Publication liée": {
           "type": "relation",
-          "relation": [{ "id": "pub-menu-1" }]
+          "relation": [
+            {
+              "id": "pub-cantine-1"
+            }
+          ]
         },
         "Jour": {
           "type": "select",
-          "select": { "name": "Lundi" }
+          "select": {
+            "name": "Lundi"
+          }
         },
         "Ordre": {
           "type": "number",
@@ -356,29 +553,45 @@
         },
         "Badges": {
           "type": "multi_select",
-          "multi_select": [{ "name": "bio" }]
+          "multi_select": [
+            {
+              "name": "bio"
+            }
+          ]
         }
       }
     },
     {
-      "id": "menu-3",
-      "url": "https://notion.so/menu-3",
+      "id": "cantine-3",
+      "url": "https://notion.so/cantine-3",
       "properties": {
         "Nom": {
           "type": "title",
-          "title": [{ "plain_text": "Information accueil de loisirs" }]
+          "title": [
+            {
+              "plain_text": "Information accueil de loisirs"
+            }
+          ]
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Publication liée": {
           "type": "relation",
-          "relation": [{ "id": "pub-menu-1" }]
+          "relation": [
+            {
+              "id": "pub-cantine-1"
+            }
+          ]
         },
         "Jour": {
           "type": "select",
-          "select": { "name": "Mercredi" }
+          "select": {
+            "name": "Mercredi"
+          }
         },
         "Spécial": {
           "type": "checkbox",
@@ -386,7 +599,11 @@
         },
         "Message spécial": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "Les menus du mercredi seront affichés à l'accueil de loisirs." }]
+          "rich_text": [
+            {
+              "plain_text": "Les informations de cantine du mercredi seront affichées à l'accueil de loisirs."
+            }
+          ]
         }
       }
     }
@@ -398,19 +615,33 @@
       "properties": {
         "Titre": {
           "type": "title",
-          "title": [{ "plain_text": "Footer" }]
+          "title": [
+            {
+              "plain_text": "Footer"
+            }
+          ]
         },
         "Statut": {
           "type": "status",
-          "status": { "name": "Publié" }
+          "status": {
+            "name": "Publié"
+          }
         },
         "Clé": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "footer" }]
+          "rich_text": [
+            {
+              "plain_text": "footer"
+            }
+          ]
         },
         "JSON": {
           "type": "rich_text",
-          "rich_text": [{ "plain_text": "{\"legalRight\":\"Piloté par Notion\"}" }]
+          "rich_text": [
+            {
+              "plain_text": "{\"legalRight\":\"Piloté par Notion\"}"
+            }
+          ]
         }
       }
     }
@@ -422,7 +653,11 @@
         "type": "heading_2",
         "has_children": false,
         "heading_2": {
-          "rich_text": [{ "plain_text": "Forum des métiers" }]
+          "rich_text": [
+            {
+              "plain_text": "Forum des métiers"
+            }
+          ]
         }
       },
       {
@@ -430,7 +665,11 @@
         "type": "paragraph",
         "has_children": false,
         "paragraph": {
-          "rich_text": [{ "plain_text": "Rencontres métiers et job dating avec parents et professionnels." }]
+          "rich_text": [
+            {
+              "plain_text": "Rencontres métiers et job dating avec parents et professionnels."
+            }
+          ]
         }
       },
       {
@@ -438,7 +677,11 @@
         "type": "bulleted_list_item",
         "has_children": false,
         "bulleted_list_item": {
-          "rich_text": [{ "plain_text": "Orientation des collégiens et lycéens" }]
+          "rich_text": [
+            {
+              "plain_text": "Orientation des collégiens et lycéens"
+            }
+          ]
         }
       },
       {
@@ -446,7 +689,11 @@
         "type": "bulleted_list_item",
         "has_children": false,
         "bulleted_list_item": {
-          "rich_text": [{ "plain_text": "Participation de professionnels locaux" }]
+          "rich_text": [
+            {
+              "plain_text": "Participation de professionnels locaux"
+            }
+          ]
         }
       },
       {
@@ -455,8 +702,14 @@
         "has_children": false,
         "image": {
           "type": "external",
-          "external": { "url": "https://example.com/forum-metiers.jpg" },
-          "caption": [{ "plain_text": "Affiche du forum" }]
+          "external": {
+            "url": "https://example.com/forum-metiers.jpg"
+          },
+          "caption": [
+            {
+              "plain_text": "Affiche du forum"
+            }
+          ]
         }
       },
       {
@@ -465,7 +718,9 @@
         "has_children": false,
         "video": {
           "type": "external",
-          "external": { "url": "https://example.com/video.mp4" },
+          "external": {
+            "url": "https://example.com/video.mp4"
+          },
           "caption": []
         }
       }
@@ -476,7 +731,11 @@
         "type": "paragraph",
         "has_children": false,
         "paragraph": {
-          "rich_text": [{ "plain_text": "Une permanence hebdomadaire aide les familles à utiliser le portail." }]
+          "rich_text": [
+            {
+              "plain_text": "Une permanence hebdomadaire aide les familles à utiliser le portail."
+            }
+          ]
         }
       }
     ],
@@ -486,8 +745,14 @@
         "type": "callout",
         "has_children": false,
         "callout": {
-          "icon": { "emoji": "⚠️" },
-          "rich_text": [{ "plain_text": "Travaux et stationnement interdit de 8h à 17h." }]
+          "icon": {
+            "emoji": "⚠️"
+          },
+          "rich_text": [
+            {
+              "plain_text": "Travaux et stationnement interdit de 8h à 17h."
+            }
+          ]
         }
       }
     ],
@@ -497,7 +762,11 @@
         "type": "quote",
         "has_children": false,
         "quote": {
-          "rich_text": [{ "plain_text": "Un récit dense, personnel et documenté." }]
+          "rich_text": [
+            {
+              "plain_text": "Un récit dense, personnel et documenté."
+            }
+          ]
         }
       },
       {
@@ -505,20 +774,28 @@
         "type": "paragraph",
         "has_children": false,
         "paragraph": {
-          "rich_text": [{ "plain_text": "Alix de Saint-André se penche sur le passé de son père adoré." }]
+          "rich_text": [
+            {
+              "plain_text": "Alix de Saint-André se penche sur le passé de son père adoré."
+            }
+          ]
         }
       }
     ],
-    "pub-menu-1": [],
     "section-footer-1": [
       {
         "id": "b-footer-paragraph",
         "type": "paragraph",
         "has_children": false,
         "paragraph": {
-          "rich_text": [{ "plain_text": "Bloc footer éditorial." }]
+          "rich_text": [
+            {
+              "plain_text": "Bloc footer éditorial."
+            }
+          ]
         }
       }
-    ]
+    ],
+    "pub-cantine-1": []
   }
 }

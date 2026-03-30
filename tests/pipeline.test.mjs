@@ -21,20 +21,20 @@ test('buildSnapshotsFromSources construit des snapshots cohérents depuis Notion
 
   const snapshots = await buildSnapshotsFromSources({
     agendaPages: fixture.agendaPages,
+    cantinePages: fixture.cantinePages,
     fetchBlocks: async (pageId) => blockMap.get(pageId) ?? [],
     mediaResolver,
-    menuItemPages: fixture.menuItemPages,
     publicationPages: fixture.publicationPages,
     sectionPages: fixture.sectionPages,
   });
 
   assert.equal(snapshots.publications.length, 5);
   assert.equal(snapshots.agenda.length, 1);
-  assert.equal(snapshots.menus.length, 1);
+  assert.equal(snapshots.cantine.length, 1);
 
-  const menuPublication = snapshots.publications.find((publication) => publication.type === 'menu');
-  assert.equal(menuPublication.menu_jours.length, 2);
-  assert.equal(menuPublication.menu_jours[1].isSpecial, true);
+  const cantinePublication = snapshots.publications.find((publication) => publication.type === 'cantine');
+  assert.equal(cantinePublication.cantine_jours.length, 2);
+  assert.equal(cantinePublication.cantine_jours[1].isSpecial, true);
 
   const eventPublication = snapshots.publications.find((publication) => publication.type === 'evenement');
   assert.equal(eventPublication.event_dates.length, 1);

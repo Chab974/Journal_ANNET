@@ -49,7 +49,7 @@
     "description": "Les actualités du village sont désormais consultables dans une page à part, pensée pour filtrer les contenus par rubrique et accéder directement aux informations utiles.",
     "highlightEyebrow": "Nouveau format",
     "highlightTitle": "Une page complète pour les infos locales",
-    "highlightDescription": "Menus scolaires, événements, travaux, vie associative et coups de cœur littéraires sont réunis dans un espace unique, plus simple à parcourir depuis le menu principal.",
+    "highlightDescription": "Cantine scolaire, événements, travaux, vie associative et coups de cœur littéraires sont réunis dans un espace unique, plus simple à parcourir depuis la navigation principale.",
     "actions": [
       {
         "href": "portail.html",
@@ -65,8 +65,8 @@
     "quickLinksEyebrow": "Accès rapide",
     "ctaLinks": [
       {
-        "href": "portail.html?rubrique=Scolaire&slug=menu-cantine-semaine",
-        "label": "Menus & familles"
+        "href": "portail.html?rubrique=Scolaire&slug=cantine-scolaire-semaine",
+        "label": "Cantine & familles"
       },
       {
         "href": "portail.html?rubrique=%C3%89v%C3%A9nements&slug=brocante-printemps-centre-ville",
@@ -92,10 +92,10 @@
     "description": "Le site s’organise maintenant comme une édition locale : chaque rubrique a son ton, son rôle et son type d’actualité.",
     "items": [
       {
-        "href": "portail.html?rubrique=Scolaire&slug=menu-cantine-semaine",
+        "href": "portail.html?rubrique=Scolaire&slug=cantine-scolaire-semaine",
         "kicker": "Scolaire",
         "theme": "text-vintage-red",
-        "title": "Menus & familles",
+        "title": "Cantine & familles",
         "description": "Cantine, portail famille et informations pratiques pour les parents."
       },
       {

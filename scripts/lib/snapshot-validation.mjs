@@ -15,7 +15,7 @@ export function validateAgendaCrossLinks(agenda, publications) {
   return errors;
 }
 
-export function validateSnapshots({ agenda, menus, publications, siteSections }) {
+export function validateSnapshots({ agenda, cantine, publications, siteSections }) {
   const errors = [];
   const warnings = [];
 
@@ -41,13 +41,13 @@ export function validateSnapshots({ agenda, menus, publications, siteSections })
     errors.push(...validateAgendaCrossLinks(agenda, publications));
   }
 
-  if (!Array.isArray(menus)) {
-    errors.push('menus.json doit contenir un tableau.');
+  if (!Array.isArray(cantine)) {
+    errors.push('cantine.json doit contenir un tableau.');
   } else if (Array.isArray(publications)) {
     const publicationIds = new Set(publications.map((publication) => publication.id));
-    for (const menu of menus) {
-      if (!publicationIds.has(menu.publication_id)) {
-        warnings.push(`Menu "${menu.publication_id}" sans publication correspondante.`);
+    for (const entry of cantine) {
+      if (!publicationIds.has(entry.publication_id)) {
+        warnings.push(`Entrée cantine "${entry.publication_id}" sans publication correspondante.`);
       }
     }
   }

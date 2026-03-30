@@ -1,16 +1,16 @@
 import { readJsonFile, fromRepo } from './lib/utils.mjs';
 import { validateSnapshots } from './lib/snapshot-validation.mjs';
 
-const [publications, agenda, menus, siteSections] = await Promise.all([
+const [publications, agenda, cantine, siteSections] = await Promise.all([
   readJsonFile(fromRepo('data', 'publications.json'), []),
   readJsonFile(fromRepo('data', 'agenda.json'), []),
-  readJsonFile(fromRepo('data', 'menus.json'), []),
+  readJsonFile(fromRepo('data', 'cantine.json'), []),
   readJsonFile(fromRepo('data', 'site-sections.json'), {}),
 ]);
 
 const { errors, warnings } = validateSnapshots({
   agenda,
-  menus,
+  cantine,
   publications,
   siteSections,
 });
@@ -26,6 +26,6 @@ if (errors.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `Validation OK: ${publications.length} publications, ${agenda.length} dates, ${menus.length} menus.`,
+    `Validation OK: ${publications.length} publications, ${agenda.length} dates, ${cantine.length} entrées cantine.`,
   );
 }

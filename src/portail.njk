@@ -317,12 +317,12 @@ permalink: portail.html
             text-transform: uppercase;
             color: var(--muted);
         }
-        .portal-menu-day {
+        .portal-cantine-day {
             border: 1px solid var(--line);
             border-radius: 14px;
             background: rgba(255,255,255,0.98);
         }
-        .portal-menu-item {
+        .portal-cantine-item {
             display: flex;
             align-items: flex-start;
             justify-content: space-between;
@@ -330,7 +330,7 @@ permalink: portail.html
             padding: 0.95rem 0;
             border-bottom: 1px solid rgba(31, 31, 28, 0.08);
         }
-        .portal-menu-item:last-child {
+        .portal-cantine-item:last-child {
             border-bottom: none;
             padding-bottom: 0;
         }
@@ -613,7 +613,7 @@ permalink: portail.html
         const initialSlug = initialSearchParams.get('slug');
         const initialPostId = initialSearchParams.get('post');
         const portalTypeConfig = {
-            menu: { label: 'Menu cantine', theme: 'border-vintage-green', accent: 'text-vintage-green', stamp: 'Restauration', icon: '🍽️', iconBg: '#ebf5ee' },
+            cantine: { label: 'Cantine', theme: 'border-vintage-green', accent: 'text-vintage-green', stamp: 'Restauration scolaire', icon: '🍽️', iconBg: '#ebf5ee' },
             evenement: { label: 'Événement', theme: 'border-vintage-blue', accent: 'text-vintage-blue', stamp: 'Agenda', icon: '🗓️', iconBg: '#eef0f9' },
             alerte: { label: 'Alerte / Travaux', theme: 'border-vintage-red', accent: 'text-vintage-red', stamp: 'Vigilance', icon: '📢', iconBg: '#f9ece8' },
             info: { label: 'Information', theme: 'border-ink', accent: 'text-ink', stamp: 'Infos', icon: 'ℹ️', iconBg: '#f2ede9' },
@@ -701,7 +701,7 @@ permalink: portail.html
             `;
         }
 
-        function getMenuItemKey(postId, dayIndex, itemIndex) {
+        function getCantineItemKey(postId, dayIndex, itemIndex) {
             return `${postId || 'post'}-${dayIndex}-${itemIndex}`;
         }
 
@@ -737,25 +737,25 @@ permalink: portail.html
             return `${baseUrl}&text=${title}&details=${details}&location=${location}${dates}`;
         }
 
-        function renderMenuDays(post) {
-            const days = post.menu_jours || [];
+        function renderCantineDays(post) {
+            const days = post.cantine_jours || [];
             return `
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-6">
                     ${days.map((day, dayIndex) => `
-                        <div class="portal-menu-day p-4">
+                        <div class="portal-cantine-day p-4">
                             <div class="flex items-center justify-between gap-4 border-b border-ink/10 pb-2 mb-3">
                                 <h4 class="font-heading font-black uppercase tracking-widest text-lg">${escapeHtml(day.day || '')}</h4>
                                 <span class="text-xs uppercase tracking-widest font-bold">${day.isSpecial ? 'Note' : 'Service'}</span>
                             </div>
                             ${day.isSpecial ? `
-                                <p class="text-sm leading-relaxed italic">${escapeHtml(day.message || 'Aucun menu communiqué.')}</p>
+                                <p class="text-sm leading-relaxed italic">${escapeHtml(day.message || 'Aucune information cantine communiquée.')}</p>
                             ` : `
                                 <ul class="space-y-1">
                                     ${(day.items || []).map((item, itemIndex) => {
-                                        const itemKey = getMenuItemKey(post.id, dayIndex, itemIndex);
+                                        const itemKey = getCantineItemKey(post.id, dayIndex, itemIndex);
                                         const isFavorite = portalState.favoriteItems.has(itemKey);
                                         return `
-                                        <li class="portal-menu-item">
+                                        <li class="portal-cantine-item">
                                             <div class="flex-1 pr-3">
                                                 <div class="flex flex-wrap gap-2 items-center mb-1">
                                                     <span class="font-bold">${escapeHtml(item.name || '')}</span>
@@ -783,8 +783,8 @@ permalink: portail.html
         }
 
         function renderPostBody(post) {
-            if (post.type === 'menu') {
-                return renderMenuDays(post);
+            if (post.type === 'cantine') {
+                return renderCantineDays(post);
             }
 
             const postVisual = post.image || post.cover_image;
@@ -919,7 +919,7 @@ permalink: portail.html
         }
 
         function getPortalSearchableText(post) {
-            const dayText = (post.menu_jours || [])
+            const dayText = (post.cantine_jours || [])
                 .map((day) => [day.day, day.message, ...(day.items || []).flatMap((item) => [item.name, item.description, ...(item.badges || [])])].join(' '))
                 .join(' ');
 

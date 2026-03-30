@@ -1,19 +1,23 @@
 [
   {
     "publication_id": "post-1",
-    "publication_slug": "menu-cantine-semaine",
-    "publication_title": "Le menu de la semaine à la cantine",
-    "menu_jours": [
+    "publication_slug": "cantine-scolaire-semaine",
+    "publication_title": "La cantine de la semaine",
+    "cantine_jours": [
       {
         "day": "Lundi",
         "items": [
           {
             "name": "Paëlla végétarienne au riz",
-            "badges": ["bio"]
+            "badges": [
+              "bio"
+            ]
           },
           {
             "name": "Gouda Bio",
-            "badges": ["bio"]
+            "badges": [
+              "bio"
+            ]
           },
           {
             "name": "Beignet chocolat noisette",
@@ -31,7 +35,9 @@
           {
             "name": "Boulettes au boeuf",
             "description": "Sauce tomate",
-            "badges": ["france"]
+            "badges": [
+              "france"
+            ]
           },
           {
             "name": "Boulettes végétariennes",
@@ -40,19 +46,23 @@
           },
           {
             "name": "Haricots verts persillés",
-            "badges": ["bio"]
+            "badges": [
+              "bio"
+            ]
           },
           {
             "name": "Yaourt arôme",
             "description": "Régional",
-            "badges": ["regional"]
+            "badges": [
+              "regional"
+            ]
           }
         ]
       },
       {
         "day": "Mercredi",
         "isSpecial": true,
-        "message": "Les menus du mercredi seront affichés sur le panneau d'affichage de l'accueil de loisirs",
+        "message": "Les informations de cantine du mercredi seront affichées sur le panneau d'affichage de l'accueil de loisirs",
         "items": []
       },
       {
@@ -69,7 +79,9 @@
           },
           {
             "name": "Carottes Ce2 persillées",
-            "badges": ["ce2"]
+            "badges": [
+              "ce2"
+            ]
           },
           {
             "name": "Yaourt aromatisé",
@@ -83,15 +95,21 @@
           {
             "name": "Filet de saumon MSC",
             "description": "Sauce aneth",
-            "badges": ["msc"]
+            "badges": [
+              "msc"
+            ]
           },
           {
             "name": "Brocolis",
-            "badges": ["bio"]
+            "badges": [
+              "bio"
+            ]
           },
           {
             "name": "Mimolette",
-            "badges": ["bio"]
+            "badges": [
+              "bio"
+            ]
           },
           {
             "name": "Tarte au flan",

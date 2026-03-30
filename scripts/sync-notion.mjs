@@ -22,7 +22,7 @@ const notion = createNotionClient();
 const [
   publicationPages,
   agendaPages,
-  menuItemPages,
+  cantinePages,
   sectionPages,
 ] = await Promise.all([
   queryDataSourcePages(notion, process.env.NOTION_PUBLICATIONS_DATA_SOURCE_ID),
@@ -42,9 +42,9 @@ async function fetchBlocks(pageId) {
 
 const snapshots = await buildSnapshotsFromSources({
   agendaPages,
+  cantinePages,
   fetchBlocks,
   mediaResolver: ({ file, pageId }) => resolveNotionFileAsset({ file, pageId }),
-  menuItemPages,
   publicationPages,
   sectionPages,
 });
@@ -52,14 +52,14 @@ const snapshots = await buildSnapshotsFromSources({
 await Promise.all([
   writeJsonFile(fromRepo('data', 'publications.json'), snapshots.publications),
   writeJsonFile(fromRepo('data', 'agenda.json'), snapshots.agenda),
-  writeJsonFile(fromRepo('data', 'menus.json'), snapshots.menus),
+  writeJsonFile(fromRepo('data', 'cantine.json'), snapshots.cantine),
   writeJsonFile(fromRepo('data', 'site-sections.json'), snapshots.siteSections),
   writeJsonFile(fromRepo('data', 'citizen-posts.json'), snapshots.publications),
   writeJsonFile(fromRepo('data', 'calendar-events.json'), snapshots.agenda),
 ]);
 
 console.log(
-  `Snapshots générés: ${snapshots.publications.length} publications, ${snapshots.agenda.length} dates, ${snapshots.menus.length} menus.`,
+  `Snapshots générés: ${snapshots.publications.length} publications, ${snapshots.agenda.length} dates, ${snapshots.cantine.length} entrées cantine.`,
 );
 
 if (snapshots.warnings.length > 0) {

@@ -49,7 +49,7 @@ En clair :
 
 - [`data/publications.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/publications.json)
 - [`data/agenda.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/agenda.json)
-- [`data/menus.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/menus.json)
+- [`data/cantine.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/cantine.json)
 - [`data/site-sections.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/site-sections.json)
 
 Ces fichiers sont générés. Ils ne doivent plus être édités à la main dans le flux normal.
@@ -171,7 +171,7 @@ Le pipeline attend 4 data sources :
 
 1. `Publications`
 2. `Agenda`
-3. `Menu Items`
+3. `cantine_scolaire`
 4. `Sections site`
 
 ### Étape 1 - Créer l’intégration Notion
@@ -199,6 +199,8 @@ NOTION_MENU_ITEMS_DATA_SOURCE_ID=...
 NOTION_SITE_SECTIONS_DATA_SOURCE_ID=...
 ```
 
+La variable `NOTION_MENU_ITEMS_DATA_SOURCE_ID` garde ce nom technique dans le code, mais la base Notion peut etre nommee `cantine_scolaire`.
+
 ## 7. Générer les snapshots
 
 ### Sync manuelle
@@ -211,7 +213,7 @@ Cette commande :
 
 - interroge les 4 data sources
 - filtre les contenus non publiés
-- reconstruit les menus
+- reconstruit les données de cantine
 - résout les relations agenda -> publication
 - convertit les blocs Notion en HTML
 - télécharge les médias Notion dans `assets/notion/`
