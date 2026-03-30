@@ -138,6 +138,32 @@
     "contenu_texte": "La commune relance une balade patrimoniale mensuelle ouverte à tous. Le parcours mettra à l'honneur les rues anciennes, les paysages bordant la Marne et plusieurs repères historiques racontés en format court."
   },
   {
+    "id": "post-10",
+    "slug": "forum-metiers-villevaude-11-avril-2026",
+    "rubrique": "Vie locale",
+    "type": "evenement",
+    "titre": "Forum des métiers à Villevaudé",
+    "date": "Samedi 11 avril 2026",
+    "lieu": "Maison des Associations, chemin des Merisiers, 77410 Villevaudé",
+    "date_debut_iso": "20260411T120000Z",
+    "date_fin_iso": "20260411T160000Z",
+    "resume": "Une première édition locale portée par Loisirs Jeunes et la mairie de Villevaudé pour faire découvrir des métiers aux collégiens, lycéens et étudiants.",
+    "highlights": [
+      "Samedi 11 avril 2026, de 14h à 18h, à la Maison des Associations de Villevaudé.",
+      "Destiné aux collégiens, lycéens et étudiants autour de l'orientation et de la découverte des métiers.",
+      "Appel lancé aux parents et professionnels souhaitant partager leur métier pendant l'après-midi."
+    ],
+    "event_dates": [
+      {
+        "label": "Samedi 11 avril 2026",
+        "hours": "14h - 18h",
+        "date_debut_iso": "20260411T120000Z",
+        "date_fin_iso": "20260411T160000Z"
+      }
+    ],
+    "contenu_texte": "Nous organisons un forum des métiers à Villevaudé le samedi 11 avril.\n\nL'association Loisirs Jeunes, en partenariat avec la mairie de Villevaudé, propose une première édition du Forum des métiers à la Maison des Associations. L'événement invite les jeunes à échanger avec des parents et des professionnels autour de leurs parcours et de leur quotidien.\n\nLe rendez-vous est annoncé de 14h à 18h au chemin des Merisiers, 77410 Villevaudé. Il s'adresse aux collégiens, lycéens et étudiants.\n\nParmi les intervenants annoncés : secteur bancaire (CIC), CAPFUN - Camping de Paris, Point Information Jeunesse (Paris Marne-la-Vallée), entreprise de plomberie, ostéopathe, fonctionnaire de police nationale, métiers de la fonction publique, kinésithérapeute du sport, finance, manipulatrice en radiologie, infirmière puéricultrice, éducatrice spécialisée, éducatrice EAJE, psychologue, professeure des écoles et entreprise de ferronnerie avec démonstration sur place.\n\nUn appel est également lancé aux parents et professionnels qui souhaitent venir partager leur métier pendant quelques heures. Le contact mis en avant sur l'affiche de mobilisation est le 07 61 40 33 20, ainsi que les adresses loisirsjeunes77@laposte.net et jeunesse@villevaude.fr."
+  },
+  {
     "id": "post-9",
     "slug": "instant-gourmand-place-eglise",
     "rubrique": "Vie locale",

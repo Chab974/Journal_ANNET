@@ -418,6 +418,10 @@
             background: radial-gradient(circle at top right, rgba(246,163,24,0.14), transparent 28%);
             pointer-events: none;
         }
+        .portal-visual-gallery {
+            display: grid;
+            gap: 0.9rem;
+        }
         .portal-book-cover {
             position: relative;
             display: block;
@@ -842,21 +846,50 @@
                 return renderMenuDays(post);
             }
 
-            const postVisual = post.image || post.cover_image;
-            const visualLabel = post.type === 'coup_de_coeur'
-                ? `Couverture du livre ${post.titre || ''}`
-                : `Visuel de ${post.titre || 'la publication'}`;
-            const visualCard = postVisual ? `
-                <div class="portal-book-cover-card">
-                    <img
-                        src="${escapeHtml(resolveAssetUrl(postVisual))}"
-                        alt="${escapeHtml(visualLabel)}"
-                        class="portal-book-cover"
-                        loading="eager"
-                        decoding="async"
-                        fetchpriority="high"
-                    >
-                    ${(post.image_caption || post.type === 'coup_de_coeur') ? `<p class="portal-book-cover-caption">${escapeHtml(post.image_caption || 'Sélection de la semaine')}</p>` : ''}
+            const visualEntries = [];
+            if (Array.isArray(post.images)) {
+                post.images.forEach((entry, index) => {
+                    if (typeof entry === 'string' && entry) {
+                        visualEntries.push({
+                            src: entry,
+                            alt: `Visuel ${index + 1} de ${post.titre || 'la publication'}`,
+                            caption: ''
+                        });
+                        return;
+                    }
+                    if (entry?.src) {
+                        visualEntries.push({
+                            src: entry.src,
+                            alt: entry.alt || `Visuel ${index + 1} de ${post.titre || 'la publication'}`,
+                            caption: entry.caption || ''
+                        });
+                    }
+                });
+            }
+            if (!visualEntries.length && (post.image || post.cover_image)) {
+                visualEntries.push({
+                    src: post.image || post.cover_image,
+                    alt: post.type === 'coup_de_coeur'
+                        ? `Couverture du livre ${post.titre || ''}`
+                        : `Visuel de ${post.titre || 'la publication'}`,
+                    caption: post.image_caption || (post.type === 'coup_de_coeur' ? 'Sélection de la semaine' : '')
+                });
+            }
+            const visualCard = visualEntries.length ? `
+                <div class="portal-visual-gallery">
+                    ${visualEntries.map((entry, index) => `
+                        <div class="portal-book-cover-card">
+                            <img
+                                src="${escapeHtml(resolveAssetUrl(entry.src))}"
+                                alt="${escapeHtml(entry.alt)}"
+                                class="portal-book-cover"
+                                loading="${index === 0 ? 'eager' : 'lazy'}"
+                                decoding="async"
+                                ${index === 0 ? 'fetchpriority="high"' : ''}
+                            >
+                            ${entry.caption ? `<p class="portal-book-cover-caption">${escapeHtml(entry.caption)}</p>` : ''}
+                        </div>
+                    `).join('')}
                 </div>
             ` : '';
 
@@ -908,6 +941,7 @@
                                     <p class="text-sm">${escapeHtml(post.lieu)}</p>
                                 </div>
                             ` : ''}
+                            ${highlightsCard}
                             ${agendaCard}
                             ${post.date_debut_iso ? `
                                 <a class="portal-link text-sm" href="${escapeHtml(getGoogleCalendarUrl(post))}" target="_blank" rel="noopener noreferrer">

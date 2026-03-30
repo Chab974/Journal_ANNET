@@ -12,6 +12,18 @@
     "description": "Plus de 200 exposants, une buvette et des animations familiales au centre-ville."
   },
   {
+    "id": "event-forum-metiers-villevaude-2026-04-11",
+    "post_slug": "forum-metiers-villevaude-11-avril-2026",
+    "rubrique": "Vie locale",
+    "title": "Forum des métiers à Villevaudé",
+    "date_label": "Samedi 11 avril 2026",
+    "time_label": "14h00 - 18h00",
+    "start_iso": "20260411T120000Z",
+    "end_iso": "20260411T160000Z",
+    "location": "Maison des Associations, chemin des Merisiers, 77410 Villevaudé",
+    "description": "Rencontres métiers et job dating avec parents, professionnels et service jeunesse."
+  },
+  {
     "id": "event-instant-gourmand-2026-03-09",
     "post_slug": "instant-gourmand-place-eglise",
     "rubrique": "Vie locale",
