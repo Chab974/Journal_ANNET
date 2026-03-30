@@ -273,6 +273,69 @@
             gap: 0.75rem;
             margin-top: 1rem;
         }
+        .agenda-visual-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .agenda-thumb-card {
+            position: relative;
+            overflow: visible;
+            padding: 0.45rem;
+            border: 1px solid rgba(246, 163, 24, 0.18);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,246,238,0.98));
+            box-shadow: 0 12px 24px rgba(22, 49, 74, 0.08);
+        }
+        .agenda-thumb-button {
+            display: block;
+            width: 100%;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            cursor: zoom-in;
+            border-radius: 12px;
+        }
+        .agenda-thumb-button:focus-visible {
+            outline: 3px solid rgba(40,148,227,0.35);
+            outline-offset: 4px;
+        }
+        .agenda-thumb-image {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(227, 235, 241, 0.92), rgba(209, 220, 229, 0.92));
+            box-shadow: 0 14px 22px rgba(22, 49, 74, 0.16);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .agenda-thumb-image--fallback {
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+            color: var(--muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .agenda-thumb-card:hover .agenda-thumb-image,
+        .agenda-thumb-card:focus-within .agenda-thumb-image {
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 22px 34px rgba(22, 49, 74, 0.22);
+        }
+        .agenda-thumb-caption {
+            margin-top: 0.55rem;
+            font-size: 0.64rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--vintage-red);
+        }
         .agenda-link {
             display: inline-flex;
             align-items: center;
@@ -298,6 +361,59 @@
             box-shadow: var(--shadow-card);
             padding: 2rem;
             text-align: center;
+        }
+        .image-lightbox {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: rgba(10, 21, 31, 0.72);
+            backdrop-filter: blur(6px);
+            z-index: 120;
+        }
+        .image-lightbox.is-open {
+            display: flex;
+        }
+        .image-lightbox-dialog {
+            position: relative;
+            width: min(92vw, 860px);
+            max-height: 88vh;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.98);
+            border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+        .image-lightbox-close {
+            position: absolute;
+            top: 0.9rem;
+            right: 0.9rem;
+            width: 2.4rem;
+            height: 2.4rem;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(22, 49, 74, 0.84);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .image-lightbox-media {
+            display: block;
+            width: 100%;
+            max-height: 76vh;
+            object-fit: contain;
+            background: linear-gradient(180deg, rgba(244,248,251,0.95), rgba(228,236,242,0.95));
+        }
+        .image-lightbox-caption {
+            padding: 0.9rem 1rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
         }
     </style>
 </head>
@@ -368,12 +484,24 @@
         </section>
     </main>
 
+    <div id="image-lightbox" class="image-lightbox" aria-hidden="true">
+        <div class="image-lightbox-dialog" role="dialog" aria-modal="true" aria-label="Aperçu de l'image">
+            <button type="button" id="image-lightbox-close" class="image-lightbox-close" aria-label="Fermer l'aperçu">×</button>
+            <img id="image-lightbox-media" class="image-lightbox-media" alt="">
+            <p id="image-lightbox-caption" class="image-lightbox-caption"></p>
+        </div>
+    </div>
+
     <script>
         const agendaResults = document.getElementById('agenda-results');
         const agendaSearchInput = document.getElementById('agenda-search');
         const agendaFiltersContainer = document.getElementById('agenda-filters');
         const agendaCount = document.getElementById('agenda-count');
         const agendaStatus = document.getElementById('agenda-status');
+        const agendaImageLightbox = document.getElementById('image-lightbox');
+        const agendaImageLightboxMedia = document.getElementById('image-lightbox-media');
+        const agendaImageLightboxCaption = document.getElementById('image-lightbox-caption');
+        const agendaImageLightboxClose = document.getElementById('image-lightbox-close');
         const searchParams = new URLSearchParams(window.location.search);
 
         const rubriqueOrder = [
@@ -388,6 +516,7 @@
 
         const agendaState = {
             events: [],
+            postsBySlug: new Map(),
             activeFilter: searchParams.get('rubrique') || 'all',
             searchTerm: searchParams.get('q') || ''
         };
@@ -435,6 +564,50 @@
             const day = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', timeZone: 'UTC' }).format(date);
             const month = new Intl.DateTimeFormat('fr-FR', { month: 'short', timeZone: 'UTC' }).format(date).replace('.', '');
             return { weekday, day, month };
+        }
+
+        function resolveAssetUrl(assetPath = '') {
+            if (!assetPath) {
+                return '';
+            }
+            if (/^https?:\/\//i.test(assetPath)) {
+                return assetPath;
+            }
+            return new URL(assetPath.replace(/^\.\//, ''), window.location.href).href;
+        }
+
+        function getVisualEntriesForPost(post) {
+            if (!post) return [];
+            const entries = [];
+            if (Array.isArray(post.images)) {
+                post.images.forEach((entry, index) => {
+                    if (typeof entry === 'string' && entry) {
+                        entries.push({
+                            src: entry,
+                            alt: `Visuel ${index + 1} de ${post.titre || 'la publication'}`,
+                            caption: ''
+                        });
+                        return;
+                    }
+                    if (entry?.src) {
+                        entries.push({
+                            src: entry.src,
+                            alt: entry.alt || `Visuel ${index + 1} de ${post.titre || 'la publication'}`,
+                            caption: entry.caption || ''
+                        });
+                    }
+                });
+            }
+            if (!entries.length && (post.image || post.cover_image)) {
+                entries.push({
+                    src: post.image || post.cover_image,
+                    alt: post.type === 'coup_de_coeur'
+                        ? `Couverture du livre ${post.titre || ''}`
+                        : `Visuel de ${post.titre || 'la publication'}`,
+                    caption: post.image_caption || ''
+                });
+            }
+            return entries;
         }
 
         function getFilteredEvents() {
@@ -504,6 +677,27 @@
                             const date = parseIsoDate(eventItem.start_iso);
                             const dayParts = Number.isNaN(date.getTime()) ? { weekday: '', day: '–', month: '' } : getDayParts(date);
                             const articleUrl = `portail.html?rubrique=${encodeURIComponent(eventItem.rubrique || '')}&slug=${encodeURIComponent(eventItem.post_slug || '')}`;
+                            const linkedPost = agendaState.postsBySlug.get(eventItem.post_slug || '');
+                            const visualEntries = getVisualEntriesForPost(linkedPost).slice(0, 2);
+                            const visualMarkup = visualEntries.length ? `
+                                <div class="agenda-visual-gallery">
+                                    ${visualEntries.map((entry) => `
+                                        <div class="agenda-thumb-card">
+                                            <button
+                                                type="button"
+                                                class="agenda-thumb-button"
+                                                data-lightbox-src="${escapeHtml(resolveAssetUrl(entry.src))}"
+                                                data-lightbox-alt="${escapeHtml(entry.alt)}"
+                                                data-lightbox-caption="${escapeHtml(entry.caption || linkedPost?.titre || eventItem.title || '')}"
+                                                aria-label="Agrandir l'image"
+                                            >
+                                                <img src="${escapeHtml(resolveAssetUrl(entry.src))}" alt="${escapeHtml(entry.alt)}" class="agenda-thumb-image" loading="lazy" decoding="async">
+                                            </button>
+                                            ${entry.caption ? `<p class="agenda-thumb-caption">${escapeHtml(entry.caption)}</p>` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : '';
                             return `
                                 <article class="agenda-card">
                                     <div class="agenda-date-box">
@@ -519,6 +713,7 @@
                                         <h3 class="text-2xl font-heading font-black leading-tight">${escapeHtml(eventItem.title || '')}</h3>
                                         <p class="mt-2 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">${escapeHtml(eventItem.description || '')}</p>
                                         ${eventItem.location ? `<p class="mt-3 text-sm font-semibold">📍 ${escapeHtml(eventItem.location)}</p>` : ''}
+                                        ${visualMarkup}
                                         <div class="agenda-actions">
                                             <a class="agenda-link agenda-link--primary" href="${escapeHtml(toCalendarUrl(eventItem))}" target="_blank" rel="noopener noreferrer">
                                                 <span aria-hidden="true">🗓️</span>
@@ -536,6 +731,16 @@
                     </div>
                 </section>
             `).join('');
+
+            agendaResults.querySelectorAll('.agenda-thumb-image').forEach((image) => {
+                image.addEventListener('error', () => {
+                    image.removeAttribute('src');
+                    image.replaceWith(Object.assign(document.createElement('div'), {
+                        className: `${image.className} agenda-thumb-image--fallback`,
+                        textContent: 'Image indisponible'
+                    }));
+                }, { once: true });
+            });
         }
 
         function updateUrl() {
@@ -555,17 +760,26 @@
 
         async function loadAgenda() {
             try {
-                const response = await fetch('./data/calendar-events.json', { cache: 'no-store' });
-                if (!response.ok) {
+                const [eventsResponse, postsResponse] = await Promise.all([
+                    fetch('./data/calendar-events.json', { cache: 'no-store' }),
+                    fetch('./data/citizen-posts.json', { cache: 'no-store' })
+                ]);
+                if (!eventsResponse.ok) {
                     throw new Error('Le fichier agenda est introuvable.');
                 }
-                const loadedEvents = await response.json();
+                const loadedEvents = await eventsResponse.json();
                 if (!Array.isArray(loadedEvents)) {
                     throw new Error('Le fichier agenda est invalide.');
                 }
+                const loadedPosts = postsResponse.ok ? await postsResponse.json() : [];
                 agendaState.events = loadedEvents
                     .slice()
                     .sort((a, b) => String(a.start_iso || '').localeCompare(String(b.start_iso || '')));
+                agendaState.postsBySlug = new Map(
+                    (Array.isArray(loadedPosts) ? loadedPosts : [])
+                        .filter((post) => post?.slug)
+                        .map((post) => [post.slug, post])
+                );
                 const availableRubriques = new Set(agendaState.events.map((eventItem) => eventItem.rubrique).filter(Boolean));
                 if (agendaState.activeFilter !== 'all') {
                     const resolvedRubrique = Array.from(availableRubriques).find(
@@ -592,6 +806,35 @@
             agendaState.searchTerm = event.target.value || '';
             updateUrl();
             renderAgenda();
+        });
+        agendaResults.addEventListener('click', (event) => {
+            const trigger = event.target.closest('[data-lightbox-src]');
+            if (!trigger) return;
+            event.preventDefault();
+            agendaImageLightboxMedia.src = trigger.getAttribute('data-lightbox-src') || '';
+            agendaImageLightboxMedia.alt = trigger.getAttribute('data-lightbox-alt') || '';
+            agendaImageLightboxCaption.textContent = trigger.getAttribute('data-lightbox-caption') || '';
+            agendaImageLightbox.classList.add('is-open');
+            agendaImageLightbox.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        });
+        agendaImageLightboxClose.addEventListener('click', () => {
+            agendaImageLightbox.classList.remove('is-open');
+            agendaImageLightbox.setAttribute('aria-hidden', 'true');
+            agendaImageLightboxMedia.removeAttribute('src');
+            agendaImageLightboxMedia.alt = '';
+            agendaImageLightboxCaption.textContent = '';
+            document.body.style.overflow = '';
+        });
+        agendaImageLightbox.addEventListener('click', (event) => {
+            if (event.target === agendaImageLightbox) {
+                agendaImageLightboxClose.click();
+            }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && agendaImageLightbox.classList.contains('is-open')) {
+                agendaImageLightboxClose.click();
+            }
         });
 
         loadAgenda();
