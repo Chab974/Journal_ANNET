@@ -147,6 +147,73 @@
     "lieu": "Place de l'Église, Annet-sur-Marne",
     "image_caption": "Affiche du rendez-vous gourmand",
     "resume": "Un rendez-vous de quartier de 15h à 18h autour du goûter, avec boissons fraîches, café, cookies, brownies et crumble.",
-    "contenu_texte": "ShareWith.otes propose un Instant Gourmand place de l'Église à Annet-sur-Marne. Rendez-vous les 9, 16 et 23 mars, le 30 mars, le 13 avril, les 4, 11 et 18 mai, puis les 1, 8, 15, 22 et 29 juin. L'affiche annonce également une présence le 30 mars. Retrouvez ce moment convivial à l'heure du goûter, de 15h à 18h, avec café, limonade, thé glacé, cookies, brownies et crumble. Compte Instagram : sharewithotes."
+    "highlights": [
+      "Goûter convivial de 15h à 18h place de l'Église.",
+      "Boissons et douceurs annoncées : café, limonade, thé glacé, cookies, brownies et crumble.",
+      "Compte Instagram indiqué sur l'affiche : sharewithotes."
+    ],
+    "event_dates": [
+      {
+        "label": "Dimanche 30 mars 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260330T130000Z",
+        "date_fin_iso": "20260330T160000Z"
+      },
+      {
+        "label": "Lundi 13 avril 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260413T130000Z",
+        "date_fin_iso": "20260413T160000Z"
+      },
+      {
+        "label": "Lundi 4 mai 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260504T130000Z",
+        "date_fin_iso": "20260504T160000Z"
+      },
+      {
+        "label": "Lundi 11 mai 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260511T130000Z",
+        "date_fin_iso": "20260511T160000Z"
+      },
+      {
+        "label": "Lundi 18 mai 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260518T130000Z",
+        "date_fin_iso": "20260518T160000Z"
+      },
+      {
+        "label": "Lundi 1 juin 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260601T130000Z",
+        "date_fin_iso": "20260601T160000Z"
+      },
+      {
+        "label": "Lundi 8 juin 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260608T130000Z",
+        "date_fin_iso": "20260608T160000Z"
+      },
+      {
+        "label": "Lundi 15 juin 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260615T130000Z",
+        "date_fin_iso": "20260615T160000Z"
+      },
+      {
+        "label": "Lundi 22 juin 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260622T130000Z",
+        "date_fin_iso": "20260622T160000Z"
+      },
+      {
+        "label": "Lundi 29 juin 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260629T130000Z",
+        "date_fin_iso": "20260629T160000Z"
+      }
+    ],
+    "contenu_texte": "ShareWith.otes propose un Instant Gourmand place de l'Église à Annet-sur-Marne. L'affiche annonce un retour à l'heure du goûter, de 15h à 18h, avec plusieurs dates entre fin mars et fin juin. Le rendez-vous met en avant une pause gourmande de quartier avec boissons fraîches, café et pâtisseries à partager."
   }
 ]

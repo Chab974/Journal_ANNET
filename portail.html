@@ -393,6 +393,84 @@
             border-color: rgba(170, 76, 66, 0.24);
             color: #8a3d33;
         }
+        .portal-fact-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.94);
+            padding: 1rem 1.05rem;
+        }
+        .portal-fact-title {
+            margin-bottom: 0.45rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--vintage-blue);
+        }
+        .portal-feature-list {
+            display: grid;
+            gap: 0.6rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .portal-feature-list li {
+            display: flex;
+            gap: 0.65rem;
+            align-items: flex-start;
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+        .portal-feature-list li::before {
+            content: '•';
+            color: var(--vintage-red);
+            font-weight: 900;
+            margin-top: -0.05rem;
+        }
+        .portal-agenda-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+        .portal-agenda-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 0.95rem;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.96);
+        }
+        .portal-agenda-meta {
+            display: grid;
+            gap: 0.15rem;
+        }
+        .portal-agenda-date {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--ink);
+        }
+        .portal-agenda-hours {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .portal-agenda-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.7rem 0.9rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
+            color: #fff;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
         .section-divider {
             height: 1px;
             width: 100%;
@@ -588,6 +666,17 @@
             return `${baseUrl}&text=${title}&details=${details}&location=${location}${dates}`;
         }
 
+        function getGoogleCalendarUrlForEntry(post, entry) {
+            const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+            const title = encodeURIComponent(entry.title || post.titre || '');
+            const details = encodeURIComponent(entry.details || post.contenu_texte || post.resume || '');
+            const location = encodeURIComponent(entry.location || post.lieu || 'Annet-sur-Marne');
+            const start = entry.date_debut_iso || '';
+            const end = entry.date_fin_iso || start;
+            const dates = start ? `&dates=${start}/${end}` : '';
+            return `${baseUrl}&text=${title}&details=${details}&location=${location}${dates}`;
+        }
+
         function renderMenuDays(post) {
             const days = post.menu_jours || [];
             return `
@@ -662,6 +751,36 @@
                 </div>
             `;
 
+            const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
+            const agendaCard = agendaEntries.length ? `
+                <div class="portal-fact-card">
+                    <p class="portal-fact-title">🗓️ Dates à l'agenda</p>
+                    <div class="portal-agenda-list">
+                        ${agendaEntries.map((entry) => `
+                            <div class="portal-agenda-item">
+                                <div class="portal-agenda-meta">
+                                    <span class="portal-agenda-date">${escapeHtml(entry.label || '')}</span>
+                                    <span class="portal-agenda-hours">${escapeHtml(entry.hours || 'Horaire communiqué')}</span>
+                                </div>
+                                <a class="portal-agenda-link" href="${escapeHtml(getGoogleCalendarUrlForEntry(post, entry))}" target="_blank" rel="noopener noreferrer">
+                                    <span aria-hidden="true">↗</span>
+                                    <span>Agenda</span>
+                                </a>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : '';
+
+            const highlightsCard = Array.isArray(post.highlights) && post.highlights.length ? `
+                <div class="portal-fact-card">
+                    <p class="portal-fact-title">À retenir</p>
+                    <ul class="portal-feature-list">
+                        ${post.highlights.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : '';
+
             if (post.type === 'evenement') {
                 return `
                     <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
@@ -674,6 +793,7 @@
                                     <p class="text-sm">${escapeHtml(post.lieu)}</p>
                                 </div>
                             ` : ''}
+                            ${agendaCard}
                             ${post.date_debut_iso ? `
                                 <a class="portal-link text-sm" href="${escapeHtml(getGoogleCalendarUrl(post))}" target="_blank" rel="noopener noreferrer">
                                     <span aria-hidden="true">🗓️</span>
@@ -718,7 +838,10 @@
 
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
-                    <div class="paper-card p-5 md:p-6 bg-white/80">${textBlock}</div>
+                    <div class="paper-card p-5 md:p-6 bg-white/80 space-y-5">
+                        ${textBlock}
+                        ${highlightsCard}
+                    </div>
                     ${(post.lieu || visualCard) ? `
                         <aside class="paper-card p-5 md:p-6 space-y-4">
                             ${visualCard}
@@ -728,6 +851,7 @@
                                     <p class="text-sm">${escapeHtml(post.lieu)}</p>
                                 </div>
                             ` : ''}
+                            ${agendaCard}
                         </aside>
                     ` : ''}
                 </div>
