@@ -392,6 +392,14 @@
             searchTerm: searchParams.get('q') || ''
         };
 
+        function normalizeRubriqueLabel(value) {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim()
+                .toLowerCase();
+        }
+
         function escapeHtml(value) {
             return String(value ?? '')
                 .replaceAll('&', '&amp;')
@@ -431,8 +439,10 @@
 
         function getFilteredEvents() {
             const term = agendaState.searchTerm.trim().toLowerCase();
+            const normalizedActiveFilter = normalizeRubriqueLabel(agendaState.activeFilter);
             return agendaState.events.filter((eventItem) => {
-                const matchesFilter = agendaState.activeFilter === 'all' || eventItem.rubrique === agendaState.activeFilter;
+                const matchesFilter = agendaState.activeFilter === 'all'
+                    || normalizeRubriqueLabel(eventItem.rubrique) === normalizedActiveFilter;
                 const haystack = [
                     eventItem.title,
                     eventItem.rubrique,
@@ -556,6 +566,13 @@
                 agendaState.events = loadedEvents
                     .slice()
                     .sort((a, b) => String(a.start_iso || '').localeCompare(String(b.start_iso || '')));
+                const availableRubriques = new Set(agendaState.events.map((eventItem) => eventItem.rubrique).filter(Boolean));
+                if (agendaState.activeFilter !== 'all') {
+                    const resolvedRubrique = Array.from(availableRubriques).find(
+                        (rubrique) => normalizeRubriqueLabel(rubrique) === normalizeRubriqueLabel(agendaState.activeFilter)
+                    );
+                    agendaState.activeFilter = resolvedRubrique || 'all';
+                }
                 agendaSearchInput.value = agendaState.searchTerm;
                 renderFilters();
                 renderAgenda();
