@@ -1,35 +1,75 @@
-name: Deploy GitHub Pages
+name: Publish Journal ANNET
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      event_type:
+        description: "Notion event type"
+        required: false
+        type: string
+      event_id:
+        description: "Notion event id"
+        required: false
+        type: string
+      entity_id:
+        description: "Notion entity id"
+        required: false
+        type: string
+      event_timestamp:
+        description: "Notion event timestamp"
+        required: false
+        type: string
 
 permissions:
   contents: read
-  pages: write
   id-token: write
+  pages: write
 
 concurrency:
-  group: pages
+  group: notion-pages-publish
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version: 22
+
+      - name: Stabilize Notion webhook burst
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.event_type != '' }}
+        run: sleep 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync snapshots and build site
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PUBLICATIONS_DATA_SOURCE_ID: ${{ secrets.NOTION_PUBLICATIONS_DATA_SOURCE_ID }}
+          NOTION_AGENDA_DATA_SOURCE_ID: ${{ secrets.NOTION_AGENDA_DATA_SOURCE_ID }}
+          NOTION_MENU_ITEMS_DATA_SOURCE_ID: ${{ secrets.NOTION_MENU_ITEMS_DATA_SOURCE_ID }}
+          NOTION_SITE_SECTIONS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTIONS_DATA_SOURCE_ID }}
+          SITE_TIME_ZONE: Europe/Paris
+        run: npm run build:pages
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment

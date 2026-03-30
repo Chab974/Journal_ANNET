@@ -1,0 +1,524 @@
+{
+  "publicationPages": [
+    {
+      "id": "pub-menu-1",
+      "url": "https://notion.so/pub-menu-1",
+      "last_edited_time": "2026-03-20T09:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Le menu de la semaine à la cantine" }]
+        },
+        "Type": {
+          "type": "select",
+          "select": { "name": "menu" }
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Rubrique": {
+          "type": "select",
+          "select": { "name": "Scolaire" }
+        },
+        "Résumé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Repères clairs pour les familles." }]
+        },
+        "Date affichée": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Cette semaine" }]
+        },
+        "Ordre manuel": {
+          "type": "number",
+          "number": 1
+        },
+        "Slug": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "menu-cantine-semaine" }]
+        }
+      }
+    },
+    {
+      "id": "pub-event-1",
+      "url": "https://notion.so/pub-event-1",
+      "last_edited_time": "2026-03-21T09:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Forum des métiers à Villevaudé" }]
+        },
+        "Type": {
+          "type": "select",
+          "select": { "name": "evenement" }
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Rubrique": {
+          "type": "select",
+          "select": { "name": "Vie locale" }
+        },
+        "Résumé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Une édition locale du forum des métiers." }]
+        },
+        "Lieu": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Maison des Associations, Villevaudé" }]
+        },
+        "Date de début": {
+          "type": "date",
+          "date": { "start": "2026-04-11T12:00:00.000Z", "end": null }
+        },
+        "Date de fin": {
+          "type": "date",
+          "date": { "start": "2026-04-11T16:00:00.000Z", "end": null }
+        },
+        "Slug": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "forum-metiers-villevaude-11-avril-2026" }]
+        },
+        "Image": {
+          "type": "files",
+          "files": [
+            {
+              "name": "broken-event-cover.jpg",
+              "type": "file",
+              "file": {
+                "url": "https://files.notion.fake/broken-event-cover.jpg"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "pub-info-1",
+      "url": "https://notion.so/pub-info-1",
+      "last_edited_time": "2026-03-22T09:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Nouvelle permanence numérique parents-élèves" }]
+        },
+        "Type": {
+          "type": "select",
+          "select": { "name": "info" }
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Rubrique": {
+          "type": "select",
+          "select": { "name": "Scolaire" }
+        },
+        "Résumé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Aide hebdomadaire pour le portail famille." }]
+        },
+        "Lieu": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Mairie annexe" }]
+        },
+        "Slug": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "permanence-numerique-parents" }]
+        }
+      }
+    },
+    {
+      "id": "pub-alert-1",
+      "url": "https://notion.so/pub-alert-1",
+      "last_edited_time": "2026-03-23T09:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Travaux rue de la Marne" }]
+        },
+        "Type": {
+          "type": "select",
+          "select": { "name": "alerte" }
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Rubrique": {
+          "type": "select",
+          "select": { "name": "Travaux et mobilité" }
+        },
+        "Résumé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Circulation alternée en raison de travaux." }]
+        },
+        "Lieu": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Rue de la Marne" }]
+        },
+        "Slug": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "travaux-rue-de-la-marne" }]
+        }
+      }
+    },
+    {
+      "id": "pub-book-1",
+      "url": "https://notion.so/pub-book-1",
+      "last_edited_time": "2026-03-24T09:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Cadre noir" }]
+        },
+        "Type": {
+          "type": "select",
+          "select": { "name": "coup_de_coeur" }
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Rubrique": {
+          "type": "select",
+          "select": { "name": "Coup de cœur littéraire" }
+        },
+        "Résumé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Un récit personnel et documenté." }]
+        },
+        "Auteur": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Alix de Saint-André" }]
+        },
+        "Édition": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Gallimard" }]
+        },
+        "Image": {
+          "type": "files",
+          "files": [
+            {
+              "name": "cadre-noir-cover.png",
+              "type": "file",
+              "file": {
+                "url": "https://files.notion.fake/cadre-noir-cover.png"
+              }
+            }
+          ]
+        },
+        "Highlights": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Enquête intime\nHistoire du Cadre noir" }]
+        },
+        "Slug": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "cadre-noir-alix-de-saint-andre" }]
+        }
+      }
+    },
+    {
+      "id": "pub-archived-1",
+      "url": "https://notion.so/pub-archived-1",
+      "last_edited_time": "2026-03-25T09:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Publication archivée" }]
+        },
+        "Type": {
+          "type": "select",
+          "select": { "name": "info" }
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Brouillon" }
+        },
+        "Résumé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Ne doit pas sortir." }]
+        },
+        "Slug": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "publication-archivee" }]
+        }
+      }
+    }
+  ],
+  "agendaPages": [
+    {
+      "id": "ag-1",
+      "url": "https://notion.so/ag-1",
+      "last_edited_time": "2026-03-21T09:30:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Forum des métiers à Villevaudé" }]
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Publication liée": {
+          "type": "relation",
+          "relation": [{ "id": "pub-event-1" }]
+        },
+        "Date de début": {
+          "type": "date",
+          "date": { "start": "2026-04-11T12:00:00.000Z", "end": null }
+        },
+        "Date de fin": {
+          "type": "date",
+          "date": { "start": "2026-04-11T16:00:00.000Z", "end": null }
+        }
+      }
+    },
+    {
+      "id": "ag-2",
+      "url": "https://notion.so/ag-2",
+      "last_edited_time": "2026-03-21T10:00:00.000Z",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Agenda brouillon" }]
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Publication liée": {
+          "type": "relation",
+          "relation": [{ "id": "pub-archived-1" }]
+        },
+        "Date de début": {
+          "type": "date",
+          "date": { "start": "2026-05-01T09:00:00.000Z", "end": null }
+        }
+      }
+    }
+  ],
+  "menuItemPages": [
+    {
+      "id": "menu-1",
+      "url": "https://notion.so/menu-1",
+      "properties": {
+        "Nom": {
+          "type": "title",
+          "title": [{ "plain_text": "Paëlla végétarienne au riz" }]
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Publication liée": {
+          "type": "relation",
+          "relation": [{ "id": "pub-menu-1" }]
+        },
+        "Jour": {
+          "type": "select",
+          "select": { "name": "Lundi" }
+        },
+        "Ordre": {
+          "type": "number",
+          "number": 1
+        },
+        "Badges": {
+          "type": "multi_select",
+          "multi_select": [{ "name": "bio" }]
+        }
+      }
+    },
+    {
+      "id": "menu-2",
+      "url": "https://notion.so/menu-2",
+      "properties": {
+        "Nom": {
+          "type": "title",
+          "title": [{ "plain_text": "Gouda Bio" }]
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Publication liée": {
+          "type": "relation",
+          "relation": [{ "id": "pub-menu-1" }]
+        },
+        "Jour": {
+          "type": "select",
+          "select": { "name": "Lundi" }
+        },
+        "Ordre": {
+          "type": "number",
+          "number": 2
+        },
+        "Badges": {
+          "type": "multi_select",
+          "multi_select": [{ "name": "bio" }]
+        }
+      }
+    },
+    {
+      "id": "menu-3",
+      "url": "https://notion.so/menu-3",
+      "properties": {
+        "Nom": {
+          "type": "title",
+          "title": [{ "plain_text": "Information accueil de loisirs" }]
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Publication liée": {
+          "type": "relation",
+          "relation": [{ "id": "pub-menu-1" }]
+        },
+        "Jour": {
+          "type": "select",
+          "select": { "name": "Mercredi" }
+        },
+        "Spécial": {
+          "type": "checkbox",
+          "checkbox": true
+        },
+        "Message spécial": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "Les menus du mercredi seront affichés à l'accueil de loisirs." }]
+        }
+      }
+    }
+  ],
+  "sectionPages": [
+    {
+      "id": "section-footer-1",
+      "url": "https://notion.so/section-footer-1",
+      "properties": {
+        "Titre": {
+          "type": "title",
+          "title": [{ "plain_text": "Footer" }]
+        },
+        "Statut": {
+          "type": "status",
+          "status": { "name": "Publié" }
+        },
+        "Clé": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "footer" }]
+        },
+        "JSON": {
+          "type": "rich_text",
+          "rich_text": [{ "plain_text": "{\"legalRight\":\"Piloté par Notion\"}" }]
+        }
+      }
+    }
+  ],
+  "blocksByPageId": {
+    "pub-event-1": [
+      {
+        "id": "b-event-heading",
+        "type": "heading_2",
+        "has_children": false,
+        "heading_2": {
+          "rich_text": [{ "plain_text": "Forum des métiers" }]
+        }
+      },
+      {
+        "id": "b-event-paragraph",
+        "type": "paragraph",
+        "has_children": false,
+        "paragraph": {
+          "rich_text": [{ "plain_text": "Rencontres métiers et job dating avec parents et professionnels." }]
+        }
+      },
+      {
+        "id": "b-event-bullet-1",
+        "type": "bulleted_list_item",
+        "has_children": false,
+        "bulleted_list_item": {
+          "rich_text": [{ "plain_text": "Orientation des collégiens et lycéens" }]
+        }
+      },
+      {
+        "id": "b-event-bullet-2",
+        "type": "bulleted_list_item",
+        "has_children": false,
+        "bulleted_list_item": {
+          "rich_text": [{ "plain_text": "Participation de professionnels locaux" }]
+        }
+      },
+      {
+        "id": "b-event-image",
+        "type": "image",
+        "has_children": false,
+        "image": {
+          "type": "external",
+          "external": { "url": "https://example.com/forum-metiers.jpg" },
+          "caption": [{ "plain_text": "Affiche du forum" }]
+        }
+      },
+      {
+        "id": "b-event-video",
+        "type": "video",
+        "has_children": false,
+        "video": {
+          "type": "external",
+          "external": { "url": "https://example.com/video.mp4" },
+          "caption": []
+        }
+      }
+    ],
+    "pub-info-1": [
+      {
+        "id": "b-info-paragraph",
+        "type": "paragraph",
+        "has_children": false,
+        "paragraph": {
+          "rich_text": [{ "plain_text": "Une permanence hebdomadaire aide les familles à utiliser le portail." }]
+        }
+      }
+    ],
+    "pub-alert-1": [
+      {
+        "id": "b-alert-callout",
+        "type": "callout",
+        "has_children": false,
+        "callout": {
+          "icon": { "emoji": "⚠️" },
+          "rich_text": [{ "plain_text": "Travaux et stationnement interdit de 8h à 17h." }]
+        }
+      }
+    ],
+    "pub-book-1": [
+      {
+        "id": "b-book-quote",
+        "type": "quote",
+        "has_children": false,
+        "quote": {
+          "rich_text": [{ "plain_text": "Un récit dense, personnel et documenté." }]
+        }
+      },
+      {
+        "id": "b-book-paragraph",
+        "type": "paragraph",
+        "has_children": false,
+        "paragraph": {
+          "rich_text": [{ "plain_text": "Alix de Saint-André se penche sur le passé de son père adoré." }]
+        }
+      }
+    ],
+    "pub-menu-1": [],
+    "section-footer-1": [
+      {
+        "id": "b-footer-paragraph",
+        "type": "paragraph",
+        "has_children": false,
+        "paragraph": {
+          "rich_text": [{ "plain_text": "Bloc footer éditorial." }]
+        }
+      }
+    ]
+  }
+}

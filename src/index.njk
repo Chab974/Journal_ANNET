@@ -1,0 +1,1020 @@
+---
+permalink: index.html
+---
+{% set homeHero = journal.siteSections['home-hero'] %}
+{% set homeEditorial = journal.siteSections['home-editorial'] %}
+{% set homeRubriques = journal.siteSections['home-rubriques'] %}
+{% set homeDiffusion = journal.siteSections['home-diffusion'] %}
+{% set footerSection = journal.siteSections['footer'] %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ homeHero.pageTitle or "Le Petit Journal d'Annet - N°1 - Édition de Printemps" }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            safelist: [
+                'border-vintage-red', 'text-vintage-red',
+                'border-vintage-green', 'text-vintage-green',
+                'border-vintage-blue', 'text-vintage-blue'
+            ],
+            theme: {
+                extend: {
+                    fontFamily: {
+                        body: ['Manrope', 'sans-serif'],
+                        heading: ['Sora', 'sans-serif'],
+                    },
+                    colors: {
+                        'paper': '#f7f2e8',
+                        'ink': '#2f1c16',
+                        'vintage-red': '#7c3f2c',
+                        'vintage-green': '#496045',
+                        'vintage-blue': '#6d6b78'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --paper: #f7faf7;
+            --paper-strong: #ffffff;
+            --ink: #16314a;
+            --muted: #536679;
+            --vintage-red: #f6a318;
+            --vintage-green: #7fbf25;
+            --vintage-blue: #2894e3;
+            --gold: #ffd45e;
+            --line: #d9e5ec;
+            --shadow-soft: 0 18px 48px rgba(31, 31, 28, 0.06);
+            --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
+            --radius-xl: 18px;
+        }
+        body {
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(246,163,24,0.10), transparent 22%),
+                radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
+                linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
+        }
+        .chart-container { position: relative; width: 100%; max-width: 350px; margin: 0 auto; height: 300px; max-height: 350px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .nav-link { position: relative; transition: color 0.25s ease, opacity 0.25s ease; opacity: 0.76; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -0.45rem;
+            width: 100%;
+            height: 2px;
+            background: var(--ink);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.25s ease;
+        }
+        .nav-link:hover { color: var(--ink); opacity: 1; }
+        .nav-link:hover::after { transform: scaleX(1); }
+        .fade-in { animation: fadeIn 0.45s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .newspaper-border { border: 1px solid var(--line); border-radius: var(--radius-xl); }
+        .newspaper-border-double { border: 1px solid var(--line); border-radius: calc(var(--radius-xl) + 2px); }
+        .drop-cap::first-letter { font-family: 'Sora', sans-serif; font-size: 2.9rem; float: left; line-height: 0.9; padding-right: 0.5rem; color: var(--vintage-red); font-weight: 800; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 20px rgba(31, 31, 28, 0.05);
+        }
+        .hero-shell {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98)),
+                repeating-linear-gradient(0deg, transparent, transparent 42px, rgba(22,49,74,0.025) 43px),
+                repeating-linear-gradient(90deg, transparent, transparent 42px, rgba(22,49,74,0.015) 43px);
+            box-shadow: var(--shadow-soft);
+        }
+        .hero-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 88% 16%, rgba(246,163,24,0.14), transparent 18%),
+                radial-gradient(circle at 18% 82%, rgba(40,148,227,0.16), transparent 18%),
+                radial-gradient(circle at 52% 62%, rgba(127,191,37,0.10), transparent 20%);
+            pointer-events: none;
+        }
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.2rem 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid var(--line);
+        }
+        .hero-stat {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 1rem;
+            background: rgba(255,255,255,0.92);
+        }
+        .section-shell {
+            position: relative;
+            overflow: hidden;
+            padding: 1.5rem;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: var(--shadow-card);
+        }
+        .section-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent 14%);
+            pointer-events: none;
+        }
+        .section-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--line);
+        }
+        .section-kicker {
+            font-size: 0.72rem;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--vintage-blue);
+        }
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 1rem;
+        }
+        @media (min-width: 768px) {
+            .quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        .quick-card {
+            display: block;
+            height: 100%;
+            padding: 1.15rem;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.96);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .quick-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(22, 49, 74, 0.08);
+            border-color: rgba(40,148,227,0.35);
+        }
+        .highlight-panel {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98));
+            color: var(--ink);
+        }
+        .paper-card {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 10px 20px rgba(31, 31, 28, 0.05);
+        }
+        .portal-toolbar {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .portal-toolbar { grid-template-columns: 1.6fr 1fr auto; align-items: center; }
+        }
+        .portal-search {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.98);
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .portal-search:focus {
+            border-color: rgba(40,148,227,0.42);
+            box-shadow: 0 0 0 4px rgba(40,148,227,0.1);
+        }
+        .portal-help-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 1rem 1.1rem;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(245,251,255,0.98), rgba(248,252,244,0.98));
+        }
+        .portal-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+        .portal-filter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0.7rem 0.95rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.96);
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+        .portal-filter:hover,
+        .portal-filter[aria-pressed="true"] {
+            background: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
+            color: #fff;
+            border-color: var(--vintage-blue);
+        }
+        .portal-count {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .portal-card {
+            position: relative;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,246,242,0.98));
+            box-shadow: var(--shadow-card);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+        .portal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(31, 31, 28, 0.08);
+        }
+        .portal-card-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding-right: 4.5rem;
+        }
+        .portal-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+        .portal-type-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.55rem 0.85rem;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.94);
+            border: 1px solid var(--line);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .portal-icon-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-shadow: inset 0 0 0 1px rgba(31, 31, 28, 0.08);
+        }
+        .portal-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 0.9rem;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.92);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .portal-action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.86);
+            font-size: 1rem;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .portal-action-button:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 245, 240, 0.98);
+            border-color: rgba(40,148,227,0.28);
+        }
+        .portal-delete-button:hover {
+            background: #fff1ef;
+            border-color: rgba(165, 59, 48, 0.24);
+        }
+        .portal-ribbon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            padding: 0;
+            background: transparent;
+            border-radius: 0;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+        .portal-stamp {
+            position: absolute;
+            top: 1.15rem;
+            right: 1.15rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            background: rgba(255,255,255,0.98);
+        }
+        .portal-menu-day {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.98);
+        }
+        .portal-menu-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.95rem 0;
+            border-bottom: 1px solid rgba(31, 31, 28, 0.08);
+        }
+        .portal-menu-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .portal-favorite-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            font-size: 1rem;
+            transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .portal-favorite-button:hover {
+            transform: scale(0.98);
+            background: #fff1f4;
+        }
+        .portal-favorite-button[aria-pressed="true"] {
+            background: #ffe7ee;
+            color: #bb526b;
+            border-color: rgba(187, 82, 107, 0.18);
+        }
+        .portal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 0.22rem 0.58rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            background: rgba(255,255,255,0.96);
+        }
+        .portal-badge--bio {
+            background: #eef7ef;
+            border-color: rgba(81, 129, 91, 0.18);
+            color: #47624d;
+        }
+        .portal-badge--france {
+            background: #eef3fb;
+            border-color: rgba(88, 115, 171, 0.18);
+            color: #1f69a3;
+        }
+        .portal-badge--regional {
+            background: #fbf0df;
+            border-color: rgba(188, 141, 80, 0.18);
+            color: #8d6534;
+        }
+        .portal-badge--msc {
+            background: #e8f5f8;
+            border-color: rgba(78, 145, 161, 0.18);
+            color: #3c6d79;
+        }
+        .portal-badge--ce2,
+        .portal-badge--certifié {
+            background: #fff1e7;
+            border-color: rgba(193, 128, 74, 0.18);
+            color: #92531f;
+        }
+        .portal-note {
+            border-left: 3px solid var(--vintage-blue);
+            padding-left: 1rem;
+        }
+        .portal-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-bottom: 1px solid rgba(40,148,227,0.35);
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .portal-status-box {
+            margin-bottom: 1.2rem;
+            padding: 1rem 1.1rem;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.94);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .portal-status-box--error {
+            background: #fff0ee;
+            border-color: rgba(170, 76, 66, 0.24);
+            color: #8a3d33;
+        }
+        .portal-status-box--info {
+            background: #f4efe9;
+            border-color: rgba(108, 74, 63, 0.18);
+            color: #5f4d46;
+        }
+        .masthead-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--line);
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .category-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.2rem 0.65rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.92);
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--vintage-blue);
+        }
+        .feature-visual {
+            min-height: 280px;
+            border: 1px solid rgba(40,148,227,0.18);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(246,163,24,0.96), rgba(127,191,37,0.92) 48%, rgba(40,148,227,0.92));
+            color: #fff;
+        }
+        .section-divider {
+            height: 1px;
+            width: 100%;
+            background: var(--line);
+        }
+        .hero-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.7rem, 6vw, 4.8rem);
+            font-weight: 800;
+            line-height: 0.96;
+            letter-spacing: -0.04em;
+            text-transform: none;
+        }
+        .hero-title span {
+            display: block;
+        }
+        .hero-quote {
+            margin-top: 0.85rem;
+            font-family: 'Manrope', sans-serif;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            line-height: 1.4;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .hero-feature-copy {
+            max-width: 34rem;
+        }
+        .hero-feature-copy .category-chip {
+            background: rgba(255,255,255,0.18);
+            border-color: rgba(255,255,255,0.28);
+            color: #fff;
+        }
+        .hero-feature-copy p {
+            color: rgba(255,255,255,0.88);
+        }
+        .hero-feature-copy h2 {
+            font-size: clamp(2rem, 4vw, 3.15rem);
+            line-height: 0.98;
+        }
+    </style>
+</head>
+<body class="font-body antialiased text-ink">
+
+    <nav class="sticky top-0 z-50 glass-nav border-b border-ink/10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center gap-4">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer font-heading font-bold text-2xl tracking-tight" onclick="window.scrollTo(0,0)">
+                    <span class="flex items-center justify-center w-11 h-11 rounded-xl text-white text-lg shadow-lg shadow-sky-200/70" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-green) 48%, var(--vintage-blue));">✦</span>
+                    <div>
+                        <div>Le Bulletin</div>
+                        <div class="text-[10px] uppercase tracking-[0.28em] text-vintage-red font-body">Annet-sur-Marne</div>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-8 font-heading font-bold uppercase tracking-widest text-xs">
+                    <a href="#contexte" class="nav-link">Contexte</a>
+                    <a href="#piliers" class="nav-link">Ligne Éditoriale</a>
+                    <a href="#maquette" class="nav-link">Maquette N°1</a>
+                    <a href="portail.html" class="nav-link">Portail Citoyen</a>
+                    <a href="agenda.html" class="nav-link">Agenda</a>
+                    <a href="#diffusion" class="nav-link">Diffusion</a>
+                </div>
+                <a href="portail.html" class="hidden lg:inline-flex items-center gap-2 rounded-full px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));">
+                    Ouvrir le portail
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-20">
+
+        <header id="hero" class="hero-shell mb-16 px-6 py-8 md:px-10 md:py-10">
+            <div class="relative z-10">
+                <div class="masthead-line">
+                    {% for label in homeHero.masthead %}
+                    <span>{{ label }}</span>
+                    {% endfor %}
+                </div>
+                <h1 class="hero-title text-center md:text-left">
+                    {% for line in homeHero.titleLines %}
+                    <span>{{ line }}</span>
+                    {% endfor %}
+                </h1>
+                <p class="hero-quote text-center md:text-left">{{ homeHero.quote }}</p>
+                <div class="section-divider my-6"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-start">
+                    <div>
+                        <div class="feature-visual mb-6 flex items-end p-6 md:p-8">
+                            <div class="hero-feature-copy">
+                                <span class="category-chip mb-4">{{ homeHero.feature.kicker }}</span>
+                                <h2 class="text-3xl md:text-5xl font-heading font-black uppercase leading-[0.92] mb-3">{{ homeHero.feature.title }}</h2>
+                                <p class="text-base md:text-lg leading-relaxed">
+                                    {{ homeHero.feature.description }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="hero-stat sm:col-span-2">
+                            <p class="text-xs uppercase tracking-[0.22em] font-bold text-vintage-red mb-3">{{ homeHero.editorial.eyebrow }}</p>
+                            <p class="text-2xl font-heading font-black uppercase leading-[1] mb-3">{{ homeHero.editorial.title }}</p>
+                            <p class="text-sm leading-relaxed text-[color:var(--muted)]">{{ homeHero.editorial.description }}</p>
+                        </div>
+                        {% for stat in homeHero.stats %}
+                        <div class="hero-stat">
+                            <p class="text-xs uppercase tracking-[0.18em] font-bold {% if loop.index0 == 0 %}text-vintage-red{% else %}text-vintage-blue{% endif %} mb-2">{{ stat.eyebrow }}</p>
+                            <p class="text-4xl font-heading font-black leading-none">{{ stat.value }}</p>
+                            <p class="text-sm mt-2 text-[color:var(--muted)]">{{ stat.description }}</p>
+                        </div>
+                        {% endfor %}
+                        <div class="hero-stat sm:col-span-2">
+                            <div class="flex flex-wrap gap-3">
+                                {% for action in homeHero.actions %}
+                                <a href="{{ action.href }}" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors {% if action.theme == 'red' %}bg-vintage-red text-white shadow-lg shadow-orange-200/70 hover:bg-ink{% elif action.theme == 'blue' %}bg-vintage-blue text-white shadow-lg shadow-sky-200/70 hover:bg-ink{% else %}border border-ink/15 bg-white text-ink hover:bg-paper{% endif %}">{{ action.label }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="section-shell">
+            <div class="section-header">
+                <span class="section-kicker">{{ homeRubriques.kicker }}</span>
+                <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ homeRubriques.title }}</h2>
+                        <p class="mt-3 max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">{{ homeRubriques.description }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="quick-grid">
+                {% for item in homeRubriques.items %}
+                <a href="{{ item.href }}" class="quick-card">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold {{ item.theme }} mb-2">{{ item.kicker }}</p>
+                    <h3 class="text-2xl font-heading font-black mb-2">{{ item.title }}</h3>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">{{ item.description }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="contexte" class="section-shell">
+            <div class="section-header">
+                <span class="section-kicker">Origine du projet</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">La genèse du projet</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="space-y-4 md:border-r md:border-ink/10 md:pr-10">
+                    <p class="leading-relaxed drop-cap text-justify">
+                        Cette section présente le point de départ de notre initiative. Suite à la mobilisation citoyenne (illustrée par les 45,91% des voix obtenus par "Ensemble, Réveillons Annet"), une dynamique constructive est née. Notre volonté est d'agir au service de tous les habitants, avec sérieux et transparence.
+                    </p>
+                    <div class="mt-6 paper-card p-5">
+                        <p class="text-xs uppercase font-bold tracking-widest text-vintage-red mb-2">Notre Serment Éditorial</p>
+                        <p class="italic font-heading text-lg leading-snug">"Refuser la polémique et les attaques inutiles pour privilégier la compréhension des enjeux locaux, l'entraide, le respect de notre cadre de vie et l'imagination de notre avenir commun."</p>
+                    </div>
+                </div>
+                <div class="highlight-panel flex flex-col items-center justify-center p-6 md:p-8">
+                    <h3 class="text-xl font-heading font-bold uppercase tracking-widest mb-2 text-center">Le Socle Citoyen</h3>
+                    <p class="text-sm italic mb-6 text-center text-[color:var(--muted)]">Résultats électoraux fondateurs</p>
+                    <div class="chart-container">
+                        <canvas id="electionChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-center font-heading font-bold text-xl flex gap-4">
+                        <span class="border-b border-ink/20 pb-1">601 voix</span>
+                        <span class="border-b border-ink/20 text-vintage-red pb-1">5 élus</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="piliers" class="section-shell">
+            <div class="section-header text-center items-center">
+                <span class="section-kicker">Architecture éditoriale</span>
+                <h2 class="text-4xl font-heading font-black uppercase tracking-wider">Nos 7 Piliers Éditoriaux</h2>
+                <p class="max-w-2xl mx-auto italic text-[#5f5a52]">
+                    Découvrez l'ADN de notre journal en naviguant dans les rubriques ci-dessous.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 mb-8" id="pillar-buttons">
+                <!-- Dynamique -->
+            </div>
+
+            <div id="pillar-content" class="paper-card p-8 md:p-12 min-h-[220px] flex items-center justify-center fade-in">
+                <!-- Dynamique -->
+            </div>
+        </section>
+
+        <section id="maquette" class="section-shell bg-ink text-paper">
+            <div class="p-2">
+                <div class="section-header text-center items-center border-paper/20">
+                    <span class="section-kicker text-[#f6d58f]">Prototype éditorial</span>
+                    <h2 class="text-3xl font-heading font-black uppercase tracking-widest mb-2">Le Petit Journal d'Annet - N°1 - Édition de Printemps</h2>
+                    <p class="italic text-paper/80 font-serif mb-2">Village oui, mais pas village isolé.</p>
+                    <p class="italic text-paper/80 font-serif">Feuilletez virtuellement les rubriques de notre première édition.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div class="lg:col-span-1 border-r border-paper/20 pr-4 space-y-1" id="page-nav">
+                        <!-- Dynamique -->
+                    </div>
+                    <div class="lg:col-span-3 bg-paper text-ink p-8 rounded-[28px] relative fade-in shadow-2xl shadow-black/10" id="page-content">
+                        <!-- Dynamique -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portail" class="section-shell">
+            <div class="p-2">
+                <div class="section-header">
+                    <div class="max-w-4xl">
+                        <p class="section-kicker mb-3">{{ homeEditorial.eyebrow }}</p>
+                        <h2 class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">{{ homeEditorial.title }}</h2>
+                        <p class="text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
+                            {{ homeEditorial.description }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-[1.25fr_0.75fr] gap-6">
+                    <div class="paper-card p-6 md:p-8">
+                        <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">{{ homeEditorial.highlightEyebrow }}</p>
+                        <h3 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight mb-4">{{ homeEditorial.highlightTitle }}</h3>
+                        <p class="text-base leading-relaxed text-[color:var(--muted)] mb-6">
+                            {{ homeEditorial.highlightDescription }}
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            {% for action in homeEditorial.actions %}
+                            <a href="{{ action.href }}" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-[0.14em] transition-colors {% if action.variant == 'primary' %}bg-vintage-blue text-white shadow-lg shadow-sky-200/70 hover:bg-ink{% else %}border border-ink/15 bg-white text-ink hover:bg-paper{% endif %}">
+                                {{ action.label }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="paper-card p-6 md:p-8">
+                        <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-4">{{ homeEditorial.quickLinksEyebrow }}</p>
+                        <div class="space-y-3">
+                            {% for link in homeEditorial.ctaLinks %}
+                            <a href="{{ link.href }}" class="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm font-bold hover:bg-paper transition-colors">
+                                <span>{{ link.label }}</span>
+                                <span aria-hidden="true">→</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="diffusion" class="section-shell mb-20">
+            <div class="section-header text-center items-center">
+                <span class="section-kicker">{{ homeDiffusion.kicker }}</span>
+                <h2 class="text-4xl font-heading font-black uppercase tracking-wider">{{ homeDiffusion.title }}</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% for card in homeDiffusion.cards %}
+                <div class="paper-card p-8 text-center flex flex-col items-center {% if loop.first %}group{% endif %}">
+                    <div class="text-4xl mb-4">{{ card.emoji }}</div>
+                    <h3 class="text-xl font-heading font-bold uppercase mb-3 {% if loop.last %}text-vintage-red{% endif %}">{{ card.title }}</h3>
+                    <p class="text-sm text-[#5f5a52]">{{ card.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="rounded-[26px] overflow-hidden border border-ink/10 bg-[#fdfaf4] text-ink shadow-[0_18px_36px_rgba(47,28,22,0.08)]">
+                <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8 px-6 py-8 md:px-10 md:py-10">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.24em] font-bold text-vintage-red mb-3">{{ footerSection.kicker }}</p>
+                        <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight mb-3">{{ footerSection.title }}</h2>
+                        <p class="max-w-2xl text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
+                            {{ footerSection.description }}
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for card in footerSection.cards %}
+                        <div class="rounded-3xl bg-white p-4 border border-ink/10">
+                            <p class="text-xs uppercase tracking-[0.18em] font-bold {% if loop.index0 == 0 %}text-vintage-red{% else %}text-vintage-blue{% endif %} mb-2">{{ card.kicker }}</p>
+                            <p class="text-sm text-[color:var(--muted)]">{{ card.description }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="border-t border-ink/10 px-6 py-4 md:px-10 flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-xs uppercase tracking-[0.18em] font-bold text-[color:var(--muted)]">
+                    <span>{{ footerSection.legalLeft }}</span>
+                    <span>{{ footerSection.legalRight }}</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Graphique (Chart.js) Vintage ---
+        const chartData = {
+            labels: ['Ensemble, Réveillons Annet', 'Autres voix'],
+            datasets: [{
+                data: [45.91, 54.09],
+                backgroundColor: ['#7c3f2c', '#ddd0bb'],
+                hoverBackgroundColor: ['#643122', '#c7b89f'],
+                borderWidth: 2,
+                borderColor: '#f7f2e8',
+                cutout: '65%'
+            }]
+        };
+
+        const ctx = document.getElementById('electionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Manrope', size: 12, weight: 'bold' },
+                            color: '#6f625b'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#2f1c16',
+                        titleFont: { family: 'Bodoni Moda' },
+                        bodyFont: { family: 'Manrope' },
+                        callbacks: {
+                            label: function(context) { return ' ' + context.label + ' : ' + context.raw + ' %'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- 2. Piliers Éditoriaux ---
+        const pillarsData = [
+            { id: 'p1', title: 'Info & Politique Locale', icon: '⚖️', theme: 'vintage-red', principe: 'Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.', objectif: 'Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.' },
+            { id: 'p2', title: 'Ouverture & Intercommunalité', icon: '🤝', theme: 'vintage-red', principe: "Annet n'est pas une île. Donner la parole aux communes voisines (Claye-Souilly, Fresnes-sur-Marne, Carnetin, Jablines...) et relayer leurs événements.", objectif: "Mutualiser les bonnes idées et encourager les échanges culturels et associatifs au-delà des panneaux d'entrée de ville." },
+            { id: 'p3', title: 'Guide Citoyen', icon: '🛡️', theme: 'vintage-red', principe: 'Lutter activement contre les exclusions sociales, numériques et identitaires en apportant des solutions concrètes.', objectif: 'Aider pour les démarches administratives, faire connaître les aides existantes et créer des ponts entre les générations.' },
+            { id: 'p4', title: 'Lien Social', icon: '☕', theme: 'vintage-red', principe: 'Mettre en valeur les habitants, les initiatives locales et ouvrir le débat sur l\'avenir.', objectif: 'Donner envie de dire bonjour à son voisin, créer des moments de convivialité et réfléchir collectivement à l\'évolution du village.' },
+            { id: 'p5', title: 'Écologie & Cadre de Vie', icon: '🌱', theme: 'vintage-green', principe: 'Traiter les sujets environnementaux locaux de façon concrète et non idéologique.', objectif: 'Aider les habitants à comprendre les projets (eau, déchets, mobilité, biodiversité), à s\'équiper et à participer aux initiatives locales.' },
+            { id: 'p6', title: 'Vie Associative', icon: '🎗️', theme: 'vintage-blue', principe: 'Mettre en lumière les associations, leurs bénévoles et leurs besoins, sans communication vitrine.', objectif: 'Donner de la visibilité aux initiatives, faciliter le recrutement de bénévoles et renforcer les coopérations entre assos.' },
+            { id: 'p7', title: 'Soloprenariat & Économie Locale', icon: '🛍️', theme: 'vintage-blue', principe: 'Valoriser les artisans, indépendants, micro-entreprises et commerces de proximité, sans pub déguisée.', objectif: 'Rendre ces activités identifiables, utiles et connectées aux habitants via des portraits, des services et des projets.' }
+        ];
+
+        const btnContainer = document.getElementById('pillar-buttons');
+        const contentContainer = document.getElementById('pillar-content');
+        let currentPillarId = 'p1';
+
+        function renderPillars() {
+            btnContainer.innerHTML = '';
+            pillarsData.forEach(p => {
+                const isActive = p.id === currentPillarId;
+                const activeClasses = `bg-ink text-paper border-ink shadow-lg shadow-black/10`;
+                const btn = document.createElement('button');
+                btn.className = `px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all ${isActive ? activeClasses : 'border-ink/10 bg-white/70 text-ink hover:bg-white hover:-translate-y-0.5'}`;
+                btn.innerHTML = p.title;
+                btn.onclick = () => { currentPillarId = p.id; renderPillars(); renderPillarContent(); };
+                btnContainer.appendChild(btn);
+            });
+        }
+
+        function renderPillarContent() {
+            const data = pillarsData.find(p => p.id === currentPillarId);
+            const titleColor = data.theme === 'vintage-red' ? 'text-ink' : `text-${data.theme}`;
+            const accentLine = `border-${data.theme}`;
+
+            contentContainer.innerHTML = `
+                <div class="w-full max-w-4xl fade-in flex flex-col md:flex-row gap-8 items-center">
+                    <div class="text-6xl md:text-8xl grayscale opacity-80">${data.icon}</div>
+                    <div class="flex-1 space-y-4">
+                        <h3 class="text-3xl font-heading font-black uppercase ${titleColor} mb-2 border-b-2 ${accentLine} pb-2 inline-block">${data.title}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">Le Principe</h4>
+                                <p class="text-sm leading-relaxed text-justify">${data.principe}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">L'Objectif</h4>
+                                <p class="text-sm leading-relaxed text-justify font-bold">${data.objectif}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 3. Maquette (Pagination interactive vintage) ---
+        const pagesData = [
+            {
+                id: 'page1', title: 'Page 1 : L\'Édito & L\'Essentiel',
+                content: `
+                    <div class="columns-1 md:columns-2 gap-8 space-y-6">
+                        <div class="break-inside-avoid border-b-2 border-ink pb-4">
+                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-ink inline-block mb-2 text-vintage-red">L'Édito</h3>
+                            <h4 class="text-3xl font-heading font-black mt-1 leading-none mb-2">"Pourquoi ce journal ?"</h4>
+                            <p class="text-sm italic text-justify drop-cap">Explication de notre démarche : la volonté d'informer, de relier et d'inclure, loin des clivages électoraux. Il est temps de construire ensemble l'avenir de notre commune.</p>
+                        </div>
+                        <div class="break-inside-avoid">
+                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-ink inline-block mb-2">En Bref</h3>
+                            <ul class="mt-2 space-y-2 text-sm font-bold">
+                                <li class="border-b border-ink/20 pb-1">☛ Mairie : Nouveaux horaires de la médiathèque</li>
+                                <li class="border-b border-ink/20 pb-1">☛ Sécurité : Rappel sur les vitesses en centre-ville</li>
+                                <li class="border-b border-ink/20 pb-1">☛ Agenda : Marché local et forum des associations ce samedi</li>
+                            </ul>
+                        </div>
+                    </div>`
+            },
+            {
+                id: 'page2', title: 'Page 2 : Décryptage & Voisins',
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="md:border-r border-ink md:pr-8">
+                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-ink inline-block mb-2 text-vintage-red">Le Fait du Mois</h3>
+                            <h4 class="text-2xl font-heading font-black mt-1 leading-tight mb-2">Retour sur le Conseil Municipal</h4>
+                            <p class="text-sm text-justify">Présentation factuelle des décisions. Focus sur les 5 élus minoritaires, leur rôle et leur méthode de travail "sérieuse et constructive".</p>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-widest border-b border-ink inline-block mb-2">Côté Voisins</h3>
+                            <h4 class="text-2xl font-heading font-black mt-1 leading-tight mb-2">L'Agenda Intercommunal</h4>
+                            <p class="text-sm text-justify">Zoom sur un événement culturel ou associatif incontournable prévu le mois prochain dans une commune limitrophe (Fresnes, Claye...).</p>
+                        </div>
+                    </div>`
+            },
+            {
+                id: 'page3', title: 'Page 3 : Le Guide Citoyen',
+                content: `
+                    <div class="border-4 border-double border-vintage-blue p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-blue mb-1">Dossier Inclusion Numérique</h3>
+                                <h4 class="text-2xl font-heading font-black leading-tight mb-2">Face à la dématérialisation : comment faire ?</h4>
+                                <p class="text-sm text-justify">Liste des points d'accès numériques gratuits autour d'Annet, ateliers d'initiation et contacts pour se faire accompagner dans les démarches.</p>
+                            </div>
+                            <div class="md:border-l md:border-vintage-blue md:pl-6">
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-vintage-blue mb-1">Le Coin de l'Entraide</h3>
+                                <h4 class="text-2xl font-heading font-black leading-tight mb-2">Petites annonces gratuites</h4>
+                                <p class="text-sm text-justify">Don d'objets, covoiturage, aide aux devoirs, coups de main ponctuels : une rubrique simple pour connecter les besoins et les bonnes volontés.</p>
+                            </div>
+                        </div>
+                    </div>`
+            },
+            {
+                id: 'page4', title: 'Page 4 : Rencontre & Agora',
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="md:border-r border-ink md:pr-8">
+                            <h3 class="text-xs font-bold uppercase tracking-widest mb-1 text-vintage-red">Le Portrait</h3>
+                            <h4 class="text-2xl font-heading font-black leading-tight mb-2">Rencontre au village</h4>
+                            <p class="text-sm text-justify">Interview du boulanger, d'un agriculteur local ou d'un président d'association pour raconter un parcours utile à la vie locale.</p>
+                        </div>
+                        <div class="bg-ink text-paper p-6 text-center">
+                            <h3 class="text-xs font-bold uppercase tracking-widest mb-2 border-b border-paper/30 pb-1">L'Agora</h3>
+                            <h4 class="text-2xl font-heading font-black mb-3 text-vintage-red">"Quelles animations pour cet été à Annet ?"</h4>
+                            <p class="text-sm italic mb-4">Partagez vos idées constructives, elles seront publiées dans le prochain numéro.</p>
+                            <span class="border border-paper px-3 py-1 font-bold text-xs">courrier@petitjournal-annet.fr</span>
+                        </div>
+                    </div>`
+            }
+        ];
+
+        const pageNav = document.getElementById('page-nav');
+        const pageContent = document.getElementById('page-content');
+        let currentPageId = 'page1';
+
+        function renderPages() {
+            pageNav.innerHTML = '';
+            pagesData.forEach(p => {
+                const isActive = p.id === currentPageId;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 text-sm font-heading font-bold uppercase tracking-wider rounded-2xl transition-all ${isActive ? 'bg-paper text-ink shadow-lg shadow-black/10' : 'text-paper/80 hover:text-paper hover:bg-white/5'}`;
+                btn.innerText = p.title.split(' : ')[1];
+                btn.onclick = () => { currentPageId = p.id; renderPages(); renderPageContent(); };
+                pageNav.appendChild(btn);
+            });
+        }
+
+        function renderPageContent() {
+            const data = pagesData.find(p => p.id === currentPageId);
+            pageContent.innerHTML = '';
+            setTimeout(() => {
+                pageContent.innerHTML = `
+                    <div class="absolute top-0 right-0 bg-ink text-paper px-2 py-1 font-heading text-xs font-bold tracking-widest border-b border-l border-ink">
+                        FOLIO ${data.title.match(/Page (\d+)/)[1]}
+                    </div>
+                    <div class="h-full pt-6 fade-in">
+                        ${data.content}
+                    </div>
+                `;
+            }, 30);
+        }
+
+        // Init
+        renderPillars(); renderPillarContent();
+        renderPages(); renderPageContent();
+    </script>
+</body>
+</html>
