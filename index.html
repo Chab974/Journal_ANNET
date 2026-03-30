@@ -485,30 +485,6 @@
             text-transform: uppercase;
             color: var(--muted);
         }
-        .masthead-categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--line);
-            font-family: 'Syne', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 800;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-        }
-        .masthead-category-link {
-            display: inline-flex;
-            align-items: center;
-            padding-bottom: 0.08rem;
-            border-bottom: 2px solid transparent;
-            transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-        }
-        .masthead-category-link:hover {
-            color: var(--vintage-blue);
-            border-color: rgba(40,148,227,0.45);
-            transform: translateY(-1px);
-        }
         .category-chip {
             display: inline-flex;
             align-items: center;
@@ -587,6 +563,7 @@
                     <a href="#piliers" class="nav-link">Ligne Éditoriale</a>
                     <a href="#maquette" class="nav-link">Maquette N°1</a>
                     <a href="portail.html" class="nav-link">Portail Citoyen</a>
+                    <a href="agenda.html" class="nav-link">Agenda</a>
                     <a href="#diffusion" class="nav-link">Diffusion</a>
                 </div>
                 <a href="portail.html" class="hidden lg:inline-flex items-center gap-2 rounded-full px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));">
@@ -623,14 +600,6 @@
                                 </p>
                             </div>
                         </div>
-                        <div class="masthead-categories">
-                            <a href="portail.html?rubrique=Scolaire&amp;slug=menu-cantine-semaine" class="masthead-category-link">Scolaire</a>
-                            <a href="portail.html?rubrique=%C3%89v%C3%A9nements&amp;slug=brocante-printemps-centre-ville" class="masthead-category-link">Événements</a>
-                            <a href="portail.html?rubrique=Travaux%20et%20mobilit%C3%A9&amp;slug=travaux-rue-de-la-marne" class="masthead-category-link">Travaux</a>
-                            <a href="portail.html?rubrique=Vie%20associative&amp;slug=forum-associations-benevoles" class="masthead-category-link">Vie associative</a>
-                            <a href="portail.html?rubrique=Coup%20de%20c%C5%93ur%20litt%C3%A9raire&amp;slug=qui-se-ressemble-agnes-desarthe" class="masthead-category-link">Littérature</a>
-                            <a href="portail.html?rubrique=Vie%20du%20village&amp;slug=balade-patrimoniale-dimanche" class="masthead-category-link">Vie du village</a>
-                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -652,6 +621,7 @@
                         <div class="hero-stat sm:col-span-2">
                             <div class="flex flex-wrap gap-3">
                                 <a href="portail.html" class="inline-flex items-center gap-2 rounded-full bg-vintage-red px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-orange-200/70 hover:bg-ink transition-colors">Explorer le portail</a>
+                                <a href="agenda.html" class="inline-flex items-center gap-2 rounded-full bg-vintage-blue px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-sky-200/70 hover:bg-ink transition-colors">Voir l'agenda</a>
                                 <a href="#maquette" class="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-ink text-sm font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors">Voir la maquette</a>
                             </div>
                         </div>
@@ -807,6 +777,10 @@
                             </a>
                             <a href="portail.html?rubrique=Coup%20de%20c%C5%93ur%20litt%C3%A9raire&amp;slug=qui-se-ressemble-agnes-desarthe" class="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm font-bold hover:bg-paper transition-colors">
                                 <span>Coup de cœur littéraire</span>
+                                <span aria-hidden="true">→</span>
+                            </a>
+                            <a href="agenda.html" class="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm font-bold hover:bg-paper transition-colors">
+                                <span>Agenda du village</span>
                                 <span aria-hidden="true">→</span>
                             </a>
                         </div>

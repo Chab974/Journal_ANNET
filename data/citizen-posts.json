@@ -143,7 +143,7 @@
     "rubrique": "Vie du village",
     "type": "info",
     "titre": "Instant Gourmand revient place de l'Église",
-    "date": "30 mars, 13 avril, 4-11-18 mai et les dimanches de juin",
+    "date": "Les lundis 9, 16, 23 et 30 mars, 13 avril, 4, 11, 18 mai, puis 1, 8, 15, 22 et 29 juin",
     "lieu": "Place de l'Église, Annet-sur-Marne",
     "image": "assets/events/instant-gourmand.jpg",
     "image_caption": "Affiche du rendez-vous gourmand",
@@ -155,7 +155,25 @@
     ],
     "event_dates": [
       {
-        "label": "Dimanche 30 mars 2026",
+        "label": "Lundi 9 mars 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260309T140000Z",
+        "date_fin_iso": "20260309T170000Z"
+      },
+      {
+        "label": "Lundi 16 mars 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260316T140000Z",
+        "date_fin_iso": "20260316T170000Z"
+      },
+      {
+        "label": "Lundi 23 mars 2026",
+        "hours": "15h - 18h",
+        "date_debut_iso": "20260323T140000Z",
+        "date_fin_iso": "20260323T170000Z"
+      },
+      {
+        "label": "Lundi 30 mars 2026",
         "hours": "15h - 18h",
         "date_debut_iso": "20260330T130000Z",
         "date_fin_iso": "20260330T160000Z"
@@ -215,6 +233,6 @@
         "date_fin_iso": "20260629T160000Z"
       }
     ],
-    "contenu_texte": "ShareWith.otes propose un Instant Gourmand place de l'Église à Annet-sur-Marne. L'affiche annonce un retour à l'heure du goûter, de 15h à 18h, avec plusieurs dates entre fin mars et fin juin. Le rendez-vous met en avant une pause gourmande de quartier avec boissons fraîches, café et pâtisseries à partager."
+    "contenu_texte": "ShareWith.otes propose un Instant Gourmand place de l'Église à Annet-sur-Marne. Le rendez-vous est annoncé de 15h à 18h les lundis 9, 16, 23 et 30 mars, le 13 avril, les 4, 11 et 18 mai, puis les 1, 8, 15, 22 et 29 juin. Le rendez-vous met en avant une pause gourmande de quartier avec café, limonade, thé glacé, cookies, brownies et crumble."
   }
 ]
