@@ -70,6 +70,52 @@
         }
         .nav-link:hover { color: var(--ink); opacity: 1; }
         .nav-link:hover::after { transform: scaleX(1); }
+        .mobile-nav {
+            position: relative;
+        }
+        .mobile-nav summary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            min-height: 44px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.96);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            list-style: none;
+            cursor: pointer;
+        }
+        .mobile-nav summary::-webkit-details-marker {
+            display: none;
+        }
+        .mobile-nav-panel {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            width: min(18rem, calc(100vw - 2rem));
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.98);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            z-index: 60;
+        }
+        .mobile-nav-panel a {
+            display: block;
+            padding: 0.95rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .mobile-nav-panel a + a {
+            border-top: 1px solid var(--line);
+        }
         .fade-in { animation: fadeIn 0.45s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .newspaper-border { border: 1px solid var(--line); border-radius: var(--radius-xl); }
@@ -544,6 +590,21 @@
             font-size: clamp(2rem, 4vw, 3.15rem);
             line-height: 0.98;
         }
+        @media (max-width: 767px) {
+            .masthead-line {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.55rem 1rem;
+                font-size: 0.7rem;
+                text-align: center;
+            }
+            .feature-visual {
+                min-height: 220px;
+            }
+            .hero-stat {
+                padding: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body class="font-body antialiased text-ink">
@@ -566,6 +627,20 @@
                     <a href="agenda.html" class="nav-link">Agenda</a>
                     <a href="#diffusion" class="nav-link">Diffusion</a>
                 </div>
+                <details class="mobile-nav md:hidden">
+                    <summary aria-label="Ouvrir le menu">
+                        <span>Menu</span>
+                        <span aria-hidden="true">☰</span>
+                    </summary>
+                    <div class="mobile-nav-panel">
+                        <a href="#contexte">Contexte</a>
+                        <a href="#piliers">Ligne Éditoriale</a>
+                        <a href="#maquette">Maquette N°1</a>
+                        <a href="portail.html">Portail Citoyen</a>
+                        <a href="agenda.html">Agenda</a>
+                        <a href="#diffusion">Diffusion</a>
+                    </div>
+                </details>
                 <a href="portail.html" class="hidden lg:inline-flex items-center gap-2 rounded-full px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));">
                     Ouvrir le portail
                 </a>
@@ -620,9 +695,9 @@
                         </div>
                         <div class="hero-stat sm:col-span-2">
                             <div class="flex flex-wrap gap-3">
-                                <a href="portail.html" class="inline-flex items-center gap-2 rounded-full bg-vintage-red px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-orange-200/70 hover:bg-ink transition-colors">Explorer le portail</a>
-                                <a href="agenda.html" class="inline-flex items-center gap-2 rounded-full bg-vintage-blue px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-sky-200/70 hover:bg-ink transition-colors">Voir l'agenda</a>
-                                <a href="#maquette" class="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-ink text-sm font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors">Voir la maquette</a>
+                                <a href="portail.html" class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-vintage-red px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-orange-200/70 hover:bg-ink transition-colors">Explorer le portail</a>
+                                <a href="agenda.html" class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-vintage-blue px-6 py-3 text-white text-sm font-bold uppercase tracking-[0.14em] shadow-lg shadow-sky-200/70 hover:bg-ink transition-colors">Voir l'agenda</a>
+                                <a href="#maquette" class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full border border-ink/15 bg-white px-6 py-3 text-ink text-sm font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors">Voir la maquette</a>
                             </div>
                         </div>
                     </div>
@@ -826,7 +901,7 @@
                             La page fonctionne comme une couverture éditoriale : des rubriques stables, des sujets mis en avant et un portail que l’on peut enrichir à chaque nouvelle publication.
                         </p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="rounded-3xl bg-white p-4 border border-ink/10">
                             <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Rubriques</p>
                             <p class="text-sm text-[color:var(--muted)]">Scolaire, événements, travaux, vie associative, culture.</p>

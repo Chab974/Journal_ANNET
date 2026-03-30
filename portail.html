@@ -71,6 +71,52 @@
         .nav-link.is-active { color: var(--ink); opacity: 1; }
         .nav-link:hover::after,
         .nav-link.is-active::after { transform: scaleX(1); }
+        .mobile-nav {
+            position: relative;
+        }
+        .mobile-nav summary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            min-height: 44px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255,255,255,0.96);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            list-style: none;
+            cursor: pointer;
+        }
+        .mobile-nav summary::-webkit-details-marker {
+            display: none;
+        }
+        .mobile-nav-panel {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            width: min(18rem, calc(100vw - 2rem));
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.98);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            z-index: 60;
+        }
+        .mobile-nav-panel a {
+            display: block;
+            padding: 0.95rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .mobile-nav-panel a + a {
+            border-top: 1px solid var(--line);
+        }
         .section-shell {
             position: relative;
             overflow: hidden;
@@ -484,6 +530,20 @@
                 transform: translateY(-6px) rotate(1deg);
             }
         }
+        @media (max-width: 767px) {
+            .portal-card-header {
+                padding-right: 0;
+            }
+            .portal-date-pill {
+                width: 100%;
+                justify-content: center;
+            }
+            .portal-stamp {
+                position: static;
+                display: inline-flex;
+                margin-bottom: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="font-body antialiased text-ink">
@@ -505,6 +565,20 @@
                     <a href="agenda.html" class="nav-link">Agenda</a>
                     <a href="index.html#diffusion" class="nav-link">Diffusion</a>
                 </div>
+                <details class="mobile-nav md:hidden">
+                    <summary aria-label="Ouvrir le menu">
+                        <span>Menu</span>
+                        <span aria-hidden="true">☰</span>
+                    </summary>
+                    <div class="mobile-nav-panel">
+                        <a href="index.html#contexte">Contexte</a>
+                        <a href="index.html#piliers">Ligne Éditoriale</a>
+                        <a href="index.html#maquette">Maquette N°1</a>
+                        <a href="portail.html">Portail Citoyen</a>
+                        <a href="agenda.html">Agenda</a>
+                        <a href="index.html#diffusion">Diffusion</a>
+                    </div>
+                </details>
                 <a href="agenda.html" class="hidden lg:inline-flex items-center gap-2 rounded-full px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));">
                     Ouvrir l'agenda
                 </a>
@@ -524,7 +598,7 @@
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <a href="agenda.html" class="inline-flex items-center gap-2 rounded-full bg-vintage-blue px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5">
+                        <a href="agenda.html" class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-vintage-blue px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5">
                             <span aria-hidden="true">🗓️</span>
                             <span>Voir l'agenda commun</span>
                         </a>
