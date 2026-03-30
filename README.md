@@ -1,121 +1,105 @@
 # Journal ANNET
-https://chab974.github.io/Journal_ANNET/index.html#diffusion
 
-Guide complet de la chaîne éditoriale `Notion -> snapshots -> Eleventy -> GitHub Pages`.
+Guide pas à pas de la chaîne éditoriale `Notion -> snapshots -> Eleventy -> Vercel + GitHub Pages`.
 
-Ce dépôt sert à publier un site statique public avec des contenus saisis dans Notion, transformés en snapshots JSON au build, puis rendus en HTML par Eleventy.
+Le projet a maintenant deux sorties publiques :
 
-Les URLs publiques restent inchangées :
+- `Vercel` pour la production principale
+- `GitHub Pages` pour un site démo miroir
+
+Les trois URLs publiques internes restent inchangées :
 
 - `index.html`
 - `portail.html`
 - `agenda.html`
 
-Le but de cette architecture est simple :
+## 1. Architecture générale
 
-- supprimer la mise à jour manuelle des JSON
-- garder un site 100% statique côté GitHub Pages
-- garder le design et l'UX existants
-- automatiser la republication quand Notion change
-
-## 1. Comprendre le fonctionnement global
-
-Le pipeline fonctionne en 5 étapes :
+Le pipeline complet est le suivant :
 
 1. Les contenus sont saisis dans 4 data sources Notion.
-2. Un script Node interroge Notion et génère 4 snapshots dans `data/`.
-3. Eleventy lit ces snapshots et produit les pages finales dans `_site/`.
-4. GitHub Actions publie `_site/` sur GitHub Pages.
-5. Un webhook Vercel reçoit les événements Notion et déclenche le workflow GitHub.
+2. Le script [`scripts/sync-notion.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/sync-notion.mjs) génère 4 snapshots JSON dans [`data/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data).
+3. Eleventy lit ces snapshots et produit le HTML final dans [`_site/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/_site).
+4. `Vercel` héberge le site principal.
+5. `GitHub Pages` héberge une démo du même site.
+6. Le webhook [`api/notion/webhook.js`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/api/notion/webhook.js) reçoit les événements Notion et relance :
+   - le déploiement Vercel
+   - le workflow GitHub Pages démo si la config GitHub est présente
 
 En clair :
 
-- Notion est la source de vérité éditoriale.
-- `data/*.json` sont les artefacts de travail générés.
-- Eleventy est le moteur de rendu.
-- GitHub Pages ne sert que les fichiers statiques.
-- Vercel ne sert qu'au webhook.
+- Notion = source de vérité
+- `data/*.json` = artefacts générés
+- Eleventy = moteur de rendu
+- Vercel = prod
+- GitHub Pages = démo
+- GitHub = code, historique, miroir démo
 
-## 2. Ce que contient le dépôt
+## 2. Structure du dépôt
 
-### Pages et rendu
+### Pages Eleventy
 
-- `src/index.njk` : source Eleventy de `index.html`
-- `src/portail.njk` : source Eleventy de `portail.html`
-- `src/agenda.njk` : source Eleventy de `agenda.html`
-- `eleventy.config.js` : configuration Eleventy
+- [`src/index.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/index.njk)
+- [`src/portail.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/portail.njk)
+- [`src/agenda.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/agenda.njk)
+- [`eleventy.config.js`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/eleventy.config.js)
+- [`src/_data/journal.cjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/_data/journal.cjs)
 
-### Données générées
+### Snapshots générés
 
-- `data/publications.json` : publications complètes pour le portail
-- `data/agenda.json` : événements pour l'agenda
-- `data/menus.json` : reconstruction des menus
-- `data/site-sections.json` : contenu structuré des grandes sections du site
+- [`data/publications.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/publications.json)
+- [`data/agenda.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/agenda.json)
+- [`data/menus.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/menus.json)
+- [`data/site-sections.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data/site-sections.json)
 
-Compatibilité conservée avec l'ancien frontend :
+Ces fichiers sont générés. Ils ne doivent plus être édités à la main dans le flux normal.
 
-- `data/citizen-posts.json`
-- `data/calendar-events.json`
+### Scripts importants
 
-Ces deux fichiers sont maintenant des copies de compatibilité. Ils ne doivent plus être édités à la main.
-
-### Scripts
-
-- `scripts/sync-notion.mjs` : synchronise Notion vers les snapshots
-- `scripts/validate-snapshots.mjs` : vérifie la cohérence métier des snapshots
-- `scripts/lib/notion/snapshot-builders.mjs` : logique de transformation Notion -> site
-- `scripts/lib/notion/blocks.mjs` : conversion des blocs Notion en HTML
-- `scripts/lib/notion/media.mjs` : gestion des médias Notion
-- `scripts/lib/notion/webhook.mjs` : signature et filtrage des webhooks Notion
+- [`scripts/sync-notion.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/sync-notion.mjs)
+- [`scripts/validate-snapshots.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/validate-snapshots.mjs)
+- [`scripts/lib/notion/snapshot-builders.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/lib/notion/snapshot-builders.mjs)
+- [`scripts/lib/notion/blocks.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/lib/notion/blocks.mjs)
+- [`scripts/lib/notion/media.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/lib/notion/media.mjs)
+- [`scripts/lib/notion/webhook.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/lib/notion/webhook.mjs)
 
 ### Déploiement
 
-- `.github/workflows/deploy-pages.yml` : build + déploiement GitHub Pages
-- `api/notion/webhook.js` : webhook Vercel
-- `.env.example` : variables d'environnement attendues
+- [`vercel.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/vercel.json)
+- [`api/notion/webhook.js`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/api/notion/webhook.js)
+- [`deploy-demo-pages.yml`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.github/workflows/deploy-demo-pages.yml)
+- [`.env.example`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.env.example)
 
-### Aide Codex
+### Skill projet
 
-- `.codex/skills/journal-annet-publisher/SKILL.md`
-
-Ce skill sert à réutiliser le workflow du projet dans Codex sans devoir tout réexpliquer à chaque session.
+- [`SKILL.md`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.codex/skills/journal-annet-publisher/SKILL.md)
 
 ## 3. Pré-requis
 
-Avant toute chose, il faut :
+Il faut :
 
-- Node.js installé
-- npm installé
-- un dépôt GitHub avec GitHub Pages activé en mode GitHub Actions
-- une intégration Notion avec accès lecture au contenu
-- un projet Vercel pour héberger le webhook
+- Node.js
+- npm
+- une intégration Notion avec accès lecture
+- un projet Vercel connecté au dépôt
+- un dépôt GitHub avec Pages activé en mode GitHub Actions
 
-Ce projet a été validé localement avec :
+Validation locale déjà faite dans ce dépôt :
 
 - `node v25.6.1`
 - `npm 11.9.0`
 
-## 4. Installation locale pas à pas
+## 4. Installation locale
 
 ### Étape 1 - Installer les dépendances
-
-Depuis la racine du dépôt :
 
 ```bash
 npm install
 ```
 
-Cela installe :
+### Étape 2 - Vérifier le build sans Notion
 
-- Eleventy
-- le SDK Notion
-- le lockfile `package-lock.json`
-
-### Étape 2 - Vérifier que le build statique fonctionne sans Notion
-
-Le dépôt contient déjà des snapshots versionnés. Cela permet de valider le rendu sans credentials Notion.
-
-Lancer :
+Le dépôt contient déjà des snapshots versionnés.
 
 ```bash
 npm run validate:snapshots
@@ -124,10 +108,9 @@ npm run build
 
 Résultat attendu :
 
-- validation OK des snapshots
-- génération de `_site/index.html`
-- génération de `_site/portail.html`
-- génération de `_site/agenda.html`
+- `_site/index.html`
+- `_site/portail.html`
+- `_site/agenda.html`
 
 ### Étape 3 - Lancer les tests
 
@@ -135,24 +118,17 @@ Résultat attendu :
 npm test
 ```
 
-Les tests couvrent :
+## 5. Variables d’environnement
 
-- le builder Notion -> snapshots
-- la validation des signatures de webhook
-- le filtrage des événements Notion
-- le build Eleventy final
-
-## 5. Variables d'environnement
-
-Copier le fichier exemple :
+### Étape 1 - Créer le fichier local
 
 ```bash
 cp .env.example .env
 ```
 
-Puis remplir les variables nécessaires.
+### Étape 2 - Variables Notion communes
 
-### Variables pour la sync Notion et GitHub Actions
+À remplir pour la sync et les builds déployés :
 
 - `NOTION_TOKEN`
 - `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
@@ -167,146 +143,165 @@ Valeur recommandée :
 SITE_TIME_ZONE=Europe/Paris
 ```
 
-### Variables pour le webhook Vercel
+### Étape 3 - Variables webhook Vercel
 
 - `NOTION_WEBHOOK_VERIFICATION_TOKEN`
+- `VERCEL_DEPLOY_HOOK_URL`
+
+### Étape 4 - Variables optionnelles pour la démo GitHub Pages
+
+Si tu veux que le webhook Notion relance aussi la démo GitHub Pages, ajoute :
+
 - `GITHUB_WEBHOOK_TOKEN`
 - `GITHUB_REPOSITORY_OWNER`
 - `GITHUB_REPOSITORY_NAME`
 - `GITHUB_WORKFLOW_FILE`
 - `GITHUB_WORKFLOW_REF`
 
-Valeurs habituelles :
+Valeurs usuelles :
 
 ```bash
-GITHUB_WORKFLOW_FILE=deploy-pages.yml
+GITHUB_WORKFLOW_FILE=deploy-demo-pages.yml
 GITHUB_WORKFLOW_REF=main
 ```
 
-## 6. Préparer Notion pas à pas
+## 6. Préparer Notion
 
-Le pipeline attend 4 data sources Notion :
+Le pipeline attend 4 data sources :
 
 1. `Publications`
 2. `Agenda`
 3. `Menu Items`
 4. `Sections site`
 
-### Étape 1 - Créer ou ouvrir une intégration Notion
+### Étape 1 - Créer l’intégration Notion
 
 Dans Notion Developers :
 
 1. créer une intégration
-2. activer au minimum les capacités de lecture du contenu
-3. récupérer le token d'intégration
+2. activer la lecture du contenu
+3. récupérer le token
 
-Ce token va dans :
+### Étape 2 - Partager les 4 data sources
 
-```bash
-NOTION_TOKEN=...
-```
-
-### Étape 2 - Partager les 4 data sources avec l'intégration
-
-Pour chaque data source Notion :
+Pour chaque data source :
 
 1. ouvrir la base
-2. cliquer sur `...`
-3. ouvrir `Add connections`
-4. ajouter l'intégration
+2. ouvrir `Add connections`
+3. ajouter l’intégration
 
-Sans ce partage, l'API renverra typiquement une `404` même si l'ID est correct.
+### Étape 3 - Renseigner les IDs
 
-### Étape 3 - Récupérer les IDs des data sources
+```bash
+NOTION_PUBLICATIONS_DATA_SOURCE_ID=...
+NOTION_AGENDA_DATA_SOURCE_ID=...
+NOTION_MENU_ITEMS_DATA_SOURCE_ID=...
+NOTION_SITE_SECTIONS_DATA_SOURCE_ID=...
+```
 
-Il faut renseigner :
+## 7. Générer les snapshots
 
-- `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
-- `NOTION_AGENDA_DATA_SOURCE_ID`
-- `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
-
-Le script est tolérant sur les noms de propriétés, mais pas sur l'absence des IDs.
-
-### Étape 4 - Vérifier le mapping métier
-
-Le code accepte plusieurs noms de colonnes proches grâce aux listes de candidats dans :
-
-- [`scripts/lib/notion/snapshot-builders.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/lib/notion/snapshot-builders.mjs)
-
-Si un nom de propriété change dans Notion, la bonne correction consiste à mettre à jour ce fichier, pas à casser le contrat du front.
-
-## 7. Première sync Notion locale
-
-Quand les variables d'environnement sont prêtes :
+### Sync manuelle
 
 ```bash
 npm run sync:notion
 ```
 
-Ce script :
+Cette commande :
 
-1. interroge les 4 data sources Notion
-2. filtre les contenus publiés
-3. reconstruit les menus
-4. résout les liens agenda -> publication
-5. convertit les blocs Notion en HTML
-6. télécharge les médias Notion dans `assets/notion/`
-7. écrit les snapshots dans `data/`
+- interroge les 4 data sources
+- filtre les contenus non publiés
+- reconstruit les menus
+- résout les relations agenda -> publication
+- convertit les blocs Notion en HTML
+- télécharge les médias Notion dans `assets/notion/`
 
-Les fichiers écrits sont :
+### Validation des snapshots
 
-- `data/publications.json`
-- `data/agenda.json`
-- `data/menus.json`
-- `data/site-sections.json`
-- `data/citizen-posts.json`
-- `data/calendar-events.json`
+```bash
+npm run validate:snapshots
+```
 
-### Important
+## 8. Construire le site
 
-Les snapshots sont versionnés pour garder un build local reproductible, mais ils sont considérés comme générés.
-
-Ils ne doivent plus être maintenus à la main.
-
-## 8. Build local complet après sync
-
-Une fois la sync faite :
+### Build simple à partir des snapshots déjà présents
 
 ```bash
 npm run build
 ```
 
-Ce script :
-
-1. valide les snapshots
-2. lance Eleventy
-3. produit le site final dans `_site/`
-
-Pour reproduire le comportement du workflow de publication :
+### Build complet avec nouvelle sync
 
 ```bash
-npm run build:pages
+npm run build:site
 ```
 
-Attention :
+### Build production Vercel
 
-- `npm run build` fonctionne avec les snapshots déjà présents
-- `npm run build:pages` exige les variables Notion car il relance la sync complète
+```bash
+npm run build:vercel
+```
 
-## 9. Configuration GitHub Pages pas à pas
+### Build GitHub Pages démo
+
+Le workflow GitHub injecte lui-même :
+
+- `SITE_PATH_PREFIX=/Journal_ANNET/`
+- `SITE_DEPLOY_TARGET=github-pages-demo`
+
+En local, tu peux simuler ce build :
+
+```bash
+SITE_PATH_PREFIX=/Journal_ANNET/ SITE_DEPLOY_TARGET=github-pages-demo npm run build:pages-demo
+```
+
+## 9. Configurer Vercel
+
+### Étape 1 - Importer le dépôt
+
+Dans Vercel :
+
+1. `Add New Project`
+2. importer le dépôt `Journal_ANNET`
+3. laisser Vercel utiliser la config du dépôt
+
+### Étape 2 - Vérifier la config de build
+
+Le dépôt fournit déjà :
+
+- build command : `npm run build:vercel`
+- output directory : `_site`
+
+via [`vercel.json`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/vercel.json).
+
+### Étape 3 - Ajouter les variables d’environnement dans Vercel
+
+Ajouter au minimum :
+
+- `NOTION_TOKEN`
+- `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
+- `NOTION_AGENDA_DATA_SOURCE_ID`
+- `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
+- `SITE_TIME_ZONE`
+- `NOTION_WEBHOOK_VERIFICATION_TOKEN`
+- `VERCEL_DEPLOY_HOOK_URL`
+
+Si tu veux aussi que le webhook Notion relance GitHub Pages, ajoute en plus les variables GitHub optionnelles dans Vercel.
+
+## 10. Configurer GitHub Pages démo
 
 ### Étape 1 - Activer GitHub Pages
 
-Dans GitHub :
+Dans le dépôt GitHub :
 
 1. ouvrir `Settings`
 2. aller dans `Pages`
-3. choisir `Source: GitHub Actions`
+3. choisir `GitHub Actions` comme source
 
-### Étape 2 - Déclarer les secrets GitHub Actions
+### Étape 2 - Ajouter les secrets GitHub Actions
 
-Dans `Settings -> Secrets and variables -> Actions`, créer :
+Ajouter :
 
 - `NOTION_TOKEN`
 - `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
@@ -314,356 +309,198 @@ Dans `Settings -> Secrets and variables -> Actions`, créer :
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
 
-### Étape 3 - Comprendre le workflow
+### Étape 3 - Laisser le workflow déployer la démo
 
-Le fichier :
+Le workflow [`deploy-demo-pages.yml`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.github/workflows/deploy-demo-pages.yml) :
 
-- [`deploy-pages.yml`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.github/workflows/deploy-pages.yml)
+1. installe les dépendances
+2. lance `npm test`
+3. synchronise Notion
+4. construit le site avec `SITE_PATH_PREFIX=/Journal_ANNET/`
+5. déploie `_site/` vers GitHub Pages
 
-fait ceci :
+L’URL démo sera typiquement :
 
-1. checkout du dépôt
-2. installation Node
-3. attente de 20 secondes si déclenché par webhook Notion
-4. `npm ci`
-5. `npm run build:pages`
-6. upload de `_site`
-7. déploiement GitHub Pages
+```text
+https://chab974.github.io/Journal_ANNET/
+```
 
-### Étape 4 - Déduplication
+## 11. Configurer le Deploy Hook Vercel
 
-La déduplication est faite par :
+### Étape 1 - Créer le hook
 
-- `concurrency`
-- `cancel-in-progress: true`
-- un court délai de stabilisation
+Dans `Project Settings -> Deploy Hooks` :
 
-Cela absorbe les rafales d'événements Notion sans ajouter de base de données côté webhook.
+1. créer un hook
+2. choisir la branche `main`
+3. copier l’URL
 
-## 10. Configuration Vercel pas à pas
+### Étape 2 - Stocker l’URL dans Vercel
 
-Vercel héberge uniquement :
+```bash
+VERCEL_DEPLOY_HOOK_URL=https://api.vercel.com/v1/integrations/deploy/...
+```
 
-- `api/notion/webhook.js`
+## 12. Configurer le webhook Notion
 
-### Étape 1 - Créer un projet Vercel
-
-Créer un projet pointant sur ce dépôt.
-
-### Étape 2 - Déclarer les variables d'environnement Vercel
-
-Ajouter :
-
-- `NOTION_WEBHOOK_VERIFICATION_TOKEN`
-- `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
-- `NOTION_AGENDA_DATA_SOURCE_ID`
-- `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
-- `GITHUB_WEBHOOK_TOKEN`
-- `GITHUB_REPOSITORY_OWNER`
-- `GITHUB_REPOSITORY_NAME`
-- `GITHUB_WORKFLOW_FILE`
-- `GITHUB_WORKFLOW_REF`
-
-### Étape 3 - Préparer le token GitHub
-
-`GITHUB_WEBHOOK_TOKEN` doit permettre de déclencher le workflow GitHub via l'API REST.
-
-Il faut donc un token avec des droits suffisants sur le dépôt cible.
-
-## 11. Créer le webhook Notion pas à pas
-
-### Étape 1 - Déclarer l'URL publique du webhook
-
-L'URL attendue sera :
+L’URL à déclarer dans Notion est :
 
 ```text
 https://<votre-projet-vercel>/api/notion/webhook
 ```
 
-### Étape 2 - Créer la subscription dans Notion
+### Étape 1 - Déclarer le webhook dans Notion
 
-Dans l'intégration Notion :
+Choisir les événements de contenu éditorial utiles.
 
-1. ouvrir l'onglet `Webhooks`
-2. cliquer sur `Create subscription`
-3. entrer l'URL Vercel
-4. choisir les événements
+### Étape 2 - Récupérer le `verification_token`
 
-Événements utiles recommandés :
+Au moment de la vérification :
 
-- `page.created`
-- `page.properties_updated`
-- `page.content_updated`
-- `data_source.content_updated`
-- `data_source.schema_updated`
+- l’endpoint renvoie le `verification_token`
+- il est aussi visible dans les logs Vercel
 
-### Étape 3 - Récupérer le `verification_token`
-
-Au moment de la création, Notion envoie une requête POST de vérification.
-
-Le webhook :
-
-- la reçoit
-- journalise le `verification_token`
-- la renvoie en JSON
-
-Il faut :
-
-1. lire ce token dans les logs Vercel
-2. le coller dans Notion pour valider la subscription
-3. le stocker dans :
+Le stocker ensuite dans :
 
 ```bash
 NOTION_WEBHOOK_VERIFICATION_TOKEN=...
 ```
 
-### Étape 4 - Vérification de signature
+### Étape 3 - Redéployer Vercel
 
-Pour chaque événement réel, le webhook vérifie :
+Après ajout du token, relancer un déploiement.
 
-- l'en-tête `X-Notion-Signature`
-- avec `NOTION_WEBHOOK_VERIFICATION_TOKEN`
+## 13. Ce qui se passe après une modification Notion
 
-Si la signature ne correspond pas :
+Si le contenu change dans Notion :
 
-- la requête est rejetée
-- aucun workflow GitHub n'est déclenché
+1. Notion appelle `api/notion/webhook`
+2. le webhook vérifie la signature
+3. le webhook filtre les événements utiles
+4. le webhook déclenche le déploiement Vercel
+5. si la config GitHub est présente, il déclenche aussi le workflow GitHub Pages démo
 
-## 12. Tester la chaîne complète
+Résultat :
 
-Une fois Notion, GitHub et Vercel configurés :
+- la prod Vercel reste à jour
+- la démo GitHub Pages peut rester alignée
 
-### Test 1 - Build local simple
+## 14. Ce qui se passe après un push Git
 
-```bash
-npm run build
-```
+Si tu pousses sur `main` :
 
-Doit réussir sans erreur.
+1. Vercel redéploie le site principal depuis le dépôt
+2. GitHub Actions redéploie la démo Pages
 
-### Test 2 - Sync locale depuis Notion
+Donc :
 
-```bash
-npm run sync:notion
-npm run build
-```
+- code changé = prod et démo se mettent à jour
+- contenu Notion changé = prod toujours mise à jour, démo mise à jour si le dispatch GitHub est configuré
 
-Doit :
+## 15. Gestion des URLs et du sous-chemin GitHub Pages
 
-- mettre à jour les snapshots
-- régénérer `_site`
+GitHub Pages sert le site sous un sous-chemin de dépôt.
 
-### Test 3 - Webhook réel
+Le projet gère cela avec :
 
-Dans Notion :
+- `SITE_PATH_PREFIX`
+- la balise `<base href="...">` injectée dans les templates
 
-1. passer une publication de `Brouillon` à `Publié`
-2. attendre le webhook
-3. vérifier les logs Vercel
-4. vérifier le workflow GitHub
-5. vérifier la publication finale sur GitHub Pages
+Valeurs utilisées :
 
-### Test 4 - Cas agenda
+- production Vercel : `/`
+- démo GitHub Pages : `/Journal_ANNET/`
 
-Créer ou publier une occurrence d'agenda liée à une publication publiée.
+## 16. Commandes utiles
 
-Le résultat attendu :
-
-- apparition dans `agenda.html`
-- lien correct vers `portail.html`
-
-## 13. Workflow éditorial au quotidien
-
-### Cas le plus simple
-
-1. l'éditeur modifie le contenu dans Notion
-2. Notion envoie un webhook
-3. Vercel déclenche GitHub Actions
-4. GitHub reconstruit les snapshots et republie
-
-### Si l'automatisation ne marche pas
-
-Utiliser le mode manuel :
-
-1. corriger Notion ou les variables
-2. lancer localement :
-
-```bash
-npm run sync:notion
-npm run build
-```
-
-3. committer les snapshots si nécessaire
-4. pousser sur `main`
-
-## 14. Ce qu'il faut éditer et ce qu'il ne faut pas éditer
-
-### À éditer
-
-- les contenus éditoriaux dans Notion
-- les templates dans `src/`
-- la logique de mapping Notion dans `scripts/lib/notion/snapshot-builders.mjs`
-- la documentation dans `README.md`
-
-### À ne plus éditer à la main
-
-- `data/publications.json`
-- `data/agenda.json`
-- `data/menus.json`
-- `data/site-sections.json`
-- `data/citizen-posts.json`
-- `data/calendar-events.json`
-
-## 15. Gestion des médias
-
-Si un média provient de Notion :
-
-1. il est téléchargé au build
-2. il reçoit un nom stable basé sur un hash
-3. il est copié dans `assets/notion/`
-
-Si un média est une URL publique externe :
-
-- il reste référencé tel quel
-
-Si le téléchargement échoue :
-
-- le build continue
-- un warning est émis
-- le visuel peut être omis
-
-## 16. Validation métier des snapshots
-
-Le script :
-
-- [`scripts/validate-snapshots.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/validate-snapshots.mjs)
-
-vérifie notamment :
-
-- le contrat des publications
-- les liens agenda -> publication
-- la présence des sections de site attendues
-- la structure générale des snapshots
-
-Le but est de bloquer les erreurs de structure avant le rendu Eleventy.
-
-## 17. Que faire si un nom de colonne Notion change
-
-C'est un cas normal.
-
-La bonne procédure :
-
-1. ouvrir `scripts/lib/notion/snapshot-builders.mjs`
-2. repérer la liste de candidats de la famille concernée
-3. ajouter le nouveau nom de propriété
-4. relancer :
-
-```bash
-npm run sync:notion
-npm run validate:snapshots
-```
-
-Le front public ne doit pas être modifié pour absorber un simple renommage de colonne Notion.
-
-## 18. Dépannage rapide
-
-### `404` ou `object_not_found` côté Notion
-
-Ca signifie souvent :
-
-- mauvais ID
-- base non partagée avec l'intégration
-
-### Le webhook Vercel répond mais rien ne se passe
-
-Vérifier :
-
-- `NOTION_WEBHOOK_VERIFICATION_TOKEN`
-- `GITHUB_WEBHOOK_TOKEN`
-- `GITHUB_REPOSITORY_OWNER`
-- `GITHUB_REPOSITORY_NAME`
-- `GITHUB_WORKFLOW_FILE`
-
-### Le build GitHub échoue sur la sync Notion
-
-Vérifier les secrets GitHub Actions :
-
-- `NOTION_TOKEN`
-- les 4 IDs de data sources
-
-### L'agenda n'affiche rien
-
-Vérifier :
-
-- que la publication liée est bien publiée
-- que la relation agenda -> publication est correcte
-- que `validate:snapshots` ne remonte pas d'erreur de cross-link
-
-### Une image manque dans le portail
-
-Vérifier :
-
-- si le média est bien accessible côté Notion
-- si le téléchargement a produit un warning
-- si `assets/notion/` contient bien le fichier
-
-## 19. Commandes utiles
-
-Installation :
+Installer :
 
 ```bash
 npm install
 ```
 
-Validation seule :
-
-```bash
-npm run validate:snapshots
-```
-
-Sync Notion seule :
+Synchroniser Notion :
 
 ```bash
 npm run sync:notion
 ```
 
-Build Eleventy sur snapshots existants :
+Valider les snapshots :
+
+```bash
+npm run validate:snapshots
+```
+
+Construire avec snapshots existants :
 
 ```bash
 npm run build
 ```
 
-Reproduction du workflow complet :
+Construire comme Vercel :
 
 ```bash
-npm run build:pages
+npm run build:vercel
 ```
 
-Tests :
+Construire comme GitHub Pages :
+
+```bash
+SITE_PATH_PREFIX=/Journal_ANNET/ SITE_DEPLOY_TARGET=github-pages-demo npm run build:pages-demo
+```
+
+Tester :
 
 ```bash
 npm test
 ```
 
-## 20. Résumé opérateur
+## 17. Dépannage
 
-Si vous ne devez retenir qu'une chose :
+### Le webhook répond `401`
 
-1. les contenus se gèrent dans Notion
-2. les snapshots sont générés, pas édités à la main
-3. `npm run build` doit toujours rester vert
-4. le webhook Vercel ne fait que déclencher GitHub
-5. GitHub Pages ne sert que `_site`
+Vérifier :
 
-## 21. Références utiles
+- `NOTION_WEBHOOK_VERIFICATION_TOKEN`
+- la signature `X-Notion-Signature`
+- les logs de [`api/notion/webhook.js`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/api/notion/webhook.js)
 
-- Notion Webhooks
-- Notion Query a data source
-- Notion Blocks API
-- GitHub Actions workflow dispatch API
-- Eleventy
+### Le webhook répond `502`
 
-Si un doute persiste sur le fonctionnement du projet dans Codex, utiliser le skill :
+Vérifier :
 
-- [`journal-annet-publisher`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.codex/skills/journal-annet-publisher/SKILL.md)
+- `VERCEL_DEPLOY_HOOK_URL`
+- les éventuelles variables GitHub optionnelles
+- les permissions du token GitHub si la démo doit aussi être relancée
+
+### La prod Vercel se met à jour mais pas la démo GitHub Pages
+
+Vérifier :
+
+- que `GITHUB_WEBHOOK_TOKEN` est bien défini dans Vercel
+- que `GITHUB_WORKFLOW_FILE=deploy-demo-pages.yml`
+- que le workflow existe et que GitHub Pages est activé sur le dépôt
+
+### Le build GitHub Pages casse les liens
+
+Vérifier :
+
+- `SITE_PATH_PREFIX=/Journal_ANNET/`
+- la présence de `<base href="...">` dans le HTML généré
+
+### Une publication ou un événement n’apparaît pas
+
+Vérifier :
+
+- le statut Notion
+- les relations entre agenda et publication
+- le contenu des snapshots dans [`data/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data)
+
+## 18. Résumé
+
+Le modèle final est simple :
+
+- `Vercel` = production
+- `GitHub Pages` = démonstration publique
+- `GitHub` = code source
+- `Notion` = contenu

@@ -47,7 +47,7 @@ export function isRelevantNotionEvent(event, allowedDataSourceIds = []) {
   return allowedIds.has(entityId) || allowedIds.has(parentId);
 }
 
-export function toWorkflowInputs(event) {
+export function toDispatchMetadata(event) {
   return {
     entity_id: String(event?.entity?.id ?? ''),
     event_id: String(event?.id ?? ''),

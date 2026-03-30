@@ -22,7 +22,7 @@
       {
         "eyebrow": "Format",
         "value": "Web",
-        "description": "Toujours publié simplement sur GitHub Pages."
+        "description": "Publié sur Vercel, avec une démo publique sur GitHub Pages."
       }
     ],
     "actions": [
@@ -153,7 +153,7 @@
       },
       {
         "kicker": "Publication",
-        "description": "Snapshots versionnés, build statique et publication GitHub Pages."
+        "description": "Snapshots versionnés, Vercel en production et GitHub Pages en démonstration."
       }
     ],
     "legalLeft": "© 2026 - Le Petit Journal d'Annet",

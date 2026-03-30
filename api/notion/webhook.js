@@ -1,7 +1,7 @@
 import {
   isNotionVerificationPayload,
   isRelevantNotionEvent,
-  toWorkflowInputs,
+  toDispatchMetadata,
   verifyNotionSignature,
 } from '../../scripts/lib/notion/webhook.mjs';
 
@@ -38,7 +38,38 @@ async function readRawBody(request) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
-async function dispatchGitHubWorkflow(inputs) {
+async function triggerVercelDeploy() {
+  const { VERCEL_DEPLOY_HOOK_URL } = process.env;
+
+  if (!VERCEL_DEPLOY_HOOK_URL) {
+    throw new Error('Variable VERCEL_DEPLOY_HOOK_URL manquante pour relancer le déploiement Vercel.');
+  }
+
+  const response = await fetch(VERCEL_DEPLOY_HOOK_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': 'journal-annet-webhook',
+    },
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Échec du deploy hook Vercel (${response.status}): ${details}`);
+  }
+
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+
+  return {
+    ok: true,
+    status: response.status,
+  };
+}
+
+async function triggerGitHubPagesDemo(metadata) {
   const {
     GITHUB_REPOSITORY_NAME,
     GITHUB_REPOSITORY_OWNER,
@@ -47,8 +78,17 @@ async function dispatchGitHubWorkflow(inputs) {
     GITHUB_WORKFLOW_REF = 'main',
   } = process.env;
 
-  if (!GITHUB_REPOSITORY_NAME || !GITHUB_REPOSITORY_OWNER || !GITHUB_WEBHOOK_TOKEN || !GITHUB_WORKFLOW_FILE) {
-    throw new Error('Variables GitHub manquantes pour le dispatch du workflow.');
+  const isConfigured =
+    GITHUB_REPOSITORY_NAME &&
+    GITHUB_REPOSITORY_OWNER &&
+    GITHUB_WEBHOOK_TOKEN &&
+    GITHUB_WORKFLOW_FILE;
+
+  if (!isConfigured) {
+    return {
+      configured: false,
+      skipped: true,
+    };
   }
 
   const response = await fetch(
@@ -62,7 +102,7 @@ async function dispatchGitHubWorkflow(inputs) {
         'User-Agent': 'journal-annet-webhook',
       },
       body: JSON.stringify({
-        inputs,
+        inputs: metadata,
         ref: GITHUB_WORKFLOW_REF,
       }),
     },
@@ -70,8 +110,13 @@ async function dispatchGitHubWorkflow(inputs) {
 
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`Échec du workflow GitHub (${response.status}): ${details}`);
+    throw new Error(`Échec du workflow GitHub Pages démo (${response.status}): ${details}`);
   }
+
+  return {
+    configured: true,
+    dispatched: true,
+  };
 }
 
 export default async function notionWebhook(request, response) {
@@ -121,9 +166,19 @@ export default async function notionWebhook(request, response) {
   }
 
   try {
-    await dispatchGitHubWorkflow(toWorkflowInputs(payload));
+    const metadata = toDispatchMetadata(payload);
+    const [vercel, githubPagesDemo] = await Promise.all([
+      triggerVercelDeploy(),
+      triggerGitHubPagesDemo(metadata),
+    ]);
+
     sendJson(response, 202, {
+      deploy: {
+        githubPagesDemo,
+        vercel,
+      },
       dispatched: true,
+      event: metadata,
       event_type: payload.type,
       ok: true,
     });

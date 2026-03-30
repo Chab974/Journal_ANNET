@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "npm run validate:snapshots && eleventy",
-    "build:pages": "npm run sync:notion && npm run build",
+    "build:site": "npm run sync:notion && npm run build",
+    "build:pages-demo": "npm run build:site",
+    "build:vercel": "npm run build:site",
     "dev": "eleventy --serve",
     "sync:notion": "node scripts/sync-notion.mjs",
     "test": "node --test",

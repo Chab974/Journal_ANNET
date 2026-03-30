@@ -6,7 +6,7 @@ export const defaultSiteSections = {
         kicker: 'Rubriques',
       },
       {
-        description: 'Snapshots versionnés, build statique et publication GitHub Pages.',
+        description: 'Snapshots versionnés, Vercel en production et GitHub Pages en démonstration.',
         kicker: 'Publication',
       },
     ],
@@ -125,7 +125,7 @@ export const defaultSiteSections = {
         value: '6',
       },
       {
-        description: 'Toujours publié simplement sur GitHub Pages.',
+        description: 'Publié sur Vercel, avec une démo publique sur GitHub Pages.',
         eyebrow: 'Format',
         value: 'Web',
       },

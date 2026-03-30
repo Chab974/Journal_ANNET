@@ -1,5 +1,14 @@
 import path from 'node:path';
 
+function normalizePathPrefix(value) {
+  if (!value || value === '/') {
+    return '/';
+  }
+
+  const trimmed = String(value).trim().replace(/^\/+|\/+$/g, '');
+  return trimmed ? `/${trimmed}/` : '/';
+}
+
 export default function configureEleventy(eleventyConfig) {
   eleventyConfig.addPassthroughCopy({
     assets: 'assets',
@@ -13,6 +22,8 @@ export default function configureEleventy(eleventyConfig) {
       .replaceAll('&', '\\u0026'),
   );
 
+  const pathPrefix = normalizePathPrefix(process.env.SITE_PATH_PREFIX);
+
   return {
     dir: {
       input: 'src',
@@ -22,6 +33,6 @@ export default function configureEleventy(eleventyConfig) {
     htmlTemplateEngine: 'njk',
     markdownTemplateEngine: 'njk',
     templateFormats: ['njk'],
-    pathPrefix: '/',
+    pathPrefix,
   };
 }
