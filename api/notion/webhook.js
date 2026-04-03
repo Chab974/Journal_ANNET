@@ -154,9 +154,23 @@ export default async function notionWebhook(request, response) {
       verificationToken: process.env.NOTION_WEBHOOK_VERIFICATION_TOKEN,
     })
   ) {
+    console.warn('Notion webhook invalid signature', {
+      entity_id: payload?.entity?.id ?? null,
+      event_type: payload?.type ?? null,
+      request_id: request.headers['x-vercel-id'] ?? null,
+    });
     sendJson(response, 401, { error: 'Signature Notion invalide.' });
     return;
   }
+
+  console.info('Notion webhook event received', {
+    attempt_number: payload?.attempt_number ?? null,
+    entity_id: payload?.entity?.id ?? null,
+    event_type: payload?.type ?? null,
+    parent_data_source_id: payload?.data?.parent?.data_source_id ?? null,
+    parent_id: payload?.data?.parent?.id ?? null,
+    parent_type: payload?.data?.parent?.type ?? null,
+  });
 
   const notion = createNotionClient();
   const isRelevantEvent =
@@ -168,6 +182,11 @@ export default async function notionWebhook(request, response) {
     ));
 
   if (!isRelevantEvent) {
+    console.info('Notion webhook ignored', {
+      entity_id: payload?.entity?.id ?? null,
+      event_type: payload?.type ?? null,
+      reason: 'event_out_of_scope',
+    });
     sendJson(response, 202, {
       ignored: true,
       ok: true,
@@ -178,10 +197,17 @@ export default async function notionWebhook(request, response) {
 
   try {
     const metadata = toDispatchMetadata(payload);
+    console.info('Notion webhook dispatching deploy', metadata);
     const [vercel, githubPagesDemo] = await Promise.all([
       triggerVercelDeploy(),
       triggerGitHubPagesDemo(metadata),
     ]);
+
+    console.info('Notion webhook deploy dispatched', {
+      event_type: payload?.type ?? null,
+      github_pages_configured: Boolean(githubPagesDemo?.configured),
+      vercel_ok: Boolean(vercel),
+    });
 
     sendJson(response, 202, {
       deploy: {
@@ -194,6 +220,11 @@ export default async function notionWebhook(request, response) {
       ok: true,
     });
   } catch (error) {
+    console.error('Notion webhook dispatch failed', {
+      entity_id: payload?.entity?.id ?? null,
+      error: error.message,
+      event_type: payload?.type ?? null,
+    });
     sendJson(response, 502, {
       error: error.message,
       ok: false,
