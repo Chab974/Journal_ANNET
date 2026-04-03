@@ -10,6 +10,7 @@
     "build:vercel": "npm run build:site",
     "dev": "eleventy --serve",
     "generate:notion-imports": "node scripts/generate-notion-imports.mjs",
+    "logs:webhook": "node scripts/watch-vercel-webhook-logs.mjs",
     "sync:notion": "node scripts/sync-notion.mjs",
     "test": "node --test",
     "validate:snapshots": "node scripts/validate-snapshots.mjs"

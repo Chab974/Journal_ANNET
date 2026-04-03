@@ -372,6 +372,31 @@ NOTION_WEBHOOK_VERIFICATION_TOKEN=...
 
 Après ajout du token, relancer un déploiement.
 
+### Étape 4 - Suivre les logs webhook en local
+
+Si tu veux récupérer les logs Vercel sur ton ordinateur pendant un test webhook :
+
+1. installer la CLI Vercel
+2. te connecter avec `vercel login`
+3. lancer :
+
+```bash
+npm run logs:webhook
+```
+
+La commande suit les logs de `journal-annet.vercel.app` et les écrit aussi dans :
+
+```text
+logs/vercel-webhook.log
+```
+
+Variables optionnelles :
+
+- `VERCEL_LOG_TARGET` pour viser un autre domaine Vercel
+- `VERCEL_LOG_ENV` pour changer d’environnement
+- `VERCEL_LOG_QUERY` pour filtrer les logs côté CLI
+- `VERCEL_LOG_FILE` pour changer le fichier de sortie local
+
 ## 13. Ce qui se passe après une modification Notion
 
 Si le contenu change dans Notion :
