@@ -5,6 +5,7 @@ import {
   toDispatchMetadata,
   verifyNotionSignature,
 } from '../../scripts/lib/notion/webhook.mjs';
+import { readRawRequestBody } from '../../scripts/lib/request-body.mjs';
 import { createNotionClient, retrievePage } from '../../scripts/lib/notion/client.mjs';
 
 const allowedDataSourceIds = [
@@ -18,26 +19,6 @@ function sendJson(response, statusCode, body) {
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
   response.end(JSON.stringify(body));
-}
-
-async function readRawBody(request) {
-  if (typeof request.body === 'string') {
-    return request.body;
-  }
-
-  if (Buffer.isBuffer(request.body)) {
-    return request.body.toString('utf8');
-  }
-
-  if (request.body && typeof request.body === 'object') {
-    return JSON.stringify(request.body);
-  }
-
-  const chunks = [];
-  for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-  }
-  return Buffer.concat(chunks).toString('utf8');
 }
 
 async function triggerVercelDeploy() {
@@ -131,7 +112,7 @@ export default async function notionWebhook(request, response) {
   let payload;
 
   try {
-    rawBody = await readRawBody(request);
+    rawBody = await readRawRequestBody(request);
     payload = rawBody ? JSON.parse(rawBody) : {};
   } catch (error) {
     sendJson(response, 400, { error: `JSON invalide: ${error.message}` });
