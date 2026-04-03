@@ -24,12 +24,35 @@ export function isNotionVerificationPayload(payload) {
 }
 
 const relevantEventTypes = new Set([
+  'database.content_updated',
+  'database.schema_updated',
   'page.created',
   'page.properties_updated',
   'page.content_updated',
   'data_source.content_updated',
   'data_source.schema_updated',
 ]);
+
+function collectEventCandidateIds(event) {
+  return [
+    event?.entity?.id,
+    event?.data?.parent?.id,
+    event?.data?.parent?.data_source_id,
+    event?.data?.parent?.database_id,
+  ].filter(Boolean);
+}
+
+export function extractPageParentIds(page) {
+  const parent = page?.parent ?? {};
+
+  return [
+    parent.id,
+    parent.data_source_id,
+    parent.database_id,
+    parent.type === 'data_source_id' ? parent.data_source_id : null,
+    parent.type === 'database_id' ? parent.database_id : null,
+  ].filter(Boolean);
+}
 
 export function isRelevantNotionEvent(event, allowedDataSourceIds = []) {
   if (!event?.type || !relevantEventTypes.has(event.type)) {
@@ -41,15 +64,34 @@ export function isRelevantNotionEvent(event, allowedDataSourceIds = []) {
     return true;
   }
 
-  const entityId = event.entity?.id;
-  const parentId = event.data?.parent?.id;
-  const parentDataSourceId = event.data?.parent?.data_source_id;
+  return collectEventCandidateIds(event).some((id) => allowedIds.has(id));
+}
 
-  return (
-    allowedIds.has(entityId) ||
-    allowedIds.has(parentId) ||
-    allowedIds.has(parentDataSourceId)
-  );
+export async function isRelevantNotionEventWithResolver(
+  event,
+  allowedDataSourceIds = [],
+  resolvePage = async () => null,
+) {
+  if (isRelevantNotionEvent(event, allowedDataSourceIds)) {
+    return true;
+  }
+
+  if (!event?.type?.startsWith('page.')) {
+    return false;
+  }
+
+  const allowedIds = new Set(allowedDataSourceIds.filter(Boolean));
+  if (allowedIds.size === 0) {
+    return true;
+  }
+
+  const pageId = event.entity?.id;
+  if (!pageId) {
+    return false;
+  }
+
+  const page = await resolvePage(pageId);
+  return extractPageParentIds(page).some((id) => allowedIds.has(id));
 }
 
 export function toDispatchMetadata(event) {

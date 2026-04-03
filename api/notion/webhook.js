@@ -1,9 +1,11 @@
 import {
   isNotionVerificationPayload,
   isRelevantNotionEvent,
+  isRelevantNotionEventWithResolver,
   toDispatchMetadata,
   verifyNotionSignature,
 } from '../../scripts/lib/notion/webhook.mjs';
+import { createNotionClient, retrievePage } from '../../scripts/lib/notion/client.mjs';
 
 const allowedDataSourceIds = [
   process.env.NOTION_PUBLICATIONS_DATA_SOURCE_ID,
@@ -156,7 +158,16 @@ export default async function notionWebhook(request, response) {
     return;
   }
 
-  if (!isRelevantNotionEvent(payload, allowedDataSourceIds)) {
+  const notion = createNotionClient();
+  const isRelevantEvent =
+    isRelevantNotionEvent(payload, allowedDataSourceIds) ||
+    (await isRelevantNotionEventWithResolver(
+      payload,
+      allowedDataSourceIds,
+      async (pageId) => retrievePage(notion, pageId),
+    ));
+
+  if (!isRelevantEvent) {
     sendJson(response, 202, {
       ignored: true,
       ok: true,

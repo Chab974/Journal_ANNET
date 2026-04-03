@@ -48,6 +48,13 @@ export async function queryDataSourcePages(notion, dataSourceId, filterPropertie
   );
 }
 
+export async function retrievePage(notion, pageId) {
+  return retrievePageViaHttp({
+    auth: notion.__journalAnnetAuth,
+    pageId,
+  });
+}
+
 async function queryDataSourcePagesViaHttp({
   auth,
   dataSourceId,
@@ -84,6 +91,31 @@ async function queryDataSourcePagesViaHttp({
   if (!response.ok) {
     const details = await response.text();
     throw new Error(`Échec de requête Notion data source ${dataSourceId} (${response.status}): ${details}`);
+  }
+
+  return response.json();
+}
+
+async function retrievePageViaHttp({ auth, pageId }) {
+  if (!auth) {
+    throw new Error('NOTION_TOKEN manquant pour récupérer une page Notion.');
+  }
+
+  if (!pageId) {
+    throw new Error('pageId manquant pour récupérer une page Notion.');
+  }
+
+  const response = await fetch(`${notionApiBaseUrl}/pages/${encodeURIComponent(pageId)}`, {
+    headers: {
+      Authorization: `Bearer ${auth}`,
+      'Notion-Version': notionDataSourcesVersion,
+    },
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Échec de récupération Notion page ${pageId} (${response.status}): ${details}`);
   }
 
   return response.json();

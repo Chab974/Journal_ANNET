@@ -3,7 +3,9 @@ import test from 'node:test';
 
 import {
   computeNotionSignature,
+  extractPageParentIds,
   isRelevantNotionEvent,
+  isRelevantNotionEventWithResolver,
   verifyNotionSignature,
 } from '../scripts/lib/notion/webhook.mjs';
 
@@ -67,5 +69,39 @@ test('isRelevantNotionEvent filtre les événements éditoriaux sur les data sou
       ['ds-publications'],
     ),
     false,
+  );
+});
+
+test('isRelevantNotionEventWithResolver retrouve la data source d’une page quand le payload ne la porte pas', async () => {
+  const result = await isRelevantNotionEventWithResolver(
+    {
+      data: { parent: { id: 'workspace-1', type: 'space' } },
+      entity: { id: 'page-2', type: 'page' },
+      type: 'page.properties_updated',
+    },
+    ['ds-publications'],
+    async () => ({
+      id: 'page-2',
+      parent: {
+        data_source_id: 'ds-publications',
+        type: 'data_source_id',
+      },
+    }),
+  );
+
+  assert.equal(result, true);
+});
+
+test('extractPageParentIds récupère les identifiants de parent utiles pour le filtrage', () => {
+  assert.deepEqual(
+    extractPageParentIds({
+      parent: {
+        data_source_id: 'ds-publications',
+        database_id: 'db-legacy',
+        id: 'workspace-1',
+        type: 'data_source_id',
+      },
+    }),
+    ['workspace-1', 'ds-publications', 'db-legacy', 'ds-publications'],
   );
 });

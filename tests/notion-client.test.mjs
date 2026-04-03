@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createNotionClient, queryDataSourcePages } from '../scripts/lib/notion/client.mjs';
+import { createNotionClient, queryDataSourcePages, retrievePage } from '../scripts/lib/notion/client.mjs';
 
 test('queryDataSourcePages utilise le fallback HTTP data_sources avec pagination', async () => {
   const notion = createNotionClient('secret_test');
@@ -51,6 +51,44 @@ test('queryDataSourcePages utilise le fallback HTTP data_sources avec pagination
     assert.equal(calls[0].headers['Notion-Version'], '2025-09-03');
     assert.equal(calls[0].body, JSON.stringify({ page_size: 100 }));
     assert.equal(calls[1].body, JSON.stringify({ page_size: 100, start_cursor: 'cursor_2' }));
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('retrievePage utilise l’API HTTP pages avec la version data source', async () => {
+  const notion = createNotionClient('secret_test');
+  const originalFetch = global.fetch;
+  const calls = [];
+
+  global.fetch = async (url, options) => {
+    calls.push({
+      headers: options?.headers,
+      method: options?.method,
+      url,
+    });
+
+    return {
+      ok: true,
+      json: async () => ({
+        id: 'page-1',
+        parent: {
+          data_source_id: 'ds-publications',
+          type: 'data_source_id',
+        },
+      }),
+    };
+  };
+
+  try {
+    const page = await retrievePage(notion, 'page-1');
+
+    assert.equal(page.id, 'page-1');
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, 'https://api.notion.com/v1/pages/page-1');
+    assert.equal(calls[0].method, 'GET');
+    assert.equal(calls[0].headers.Authorization, 'Bearer secret_test');
+    assert.equal(calls[0].headers['Notion-Version'], '2025-09-03');
   } finally {
     global.fetch = originalFetch;
   }
