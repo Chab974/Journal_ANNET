@@ -1,11 +1,16 @@
 import { Client } from '@notionhq/client';
 
+const notionApiBaseUrl = 'https://api.notion.com/v1';
+const notionDataSourcesVersion = '2025-09-03';
+
 export function createNotionClient(auth = process.env.NOTION_TOKEN) {
   if (!auth) {
     throw new Error('NOTION_TOKEN manquant.');
   }
 
-  return new Client({ auth });
+  const client = new Client({ auth });
+  client.__journalAnnetAuth = auth;
+  return client;
 }
 
 async function paginate(fetchPage) {
@@ -34,15 +39,54 @@ export async function queryDataSourcePages(notion, dataSourceId, filterPropertie
   }
 
   return paginate((startCursor) =>
-    notion.request({
-      body: {
-        page_size: 100,
-        ...(startCursor ? { start_cursor: startCursor } : {}),
-      },
-      method: 'post',
-      path: `data_sources/${dataSourceId}/query`,
+    queryDataSourcePagesViaHttp({
+      auth: notion.__journalAnnetAuth,
+      dataSourceId,
+      filterProperties,
+      startCursor,
     }),
   );
+}
+
+async function queryDataSourcePagesViaHttp({
+  auth,
+  dataSourceId,
+  filterProperties = [],
+  startCursor,
+}) {
+  if (!auth) {
+    throw new Error('NOTION_TOKEN manquant pour interroger les data sources.');
+  }
+
+  const query = new URLSearchParams();
+  for (const property of filterProperties) {
+    if (property) {
+      query.append('filter_properties[]', property);
+    }
+  }
+
+  const url = `${notionApiBaseUrl}/data_sources/${encodeURIComponent(dataSourceId)}/query${
+    query.size > 0 ? `?${query.toString()}` : ''
+  }`;
+  const response = await fetch(url, {
+    body: JSON.stringify({
+      page_size: 100,
+      ...(startCursor ? { start_cursor: startCursor } : {}),
+    }),
+    headers: {
+      Authorization: `Bearer ${auth}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': notionDataSourcesVersion,
+    },
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Échec de requête Notion data source ${dataSourceId} (${response.status}): ${details}`);
+  }
+
+  return response.json();
 }
 
 export async function listBlockTree(notion, blockId) {

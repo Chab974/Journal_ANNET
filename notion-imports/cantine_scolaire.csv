@@ -1,5 +1,18 @@
-Nom,Statut,Publication liée (helper),Jour,Ordre,Badges,Description,Spécial,Message spécial,Ordre jour
-Paëlla végétarienne au riz,Publié,La cantine de la semaine,Lundi,1,bio,Plat principal,false,,1
-Gouda Bio,Publié,La cantine de la semaine,Lundi,2,bio,Produit laitier,false,,1
-Compote de pommes,Publié,La cantine de la semaine,Lundi,3,,Dessert,false,,1
-Information accueil de loisirs,Publié,La cantine de la semaine,Mercredi,,,,true,Les informations de cantine du mercredi seront affichées à l'accueil de loisirs.,3
+Nom,Statut,Publication liée (helper),Date,Jour,Ordre,Badges,Description,Spécial,Message spécial,Ordre jour
+Paëlla végétarienne au riz,Publié,La cantine de la semaine,2026-04-06,Lundi,1,bio,,false,,1
+Gouda Bio,Publié,La cantine de la semaine,2026-04-06,Lundi,2,bio,,false,,1
+Beignet chocolat noisette,Publié,La cantine de la semaine,2026-04-06,Lundi,3,,,false,,1
+Nems de légumes,Publié,La cantine de la semaine,2026-04-07,Mardi,1,,,false,,2
+Boulettes au boeuf,Publié,La cantine de la semaine,2026-04-07,Mardi,2,france,Sauce tomate,false,,2
+Boulettes végétariennes,Publié,La cantine de la semaine,2026-04-07,Mardi,3,,Sauce tomate,false,,2
+Haricots verts persillés,Publié,La cantine de la semaine,2026-04-07,Mardi,4,bio,,false,,2
+Yaourt arôme,Publié,La cantine de la semaine,2026-04-07,Mardi,5,regional,Régional,false,,2
+Information spéciale - Mercredi,Publié,La cantine de la semaine,2026-04-08,Mercredi,,,,true,Les informations de cantine du mercredi seront affichées sur le panneau d'affichage de l'accueil de loisirs,3
+Crêpe au fromage,Publié,La cantine de la semaine,2026-04-09,Jeudi,1,,,false,,4
+Galette végétale,Publié,La cantine de la semaine,2026-04-09,Jeudi,2,,Sauce aux épices,false,,4
+Carottes Ce2 persillées,Publié,La cantine de la semaine,2026-04-09,Jeudi,3,ce2,,false,,4
+Yaourt aromatisé,Publié,La cantine de la semaine,2026-04-09,Jeudi,4,,,false,,4
+Filet de saumon MSC,Publié,La cantine de la semaine,2026-04-10,Vendredi,1,msc,Sauce aneth,false,,5
+Brocolis,Publié,La cantine de la semaine,2026-04-10,Vendredi,2,bio,,false,,5
+Mimolette,Publié,La cantine de la semaine,2026-04-10,Vendredi,3,bio,,false,,5
+Tarte au flan,Publié,La cantine de la semaine,2026-04-10,Vendredi,4,,,false,,5

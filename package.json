@@ -9,6 +9,7 @@
     "build:pages-demo": "npm run build:site",
     "build:vercel": "npm run build:site",
     "dev": "eleventy --serve",
+    "generate:notion-imports": "node scripts/generate-notion-imports.mjs",
     "sync:notion": "node scripts/sync-notion.mjs",
     "test": "node --test",
     "validate:snapshots": "node scripts/validate-snapshots.mjs"
