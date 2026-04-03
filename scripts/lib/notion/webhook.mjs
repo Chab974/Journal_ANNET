@@ -43,8 +43,13 @@ export function isRelevantNotionEvent(event, allowedDataSourceIds = []) {
 
   const entityId = event.entity?.id;
   const parentId = event.data?.parent?.id;
+  const parentDataSourceId = event.data?.parent?.data_source_id;
 
-  return allowedIds.has(entityId) || allowedIds.has(parentId);
+  return (
+    allowedIds.has(entityId) ||
+    allowedIds.has(parentId) ||
+    allowedIds.has(parentDataSourceId)
+  );
 }
 
 export function toDispatchMetadata(event) {

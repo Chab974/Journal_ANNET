@@ -49,6 +49,18 @@ test('isRelevantNotionEvent filtre les événements éditoriaux sur les data sou
   assert.equal(
     isRelevantNotionEvent(
       {
+        data: { parent: { data_source_id: 'ds-publications', id: 'workspace-1', type: 'workspace' } },
+        entity: { id: 'page-2', type: 'page' },
+        type: 'page.properties_updated',
+      },
+      ['ds-publications'],
+    ),
+    true,
+  );
+
+  assert.equal(
+    isRelevantNotionEvent(
+      {
         entity: { id: 'comment-1', type: 'comment' },
         type: 'comment.created',
       },
