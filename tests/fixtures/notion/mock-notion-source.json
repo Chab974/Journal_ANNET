@@ -346,6 +346,7 @@
     {
       "id": "pub-archived-1",
       "url": "https://notion.so/pub-archived-1",
+      "in_trash": true,
       "last_edited_time": "2026-03-25T09:00:00.000Z",
       "properties": {
         "Titre": {
@@ -365,7 +366,7 @@
         "Statut": {
           "type": "status",
           "status": {
-            "name": "Brouillon"
+            "name": "Publié"
           }
         },
         "Résumé": {

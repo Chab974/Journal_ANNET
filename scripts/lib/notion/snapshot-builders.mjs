@@ -136,6 +136,10 @@ function readRelationId(page, candidates) {
 }
 
 function isPublished(page, candidates) {
+  if (page?.in_trash === true || page?.archived === true) {
+    return false;
+  }
+
   const status = readFirstText(page, candidates);
   if (!status) {
     return true;

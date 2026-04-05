@@ -27,10 +27,24 @@ const relevantEventTypes = new Set([
   'database.content_updated',
   'database.schema_updated',
   'page.created',
+  'page.deleted',
   'page.properties_updated',
   'page.content_updated',
+  'page.undeleted',
   'data_source.content_updated',
   'data_source.schema_updated',
+]);
+
+const eventActionLabels = new Map([
+  ['database.content_updated', 'modification'],
+  ['database.schema_updated', 'modification'],
+  ['page.created', 'creation'],
+  ['page.deleted', 'suppression'],
+  ['page.properties_updated', 'modification'],
+  ['page.content_updated', 'modification'],
+  ['page.undeleted', 'restauration'],
+  ['data_source.content_updated', 'modification'],
+  ['data_source.schema_updated', 'modification'],
 ]);
 
 function collectEventCandidateIds(event) {
@@ -52,6 +66,10 @@ export function extractPageParentIds(page) {
     parent.type === 'data_source_id' ? parent.data_source_id : null,
     parent.type === 'database_id' ? parent.database_id : null,
   ].filter(Boolean);
+}
+
+export function getNotionEventActionLabel(eventType) {
+  return eventActionLabels.get(eventType) ?? 'inconnu';
 }
 
 export function isRelevantNotionEvent(event, allowedDataSourceIds = []) {
@@ -90,12 +108,19 @@ export async function isRelevantNotionEventWithResolver(
     return false;
   }
 
-  const page = await resolvePage(pageId);
+  let page;
+  try {
+    page = await resolvePage(pageId);
+  } catch {
+    return false;
+  }
+
   return extractPageParentIds(page).some((id) => allowedIds.has(id));
 }
 
 export function toDispatchMetadata(event) {
   return {
+    event_action: getNotionEventActionLabel(event?.type),
     entity_id: String(event?.entity?.id ?? ''),
     event_id: String(event?.id ?? ''),
     event_timestamp: String(event?.timestamp ?? ''),

@@ -1,4 +1,5 @@
 import {
+  getNotionEventActionLabel,
   isNotionVerificationPayload,
   isRelevantNotionEvent,
   isRelevantNotionEventWithResolver,
@@ -145,6 +146,7 @@ export default async function notionWebhook(request, response) {
   }
 
   console.info('Notion webhook event received', {
+    event_action: getNotionEventActionLabel(payload?.type),
     attempt_number: payload?.attempt_number ?? null,
     entity_id: payload?.entity?.id ?? null,
     event_type: payload?.type ?? null,
@@ -164,6 +166,7 @@ export default async function notionWebhook(request, response) {
 
   if (!isRelevantEvent) {
     console.info('Notion webhook ignored', {
+      event_action: getNotionEventActionLabel(payload?.type),
       entity_id: payload?.entity?.id ?? null,
       event_type: payload?.type ?? null,
       reason: 'event_out_of_scope',
@@ -185,6 +188,7 @@ export default async function notionWebhook(request, response) {
     ]);
 
     console.info('Notion webhook deploy dispatched', {
+      event_action: metadata.event_action,
       event_type: payload?.type ?? null,
       github_pages_configured: Boolean(githubPagesDemo?.configured),
       vercel_ok: Boolean(vercel),
@@ -202,6 +206,7 @@ export default async function notionWebhook(request, response) {
     });
   } catch (error) {
     console.error('Notion webhook dispatch failed', {
+      event_action: getNotionEventActionLabel(payload?.type),
       entity_id: payload?.entity?.id ?? null,
       error: error.message,
       event_type: payload?.type ?? null,
