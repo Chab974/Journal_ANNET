@@ -69,6 +69,9 @@ test('buildHomeData privilégie la publication featured et les prochains événe
   assert.equal(home.cantineEntry.totalItems, 2);
   assert.equal(home.cantineEntry.specialTitle, 'Mercredi');
   assert.equal(home.quickLinks.find((item) => item.rubrique === 'Scolaire').headline, 'Cantine de la semaine');
+  assert.equal(home.quickLinks.find((item) => item.rubrique === 'Scolaire').chipClass, 'quick-link-chip--brown');
+  assert.equal(home.quickLinks.find((item) => item.rubrique === 'Événements').chipClass, 'quick-link-chip--green');
+  assert.equal(home.quickLinks.find((item) => item.rubrique === 'Vie associative').chipClass, 'quick-link-chip--blue');
 });
 
 test('buildHomeData fournit des fallbacks quand les données sont absentes', () => {

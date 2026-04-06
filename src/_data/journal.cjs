@@ -46,6 +46,33 @@ const rubriqueFallbacks = {
   },
 };
 
+const quickLinkThemes = {
+  'Coup de cœur littéraire': {
+    accentClass: 'quick-link-accent--brown',
+    chipClass: 'quick-link-chip--brown',
+  },
+  'Scolaire': {
+    accentClass: 'quick-link-accent--brown',
+    chipClass: 'quick-link-chip--brown',
+  },
+  'Travaux et mobilité': {
+    accentClass: 'quick-link-accent--blue',
+    chipClass: 'quick-link-chip--blue',
+  },
+  'Vie associative': {
+    accentClass: 'quick-link-accent--blue',
+    chipClass: 'quick-link-chip--blue',
+  },
+  'Vie locale': {
+    accentClass: 'quick-link-accent--brown',
+    chipClass: 'quick-link-chip--brown',
+  },
+  'Événements': {
+    accentClass: 'quick-link-accent--green',
+    chipClass: 'quick-link-chip--green',
+  },
+};
+
 function normalizePathPrefix(value) {
   if (!value || value === '/') {
     return '/';
@@ -138,6 +165,10 @@ function buildQuickLinks(publications = []) {
     };
 
     return {
+      ...(quickLinkThemes[rubrique] || {
+        accentClass: 'quick-link-accent--brown',
+        chipClass: 'quick-link-chip--brown',
+      }),
       description: publication?.resume || fallback.description,
       hasContent: Boolean(publication),
       headline: publication?.titre || fallback.headline,

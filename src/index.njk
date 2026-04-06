@@ -327,6 +327,48 @@ permalink: index.html
         .list-card + .list-card {
             margin-top: 0.9rem;
         }
+        .quick-link-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .quick-link-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 5px;
+            background: var(--quick-link-accent, #7c3f2c);
+        }
+        .quick-link-card::after {
+            content: '';
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--quick-link-accent-soft, rgba(124, 63, 44, 0.18)), transparent 70%);
+        }
+        .quick-link-chip {
+            color: var(--quick-link-accent, #7c3f2c);
+        }
+        .quick-link-accent--brown {
+            --quick-link-accent: #7c3f2c;
+            --quick-link-accent-soft: rgba(124, 63, 44, 0.18);
+        }
+        .quick-link-accent--green {
+            --quick-link-accent: #7fbf25;
+            --quick-link-accent-soft: rgba(127, 191, 37, 0.18);
+        }
+        .quick-link-accent--blue {
+            --quick-link-accent: #2894e3;
+            --quick-link-accent-soft: rgba(40, 148, 227, 0.18);
+        }
+        .quick-link-chip--brown {
+            color: #7c3f2c;
+        }
+        .quick-link-chip--green {
+            color: #5a9014;
+        }
+        .quick-link-chip--blue {
+            color: #1f78d1;
+        }
     </style>
 </head>
 <body class="font-body antialiased text-ink">
@@ -554,11 +596,11 @@ permalink: index.html
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {% for link in quickLinks %}
-                <a href="{{ link.href }}" class="paper-card p-5 transition-transform hover:-translate-y-0.5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">{{ link.rubrique }}</p>
+                <a href="{{ link.href }}" class="paper-card quick-link-card {{ link.accentClass }} p-5 transition-transform hover:-translate-y-0.5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold quick-link-chip {{ link.chipClass }} mb-2">{{ link.rubrique }}</p>
                     <h3 class="text-2xl font-heading font-black leading-tight">{{ link.headline }}</h3>
                     <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">{{ link.description }}</p>
-                    <p class="mt-4 text-xs font-bold uppercase tracking-[0.12em] {% if link.hasContent %}text-vintage-red{% else %}text-[color:var(--muted)]{% endif %}">
+                    <p class="mt-4 text-xs font-bold uppercase tracking-[0.12em] {% if link.hasContent %}{{ link.chipClass }}{% else %}text-[color:var(--muted)]{% endif %}">
                         {% if link.hasContent %}Ouvrir la rubrique{% else %}Rubrique prête à accueillir du contenu{% endif %}
                     </p>
                 </a>
