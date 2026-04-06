@@ -351,3 +351,43 @@ test('buildSnapshotsFromSources accepte une clé de section texte pour Section i
     !snapshots.warnings.some((warning) => warning.includes('section liée absente') || warning.includes('section "home-editorial" inconnue')),
   );
 });
+
+test('buildSnapshotsFromSources exclut les coups de coeur de l’agenda', async () => {
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [
+      ...fixture.agendaPages,
+      {
+        id: 'ag-book-1',
+        url: 'https://notion.so/ag-book-1',
+        properties: {
+          'Date de début': {
+            date: { end: null, start: '2026-04-15T10:00:00.000Z' },
+            type: 'date',
+          },
+          'Publication liée': {
+            relation: [{ id: 'pub-book-1' }],
+            type: 'relation',
+          },
+          'Statut': {
+            status: { name: 'Publié' },
+            type: 'status',
+          },
+          'Titre': {
+            title: [{ plain_text: 'Rencontre lecture' }],
+            type: 'title',
+          },
+        },
+      },
+    ],
+    cantinePages: fixture.cantinePages,
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: fixture.publicationPages,
+    sectionPages: fixture.sectionPages,
+    sectionItemPages: [],
+  });
+
+  assert.equal(snapshots.agenda.length, 1);
+  assert.ok(!snapshots.agenda.some((event) => event.id === 'ag-book-1'));
+  assert.ok(snapshots.warnings.some((warning) => warning.includes("ag-book-1 ignoré: la publication liée n'est pas affichée dans l'agenda")));
+});

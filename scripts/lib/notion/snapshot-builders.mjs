@@ -654,6 +654,8 @@ async function buildPublicationSnapshot(page, context) {
 
 function buildAgendaSnapshots(agendaPages, { publicationsByPageId, warnings }) {
   const agenda = [];
+  const excludedAgendaRubriques = new Set(['Coup de cœur littéraire']);
+  const excludedAgendaTypes = new Set(['coup_de_coeur']);
 
   for (const page of ensureArray(agendaPages)) {
     if (!isPublished(page, agendaFieldCandidates.status)) {
@@ -664,6 +666,11 @@ function buildAgendaSnapshots(agendaPages, { publicationsByPageId, warnings }) {
     const publication = publicationsByPageId.get(linkedPublicationId);
     if (!publication) {
       warnings.push(`Agenda ${page.id} ignoré: publication liée absente ou non publiée.`);
+      continue;
+    }
+
+    if (excludedAgendaTypes.has(publication.type) || excludedAgendaRubriques.has(publication.rubrique)) {
+      warnings.push(`Agenda ${page.id} ignoré: la publication liée n'est pas affichée dans l'agenda.`);
       continue;
     }
 

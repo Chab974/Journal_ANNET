@@ -19,6 +19,9 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
     readFile(fromRepo('_site', 'agenda.html'), 'utf8'),
     readFile(fromRepo('_site', 'a-propos.html'), 'utf8'),
   ]);
+  const agendaDataMatch = agendaHtml.match(/<script id="agenda-events-data" type="application\/json">([\s\S]*?)<\/script>/);
+  assert.ok(agendaDataMatch, 'Le snapshot agenda embarqué doit être présent dans agenda.html');
+  const embeddedAgenda = JSON.parse(agendaDataMatch[1]);
 
   assert.match(indexHtml, /En ce moment/);
   assert.match(indexHtml, /Cette semaine/);
@@ -35,6 +38,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(agendaHtml, /Vue calendrier/);
   assert.match(agendaHtml, /Prochainement/);
   assert.match(agendaHtml, /Passés récemment/);
+  assert.ok(!embeddedAgenda.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);
   assert.doesNotMatch(portalHtml, /fetch\('\.\/data\/citizen-posts\.json'/);
