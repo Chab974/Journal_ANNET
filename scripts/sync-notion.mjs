@@ -1,23 +1,11 @@
 import { createNotionClient, listBlockTree, queryDataSourcePages } from './lib/notion/client.mjs';
 import { resolveNotionFileAsset } from './lib/notion/media.mjs';
 import { buildSnapshotsFromSources } from './lib/notion/snapshot-builders.mjs';
+import { resolveSyncNotionConfig } from './lib/notion/sync-config.mjs';
 import { fromRepo, writeJsonFile } from './lib/utils.mjs';
 
-const requiredEnv = [
-  'NOTION_TOKEN',
-  'NOTION_PUBLICATIONS_DATA_SOURCE_ID',
-  'NOTION_AGENDA_DATA_SOURCE_ID',
-  'NOTION_MENU_ITEMS_DATA_SOURCE_ID',
-  'NOTION_SITE_SECTIONS_DATA_SOURCE_ID',
-  'NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID',
-];
-
-for (const key of requiredEnv) {
-  if (!process.env[key]) {
-    throw new Error(`Variable d'environnement manquante: ${key}`);
-  }
-}
-
+const syncConfig = resolveSyncNotionConfig();
+const syncWarnings = [...syncConfig.warnings];
 const notion = createNotionClient();
 
 const [
@@ -27,11 +15,13 @@ const [
   sectionPages,
   sectionItemPages,
 ] = await Promise.all([
-  queryDataSourcePages(notion, process.env.NOTION_PUBLICATIONS_DATA_SOURCE_ID),
-  queryDataSourcePages(notion, process.env.NOTION_AGENDA_DATA_SOURCE_ID),
-  queryDataSourcePages(notion, process.env.NOTION_MENU_ITEMS_DATA_SOURCE_ID),
-  queryDataSourcePages(notion, process.env.NOTION_SITE_SECTIONS_DATA_SOURCE_ID),
-  queryDataSourcePages(notion, process.env.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID),
+  queryDataSourcePages(notion, syncConfig.dataSourceIds.publications),
+  queryDataSourcePages(notion, syncConfig.dataSourceIds.agenda),
+  queryDataSourcePages(notion, syncConfig.dataSourceIds.menuItems),
+  queryDataSourcePages(notion, syncConfig.dataSourceIds.siteSections),
+  syncConfig.dataSourceIds.sectionItems
+    ? queryDataSourcePages(notion, syncConfig.dataSourceIds.sectionItems)
+    : Promise.resolve([]),
 ]);
 
 const blockCache = new Map();
@@ -66,9 +56,11 @@ console.log(
   `Snapshots générés: ${snapshots.publications.length} publications, ${snapshots.agenda.length} dates, ${snapshots.cantine.length} entrées cantine.`,
 );
 
-if (snapshots.warnings.length > 0) {
+const warnings = [...syncWarnings, ...snapshots.warnings];
+
+if (warnings.length > 0) {
   console.warn('\nAvertissements de sync Notion:');
-  for (const warning of snapshots.warnings) {
+  for (const warning of warnings) {
     console.warn(`- ${warning}`);
   }
 }

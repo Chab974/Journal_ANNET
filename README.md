@@ -17,7 +17,7 @@ Les trois URLs publiques internes restent inchangées :
 
 Le pipeline complet est le suivant :
 
-1. Les contenus sont saisis dans 5 data sources Notion.
+1. Les contenus sont saisis dans 4 data sources Notion principales, avec une 5e source optionnelle pour les éléments structurés des sections.
 2. Le script [`scripts/sync-notion.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/sync-notion.mjs) génère 4 snapshots JSON dans [`data/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data).
 3. Eleventy lit ces snapshots et produit le HTML final dans [`_site/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/_site).
 4. `Vercel` héberge le site principal.
@@ -135,7 +135,7 @@ cp .env.example .env
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` si tu utilises la base `Section items`
 - `SITE_TIME_ZONE`
 
 Valeur recommandée :
@@ -168,12 +168,14 @@ GITHUB_WORKFLOW_REF=main
 
 ## 6. Préparer Notion
 
-Le pipeline attend 5 data sources :
+Le pipeline attend 4 data sources principales :
 
 1. `Publications`
 2. `Agenda`
 3. `cantine_scolaire`
 4. `Sections site`
+Une 5e base optionnelle peut enrichir les sections de site :
+
 5. `Section items`
 
 ### Étape 1 - Créer l’intégration Notion
@@ -184,13 +186,15 @@ Dans Notion Developers :
 2. activer la lecture du contenu
 3. récupérer le token
 
-### Étape 2 - Partager les 5 data sources
+### Étape 2 - Partager les 4 data sources principales
 
 Pour chaque data source :
 
 1. ouvrir la base
 2. ouvrir `Add connections`
 3. ajouter l’intégration
+
+Si tu utilises `Section items`, partage aussi cette base avec l’intégration.
 
 ### Étape 3 - Renseigner les IDs
 
@@ -199,11 +203,11 @@ NOTION_PUBLICATIONS_DATA_SOURCE_ID=...
 NOTION_AGENDA_DATA_SOURCE_ID=...
 NOTION_MENU_ITEMS_DATA_SOURCE_ID=...
 NOTION_SITE_SECTIONS_DATA_SOURCE_ID=...
-NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID=...
+NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID=... # optionnel
 ```
 
 La variable `NOTION_MENU_ITEMS_DATA_SOURCE_ID` garde ce nom technique dans le code, mais la base Notion peut etre nommee `cantine_scolaire`.
-La base `Section items` contient les lignes répétées des sections de site: `actions`, `stats`, `cards`, `ctaLinks`, `masthead`, `titleLines`, `feature`, `editorial` et `highlight`.
+La base `Section items` contient les lignes répétées des sections de site: `actions`, `stats`, `cards`, `ctaLinks`, `masthead`, `titleLines`, `feature`, `editorial` et `highlight`. Si cette variable n’est pas renseignée, le build garde les valeurs par défaut et le JSON porté par chaque section.
 
 ## 7. Générer les snapshots
 
@@ -215,7 +219,8 @@ npm run sync:notion
 
 Cette commande :
 
-- interroge les 5 data sources
+- interroge les 4 data sources principales
+- interroge `Section items` si la variable associée est renseignée
 - filtre les contenus non publiés
 - reconstruit les données de cantine
 - résout les relations agenda -> publication
@@ -289,10 +294,11 @@ Ajouter au minimum :
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 - `SITE_TIME_ZONE`
 - `NOTION_WEBHOOK_VERIFICATION_TOKEN`
 - `VERCEL_DEPLOY_HOOK_URL`
+
+Ajoute aussi `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` si tu utilises la base `Section items` pour piloter les cartes, actions, stats ou autres répétitions des sections.
 
 Si tu veux aussi que le webhook Notion relance GitHub Pages, ajoute en plus les variables GitHub optionnelles dans Vercel.
 
@@ -315,7 +321,8 @@ Ajouter :
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
+
+Ajoute aussi `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` si le workflow GitHub Pages doit reconstruire ces éléments structurés depuis Notion.
 
 ### Étape 3 - Laisser le workflow déployer la démo
 
