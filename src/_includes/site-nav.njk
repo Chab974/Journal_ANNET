@@ -11,7 +11,7 @@
 
             <div class="hidden md:flex items-center gap-8 font-heading font-bold uppercase tracking-widest text-xs">
                 {% for item in journal.site.navigation %}
-                <a href="{{ item.href }}" class="nav-link{% if activePage == item.key %} is-active{% endif %}" {% if activePage == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
+                <a href="{{ item.href }}" class="nav-link nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}" {% if activePage == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
                 {% endfor %}
             </div>
 
@@ -28,7 +28,7 @@
 
         <div id="site-mobile-nav" class="mobile-nav-panel hidden md:hidden" data-nav-panel>
             {% for item in journal.site.navigation %}
-            <a href="{{ item.href }}" class="mobile-nav-link{% if activePage == item.key %} is-active{% endif %}" {% if activePage == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
+            <a href="{{ item.href }}" class="mobile-nav-link mobile-nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}" {% if activePage == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
             {% endfor %}
         </div>
     </div>
