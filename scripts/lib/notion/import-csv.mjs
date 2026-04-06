@@ -567,7 +567,7 @@ function buildSiteSectionItemRows(siteSections) {
             rows.push(buildSiteSectionItemRow(sectionKey, group, 1, {
               description: section.feature.description,
               kicker: section.feature.kicker,
-              name: section.feature.title || 'Feature',
+              name: section.feature.kicker || section.feature.title || 'Feature',
               title: section.feature.title,
             }));
           }

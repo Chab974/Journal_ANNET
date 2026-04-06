@@ -114,7 +114,6 @@ export const defaultSiteSections = {
       description:
         'Une esthétique inspirée des newsletters visuelles : fond clair, lignes franches, accent orange et rubriques qui se lisent d’un coup d’œil.',
       kicker: 'Édition locale',
-      title: 'Une édition plus graphique, plus directe, plus pratique au quotidien',
     },
     masthead: ['Édition locale', 'Village newsletter', 'Annet-sur-Marne 2026'],
     quote: "L'actualité du village, claire, utile et bien envoyée.",

@@ -184,7 +184,11 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
   );
   assert.equal(
     tables.sectionItems.rows.find((row) => row.Section === 'home-hero' && row.Groupe === 'feature').Titre,
-    'Une édition plus graphique, plus directe, plus pratique au quotidien',
+    '',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'home-hero' && row.Groupe === 'feature').Nom,
+    'Édition locale',
   );
   assert.equal(
     tables.sectionItems.rows.find((row) => row.Section === 'home-editorial' && row.Groupe === 'cta_link' && row.Ordre === '5').Texte,
