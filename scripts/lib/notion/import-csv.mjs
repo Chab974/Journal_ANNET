@@ -47,9 +47,49 @@ const cantineHeaders = [
   'Ordre jour',
 ];
 
-const siteSectionHeaders = ['Titre', 'Statut', 'Clé', 'JSON'];
+const siteSectionHeaders = [
+  'Titre',
+  'Statut',
+  'Clé',
+  'Description',
+  'Kicker',
+  'Sous-titre',
+  'Quote',
+  'Page title',
+  'Quick links eyebrow',
+  'Legal left',
+  'Legal right',
+  'CTA label',
+  'CTA href',
+  'Contenu HTML',
+];
+
+const siteSectionItemHeaders = [
+  'Nom',
+  'Statut',
+  'Section',
+  'Groupe',
+  'Ordre',
+  'Texte',
+  'Eyebrow',
+  'Kicker',
+  'Titre',
+  'Description',
+  'Valeur',
+  'Lien',
+  'Theme',
+  'Variant',
+  'Emoji',
+];
 
 const requiredSiteSectionOrder = ['home-hero', 'home-editorial', 'home-rubriques', 'home-diffusion', 'footer'];
+const sectionItemGroupOrder = new Map([
+  ['home-hero', ['masthead', 'title_line', 'feature', 'editorial', 'stat', 'action']],
+  ['home-editorial', ['highlight', 'action', 'cta_link']],
+  ['home-rubriques', ['item']],
+  ['home-diffusion', ['card']],
+  ['footer', ['card']],
+]);
 
 const dayOrder = new Map([
   ['lundi', 1],
@@ -443,11 +483,188 @@ function buildSiteSectionRows(siteSections) {
   const orderedKeys = [...requiredSiteSectionOrder, ...extraKeys];
 
   return orderedKeys.map((key) => ({
+    'CTA href': asText(sections[key]?.cta_href),
+    'CTA label': asText(sections[key]?.cta_label),
+    'Clé': key,
+    'Contenu HTML': asText(sections[key]?.content_html),
+    'Description': asText(sections[key]?.description),
+    'Kicker': asText(sections[key]?.kicker) || asText(sections[key]?.eyebrow),
+    'Legal left': asText(sections[key]?.legalLeft),
+    'Legal right': asText(sections[key]?.legalRight),
+    'Page title': asText(sections[key]?.pageTitle),
+    'Quick links eyebrow': asText(sections[key]?.quickLinksEyebrow),
+    'Quote': asText(sections[key]?.quote),
+    'Sous-titre': asText(sections[key]?.subtitle),
     'Titre': asText(sections[key]?.title) || key,
     'Statut': 'Publié',
-    'Clé': key,
-    'JSON': JSON.stringify(sections[key] ?? {}),
   }));
+}
+
+function buildSiteSectionItemRow(sectionKey, group, order, values = {}) {
+  const title = asText(values.title);
+  const text = asText(values.text);
+  const name = asText(values.name) || title || text || `${sectionKey} ${group} ${order}`;
+
+  return {
+    'Description': asText(values.description),
+    'Emoji': asText(values.emoji),
+    'Eyebrow': asText(values.eyebrow),
+    'Groupe': group,
+    'Kicker': asText(values.kicker),
+    'Lien': asText(values.href),
+    'Nom': name,
+    'Ordre': String(order),
+    'Section': sectionKey,
+    'Statut': 'Publié',
+    'Texte': text,
+    'Theme': asText(values.theme),
+    'Titre': title,
+    'Valeur': asText(values.value),
+    'Variant': asText(values.variant),
+  };
+}
+
+function buildRowsFromSectionList(sectionKey, group, items, mapItem) {
+  return ensureArray(items).map((item, index) =>
+    buildSiteSectionItemRow(sectionKey, group, index + 1, mapItem(item, index)),
+  );
+}
+
+function buildSiteSectionItemRows(siteSections) {
+  const sections = siteSections && typeof siteSections === 'object' ? siteSections : {};
+  const missingKeys = requiredSiteSectionOrder.filter((key) => !sections[key]);
+
+  if (missingKeys.length > 0) {
+    throw new Error(`Sections de site manquantes: ${missingKeys.join(', ')}.`);
+  }
+
+  const rows = [];
+
+  for (const sectionKey of [...requiredSiteSectionOrder, ...Object.keys(sections)
+    .filter((key) => !requiredSiteSectionOrder.includes(key))
+    .sort((left, right) => left.localeCompare(right))]) {
+    const section = sections[sectionKey] ?? {};
+    const groupOrder = sectionItemGroupOrder.get(sectionKey) ?? [];
+
+    for (const group of groupOrder) {
+      switch (`${sectionKey}:${group}`) {
+        case 'home-hero:masthead':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.masthead, (item) => ({
+            name: asText(item),
+            text: asText(item),
+          })));
+          break;
+
+        case 'home-hero:title_line':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.titleLines, (item) => ({
+            name: asText(item),
+            text: asText(item),
+          })));
+          break;
+
+        case 'home-hero:feature':
+          if (section.feature) {
+            rows.push(buildSiteSectionItemRow(sectionKey, group, 1, {
+              description: section.feature.description,
+              kicker: section.feature.kicker,
+              name: section.feature.title || 'Feature',
+              title: section.feature.title,
+            }));
+          }
+          break;
+
+        case 'home-hero:editorial':
+          if (section.editorial) {
+            rows.push(buildSiteSectionItemRow(sectionKey, group, 1, {
+              description: section.editorial.description,
+              eyebrow: section.editorial.eyebrow,
+              name: section.editorial.title || 'Editorial',
+              title: section.editorial.title,
+            }));
+          }
+          break;
+
+        case 'home-hero:stat':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.stats, (item, index) => ({
+            description: item?.description,
+            eyebrow: item?.eyebrow,
+            name: item?.eyebrow || item?.value || `Stat ${index + 1}`,
+            value: item?.value,
+          })));
+          break;
+
+        case 'home-hero:action':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.actions, (item, index) => ({
+            href: item?.href,
+            name: item?.label || `Action ${index + 1}`,
+            text: item?.label,
+            theme: item?.theme,
+          })));
+          break;
+
+        case 'home-editorial:highlight':
+          if (section.highlightTitle || section.highlightDescription || section.highlightEyebrow) {
+            rows.push(buildSiteSectionItemRow(sectionKey, group, 1, {
+              description: section.highlightDescription,
+              eyebrow: section.highlightEyebrow,
+              name: section.highlightTitle || 'Highlight',
+              title: section.highlightTitle,
+            }));
+          }
+          break;
+
+        case 'home-editorial:action':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.actions, (item, index) => ({
+            href: item?.href,
+            name: item?.label || `Action ${index + 1}`,
+            text: item?.label,
+            variant: item?.variant,
+          })));
+          break;
+
+        case 'home-editorial:cta_link':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.ctaLinks, (item, index) => ({
+            href: item?.href,
+            name: item?.label || `Lien rapide ${index + 1}`,
+            text: item?.label,
+          })));
+          break;
+
+        case 'home-rubriques:item':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.items, (item, index) => ({
+            description: item?.description,
+            href: item?.href,
+            kicker: item?.kicker,
+            name: item?.title || `Rubrique ${index + 1}`,
+            theme: item?.theme,
+            title: item?.title,
+          })));
+          break;
+
+        case 'home-diffusion:card':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.cards, (item, index) => ({
+            description: item?.description,
+            emoji: item?.emoji,
+            name: item?.title || `Carte ${index + 1}`,
+            title: item?.title,
+          })));
+          break;
+
+        case 'footer:card':
+          rows.push(...buildRowsFromSectionList(sectionKey, group, section.cards, (item, index) => ({
+            description: item?.description,
+            kicker: item?.kicker,
+            name: item?.kicker || `Carte ${index + 1}`,
+          })));
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+
+  return rows;
 }
 
 export function buildNotionImportTables({
@@ -476,6 +693,10 @@ export function buildNotionImportTables({
     sections: {
       headers: siteSectionHeaders,
       rows: buildSiteSectionRows(siteSections),
+    },
+    sectionItems: {
+      headers: siteSectionItemHeaders,
+      rows: buildSiteSectionItemRows(siteSections),
     },
   };
 }
@@ -509,6 +730,7 @@ export function buildNotionImportFiles(input) {
     'cantine_scolaire.csv': serializeCsvTable(tables.cantine),
     'publications.csv': serializeCsvTable(tables.publications),
     'sections-site.csv': serializeCsvTable(tables.sections),
+    'sections-site-items.csv': serializeCsvTable(tables.sectionItems),
   };
 }
 

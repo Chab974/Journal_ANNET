@@ -17,7 +17,7 @@ Les trois URLs publiques internes restent inchangées :
 
 Le pipeline complet est le suivant :
 
-1. Les contenus sont saisis dans 4 data sources Notion.
+1. Les contenus sont saisis dans 5 data sources Notion.
 2. Le script [`scripts/sync-notion.mjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/scripts/sync-notion.mjs) génère 4 snapshots JSON dans [`data/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/data).
 3. Eleventy lit ces snapshots et produit le HTML final dans [`_site/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/_site).
 4. `Vercel` héberge le site principal.
@@ -135,6 +135,7 @@ cp .env.example .env
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 - `SITE_TIME_ZONE`
 
 Valeur recommandée :
@@ -167,12 +168,13 @@ GITHUB_WORKFLOW_REF=main
 
 ## 6. Préparer Notion
 
-Le pipeline attend 4 data sources :
+Le pipeline attend 5 data sources :
 
 1. `Publications`
 2. `Agenda`
 3. `cantine_scolaire`
 4. `Sections site`
+5. `Section items`
 
 ### Étape 1 - Créer l’intégration Notion
 
@@ -182,7 +184,7 @@ Dans Notion Developers :
 2. activer la lecture du contenu
 3. récupérer le token
 
-### Étape 2 - Partager les 4 data sources
+### Étape 2 - Partager les 5 data sources
 
 Pour chaque data source :
 
@@ -197,9 +199,11 @@ NOTION_PUBLICATIONS_DATA_SOURCE_ID=...
 NOTION_AGENDA_DATA_SOURCE_ID=...
 NOTION_MENU_ITEMS_DATA_SOURCE_ID=...
 NOTION_SITE_SECTIONS_DATA_SOURCE_ID=...
+NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID=...
 ```
 
 La variable `NOTION_MENU_ITEMS_DATA_SOURCE_ID` garde ce nom technique dans le code, mais la base Notion peut etre nommee `cantine_scolaire`.
+La base `Section items` contient les lignes répétées des sections de site: `actions`, `stats`, `cards`, `ctaLinks`, `masthead`, `titleLines`, `feature`, `editorial` et `highlight`.
 
 ## 7. Générer les snapshots
 
@@ -211,7 +215,7 @@ npm run sync:notion
 
 Cette commande :
 
-- interroge les 4 data sources
+- interroge les 5 data sources
 - filtre les contenus non publiés
 - reconstruit les données de cantine
 - résout les relations agenda -> publication
@@ -285,6 +289,7 @@ Ajouter au minimum :
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 - `SITE_TIME_ZONE`
 - `NOTION_WEBHOOK_VERIFICATION_TOKEN`
 - `VERCEL_DEPLOY_HOOK_URL`
@@ -310,6 +315,7 @@ Ajouter :
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 
 ### Étape 3 - Laisser le workflow déployer la démo
 
@@ -405,24 +411,24 @@ Si le contenu change dans Notion :
 2. le webhook vérifie la signature
 3. le webhook filtre les événements utiles
 4. le webhook déclenche le déploiement Vercel
-5. si la config GitHub est présente, il déclenche aussi le workflow GitHub Pages démo
+5. la démo GitHub Pages ne se déclenche pas automatiquement par défaut
 
 Résultat :
 
 - la prod Vercel reste à jour
-- la démo GitHub Pages peut rester alignée
+- la démo GitHub Pages se lance uniquement manuellement si tu en as besoin
 
 ## 14. Ce qui se passe après un push Git
 
 Si tu pousses sur `main` :
 
 1. Vercel redéploie le site principal depuis le dépôt
-2. GitHub Actions redéploie la démo Pages
 
 Donc :
 
-- code changé = prod et démo se mettent à jour
-- contenu Notion changé = prod toujours mise à jour, démo mise à jour si le dispatch GitHub est configuré
+- code changé = la prod Vercel se met à jour
+- contenu Notion changé = la prod Vercel se met à jour
+- la démo GitHub Pages ne se publie que via `workflow_dispatch`
 
 ## 15. Gestion des URLs et du sous-chemin GitHub Pages
 

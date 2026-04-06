@@ -9,6 +9,7 @@ const requiredEnv = [
   'NOTION_AGENDA_DATA_SOURCE_ID',
   'NOTION_MENU_ITEMS_DATA_SOURCE_ID',
   'NOTION_SITE_SECTIONS_DATA_SOURCE_ID',
+  'NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID',
 ];
 
 for (const key of requiredEnv) {
@@ -24,11 +25,13 @@ const [
   agendaPages,
   cantinePages,
   sectionPages,
+  sectionItemPages,
 ] = await Promise.all([
   queryDataSourcePages(notion, process.env.NOTION_PUBLICATIONS_DATA_SOURCE_ID),
   queryDataSourcePages(notion, process.env.NOTION_AGENDA_DATA_SOURCE_ID),
   queryDataSourcePages(notion, process.env.NOTION_MENU_ITEMS_DATA_SOURCE_ID),
   queryDataSourcePages(notion, process.env.NOTION_SITE_SECTIONS_DATA_SOURCE_ID),
+  queryDataSourcePages(notion, process.env.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID),
 ]);
 
 const blockCache = new Map();
@@ -47,6 +50,7 @@ const snapshots = await buildSnapshotsFromSources({
   mediaResolver: ({ file, pageId }) => resolveNotionFileAsset({ file, pageId }),
   publicationPages,
   sectionPages,
+  sectionItemPages,
 });
 
 await Promise.all([

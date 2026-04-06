@@ -14,6 +14,7 @@ const allowedDataSourceIds = [
   process.env.NOTION_AGENDA_DATA_SOURCE_ID,
   process.env.NOTION_MENU_ITEMS_DATA_SOURCE_ID,
   process.env.NOTION_SITE_SECTIONS_DATA_SOURCE_ID,
+  process.env.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID,
 ].filter(Boolean);
 
 function sendJson(response, statusCode, body) {
@@ -55,12 +56,21 @@ async function triggerVercelDeploy() {
 
 async function triggerGitHubPagesDemo(metadata) {
   const {
+    GITHUB_PAGES_AUTO_DEPLOY_ENABLED,
     GITHUB_REPOSITORY_NAME,
     GITHUB_REPOSITORY_OWNER,
     GITHUB_WEBHOOK_TOKEN,
     GITHUB_WORKFLOW_FILE,
     GITHUB_WORKFLOW_REF = 'main',
   } = process.env;
+
+  if (String(GITHUB_PAGES_AUTO_DEPLOY_ENABLED || '').toLowerCase() !== 'true') {
+    return {
+      configured: false,
+      reason: 'auto_deploy_disabled',
+      skipped: true,
+    };
+  }
 
   const isConfigured =
     GITHUB_REPOSITORY_NAME &&

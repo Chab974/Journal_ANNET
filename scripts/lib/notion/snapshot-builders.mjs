@@ -98,12 +98,36 @@ const sectionFieldCandidates = {
   ctaHref: ['CTA href', 'CTA URL', 'Lien'],
   ctaLabel: ['CTA label', 'CTA'],
   description: ['Description', 'Résumé', 'Resume'],
+  eyebrow: ['Eyebrow', 'Section eyebrow'],
   json: ['JSON', 'Payload', 'Configuration JSON'],
   key: ['Clé', 'Cle', 'Key'],
   kicker: ['Kicker', 'Eyebrow', 'Section kicker'],
+  legalLeft: ['Legal left', 'Mentions gauche', 'Legal left text'],
+  legalRight: ['Legal right', 'Mentions droite', 'Legal right text'],
+  pageTitle: ['Page title', 'Titre page', 'SEO Title'],
+  quickLinksEyebrow: ['Quick links eyebrow', 'Accès rapide eyebrow', 'Quick links kicker'],
+  quote: ['Quote', 'Citation'],
   status: ['Statut', 'Status'],
   subtitle: ['Sous-titre', 'Subtitle'],
   title: ['Titre', 'Name', 'Nom'],
+};
+
+const sectionItemFieldCandidates = {
+  description: ['Description', 'Résumé', 'Resume'],
+  emoji: ['Emoji'],
+  eyebrow: ['Eyebrow'],
+  group: ['Groupe', 'Group'],
+  href: ['Lien', 'URL', 'Href'],
+  kicker: ['Kicker'],
+  name: ['Nom', 'Name'],
+  order: ['Ordre', 'Order'],
+  relation: ['Section'],
+  status: ['Statut', 'Status'],
+  text: ['Texte', 'Text', 'Label'],
+  theme: ['Theme', 'Thème'],
+  title: ['Titre', 'Title'],
+  value: ['Valeur', 'Value'],
+  variant: ['Variant'],
 };
 
 function readFirstText(page, candidates) {
@@ -133,6 +157,28 @@ function readDateValue(page, candidates) {
 
 function readRelationId(page, candidates) {
   return propertyToRelationIds(findProperty(page, candidates))[0] ?? '';
+}
+
+function normalizeSectionItemGroup(value) {
+  return slugify(value).replaceAll('-', '_');
+}
+
+function sortStructuredSectionItems(items) {
+  return ensureArray(items).slice().sort((left, right) => {
+    const order = compareOptionalNumbers(left.order, right.order);
+    if (order !== 0) {
+      return order;
+    }
+
+    const leftLabel = left.title || left.text || left.name || '';
+    const rightLabel = right.title || right.text || right.name || '';
+    const titleOrder = leftLabel.localeCompare(rightLabel);
+    if (titleOrder !== 0) {
+      return titleOrder;
+    }
+
+    return String(left.id || '').localeCompare(String(right.id || ''));
+  });
 }
 
 function isPublished(page, candidates) {
@@ -265,6 +311,241 @@ function parseJsonPayload(rawValue, warnings, label) {
   } catch (error) {
     warnings.push(`JSON invalide pour ${label}: ${error.message}`);
     return null;
+  }
+}
+
+function buildSectionItemsMap(sectionItemPages, warnings) {
+  const itemsBySectionId = new Map();
+
+  for (const page of ensureArray(sectionItemPages)) {
+    if (!isPublished(page, sectionItemFieldCandidates.status)) {
+      continue;
+    }
+
+    const sectionId = readRelationId(page, sectionItemFieldCandidates.relation);
+    if (!sectionId) {
+      warnings.push(`Élément de section ${page.id} ignoré: section liée absente.`);
+      continue;
+    }
+
+    const group = normalizeSectionItemGroup(readFirstText(page, sectionItemFieldCandidates.group));
+    if (!group) {
+      warnings.push(`Élément de section ${page.id} ignoré: groupe absent.`);
+      continue;
+    }
+
+    const item = {
+      description: readFirstText(page, sectionItemFieldCandidates.description),
+      emoji: readFirstText(page, sectionItemFieldCandidates.emoji),
+      eyebrow: readFirstText(page, sectionItemFieldCandidates.eyebrow),
+      group,
+      href: readFirstText(page, sectionItemFieldCandidates.href),
+      id: page.id,
+      kicker: readFirstText(page, sectionItemFieldCandidates.kicker),
+      name: readTitle(page, sectionItemFieldCandidates.name),
+      order: propertyToNumber(findProperty(page, sectionItemFieldCandidates.order)),
+      text: readFirstText(page, sectionItemFieldCandidates.text),
+      theme: readFirstText(page, sectionItemFieldCandidates.theme),
+      title: readFirstText(page, sectionItemFieldCandidates.title),
+      value: readFirstText(page, sectionItemFieldCandidates.value),
+      variant: readFirstText(page, sectionItemFieldCandidates.variant),
+    };
+
+    if (!itemsBySectionId.has(sectionId)) {
+      itemsBySectionId.set(sectionId, []);
+    }
+
+    itemsBySectionId.get(sectionId).push(item);
+  }
+
+  return itemsBySectionId;
+}
+
+function getSortedGroupItems(sectionItems, group) {
+  return sortStructuredSectionItems(
+    ensureArray(sectionItems).filter((item) => item.group === group),
+  );
+}
+
+function pickSingularGroupItem(sectionItems, group, sectionKey, warnings) {
+  const items = getSortedGroupItems(sectionItems, group);
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  if (items.length > 1) {
+    warnings.push(`Section ${sectionKey}: groupe singulier "${group}" multiple, première entrée conservée.`);
+  }
+
+  return items[0];
+}
+
+function buildTextList(sectionItems, group) {
+  const items = getSortedGroupItems(sectionItems, group);
+  const values = items
+    .map((item) => item.text || item.title || item.name)
+    .filter(Boolean);
+
+  return values.length > 0 ? values : null;
+}
+
+function buildFeatureSectionItem(item, fallback = {}) {
+  if (!item) {
+    return null;
+  }
+
+  return {
+    description: item.description || fallback.description || '',
+    kicker: item.kicker || item.eyebrow || fallback.kicker || '',
+    title: item.title || item.text || item.name || fallback.title || '',
+  };
+}
+
+function buildEditorialSectionItem(item, fallback = {}) {
+  if (!item) {
+    return null;
+  }
+
+  return {
+    description: item.description || fallback.description || '',
+    eyebrow: item.eyebrow || item.kicker || fallback.eyebrow || '',
+    title: item.title || item.text || item.name || fallback.title || '',
+  };
+}
+
+function buildStatSectionItems(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'stat');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    description: item.description || '',
+    eyebrow: item.eyebrow || item.kicker || '',
+    value: item.value || '',
+  }));
+}
+
+function buildActionSectionItems(sectionItems, fallback = null, fieldName = 'theme') {
+  const items = getSortedGroupItems(sectionItems, 'action');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    href: item.href || '',
+    label: item.text || item.title || item.name || '',
+    [fieldName]: item[fieldName] || '',
+  }));
+}
+
+function applyStructuredSectionItems(sectionKey, baseSection, sectionItems, warnings) {
+  switch (sectionKey) {
+    case 'home-hero': {
+      const featureItem = pickSingularGroupItem(sectionItems, 'feature', sectionKey, warnings);
+      const editorialItem = pickSingularGroupItem(sectionItems, 'editorial', sectionKey, warnings);
+
+      return {
+        ...baseSection,
+        actions: buildActionSectionItems(sectionItems, baseSection.actions, 'theme'),
+        editorial: buildEditorialSectionItem(editorialItem, baseSection.editorial) || baseSection.editorial,
+        feature: buildFeatureSectionItem(featureItem, baseSection.feature) || baseSection.feature,
+        masthead: buildTextList(sectionItems, 'masthead') || baseSection.masthead,
+        stats: buildStatSectionItems(sectionItems, baseSection.stats),
+        titleLines: buildTextList(sectionItems, 'title_line') || baseSection.titleLines,
+      };
+    }
+
+    case 'home-editorial': {
+      const highlightItem = pickSingularGroupItem(sectionItems, 'highlight', sectionKey, warnings);
+      const actions = getSortedGroupItems(sectionItems, 'action');
+      const ctaLinks = getSortedGroupItems(sectionItems, 'cta_link');
+
+      return {
+        ...baseSection,
+        actions: actions.length > 0
+          ? actions.map((item) => ({
+            href: item.href || '',
+            label: item.text || item.title || item.name || '',
+            variant: item.variant || '',
+          }))
+          : baseSection.actions,
+        ctaLinks: ctaLinks.length > 0
+          ? ctaLinks.map((item) => ({
+            href: item.href || '',
+            label: item.text || item.title || item.name || '',
+          }))
+          : baseSection.ctaLinks,
+        highlightDescription:
+          highlightItem?.description ||
+          baseSection.highlightDescription ||
+          '',
+        highlightEyebrow:
+          highlightItem?.eyebrow ||
+          highlightItem?.kicker ||
+          baseSection.highlightEyebrow ||
+          '',
+        highlightTitle:
+          highlightItem?.title ||
+          highlightItem?.text ||
+          highlightItem?.name ||
+          baseSection.highlightTitle ||
+          '',
+      };
+    }
+
+    case 'home-rubriques': {
+      const items = getSortedGroupItems(sectionItems, 'item');
+      if (items.length === 0) {
+        return baseSection;
+      }
+
+      return {
+        ...baseSection,
+        items: items.map((item) => ({
+          description: item.description || '',
+          href: item.href || '',
+          kicker: item.kicker || item.eyebrow || '',
+          theme: item.theme || '',
+          title: item.title || item.text || item.name || '',
+        })),
+      };
+    }
+
+    case 'home-diffusion': {
+      const cards = getSortedGroupItems(sectionItems, 'card');
+      if (cards.length === 0) {
+        return baseSection;
+      }
+
+      return {
+        ...baseSection,
+        cards: cards.map((item) => ({
+          description: item.description || '',
+          emoji: item.emoji || '',
+          title: item.title || item.text || item.name || '',
+        })),
+      };
+    }
+
+    case 'footer': {
+      const cards = getSortedGroupItems(sectionItems, 'card');
+      if (cards.length === 0) {
+        return baseSection;
+      }
+
+      return {
+        ...baseSection,
+        cards: cards.map((item) => ({
+          description: item.description || '',
+          kicker: item.kicker || item.eyebrow || item.title || item.text || item.name || '',
+        })),
+      };
+    }
+
+    default:
+      return baseSection;
   }
 }
 
@@ -426,8 +707,10 @@ function enrichPublicationsWithAgenda(publications, agenda) {
   }));
 }
 
-async function buildSiteSections(sectionPages, context) {
+async function buildSiteSections(sectionPages, sectionItemPages, context) {
   const sections = structuredClone(defaultSiteSections);
+  const itemsBySectionId = buildSectionItemsMap(sectionItemPages, context.warnings);
+  const seenSectionIds = new Set();
 
   for (const page of ensureArray(sectionPages)) {
     if (!isPublished(page, sectionFieldCandidates.status)) {
@@ -450,9 +733,11 @@ async function buildSiteSections(sectionPages, context) {
 
     const rawJson = readFirstText(page, sectionFieldCandidates.json);
     const payload = parseJsonPayload(rawJson, context.warnings, `section ${key}`) ?? {};
-
-    sections[key] = {
-      ...(sections[key] ?? {}),
+    const existingSection = sections[key] ?? {};
+    const scalarKicker = readFirstText(page, sectionFieldCandidates.kicker);
+    const scalarEyebrow = readFirstText(page, sectionFieldCandidates.eyebrow);
+    const baseSection = {
+      ...existingSection,
       ...payload,
       content_html: readFirstText(page, sectionFieldCandidates.contentHtml) || content.html || sections[key]?.content_html || '',
       cta_href: readFirstText(page, sectionFieldCandidates.ctaHref) || payload.cta_href || sections[key]?.cta_href || '',
@@ -462,7 +747,40 @@ async function buildSiteSections(sectionPages, context) {
         payload.description ||
         sections[key]?.description ||
         '',
-      kicker: readFirstText(page, sectionFieldCandidates.kicker) || payload.kicker || sections[key]?.kicker || '',
+      eyebrow:
+        scalarEyebrow ||
+        (key === 'home-editorial' ? scalarKicker : '') ||
+        payload.eyebrow ||
+        (key === 'home-editorial' ? payload.kicker : '') ||
+        sections[key]?.eyebrow ||
+        (key === 'home-editorial' ? sections[key]?.kicker : '') ||
+        '',
+      kicker: scalarKicker || payload.kicker || sections[key]?.kicker || '',
+      legalLeft:
+        readFirstText(page, sectionFieldCandidates.legalLeft) ||
+        payload.legalLeft ||
+        sections[key]?.legalLeft ||
+        '',
+      legalRight:
+        readFirstText(page, sectionFieldCandidates.legalRight) ||
+        payload.legalRight ||
+        sections[key]?.legalRight ||
+        '',
+      pageTitle:
+        readFirstText(page, sectionFieldCandidates.pageTitle) ||
+        payload.pageTitle ||
+        sections[key]?.pageTitle ||
+        '',
+      quickLinksEyebrow:
+        readFirstText(page, sectionFieldCandidates.quickLinksEyebrow) ||
+        payload.quickLinksEyebrow ||
+        sections[key]?.quickLinksEyebrow ||
+        '',
+      quote:
+        readFirstText(page, sectionFieldCandidates.quote) ||
+        payload.quote ||
+        sections[key]?.quote ||
+        '',
       subtitle:
         readFirstText(page, sectionFieldCandidates.subtitle) ||
         payload.subtitle ||
@@ -470,6 +788,22 @@ async function buildSiteSections(sectionPages, context) {
         '',
       title: readTitle(page, sectionFieldCandidates.title) || payload.title || sections[key]?.title || key,
     };
+
+    seenSectionIds.add(page.id);
+    sections[key] = applyStructuredSectionItems(
+      key,
+      baseSection,
+      itemsBySectionId.get(page.id) ?? [],
+      context.warnings,
+    );
+  }
+
+  for (const [sectionId, items] of itemsBySectionId.entries()) {
+    if (!seenSectionIds.has(sectionId)) {
+      for (const item of items) {
+        context.warnings.push(`Élément de section ${item.id} ignoré: section liée inconnue ou non publiée.`);
+      }
+    }
   }
 
   return sections;
@@ -482,6 +816,7 @@ export async function buildSnapshotsFromSources({
   mediaResolver,
   publicationPages,
   sectionPages,
+  sectionItemPages = [],
 }) {
   const warnings = [];
   const publishedPublicationPages = ensureArray(publicationPages).filter((page) =>
@@ -516,7 +851,7 @@ export async function buildSnapshotsFromSources({
   const publicationsByPageId = new Map(sortedPublications.map((publication) => [publication.notion_page_id, publication]));
   const agenda = buildAgendaSnapshots(agendaPages, { publicationsByPageId, warnings });
   const publications = enrichPublicationsWithAgenda(sortedPublications, agenda);
-  const siteSections = await buildSiteSections(sectionPages, {
+  const siteSections = await buildSiteSections(sectionPages, sectionItemPages, {
     fetchBlocks,
     mediaResolver,
     warnings,

@@ -71,12 +71,45 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
     'Message spécial',
     'Ordre jour',
   ]);
-  assert.deepEqual(tables.sections.headers, ['Titre', 'Statut', 'Clé', 'JSON']);
+  assert.deepEqual(tables.sections.headers, [
+    'Titre',
+    'Statut',
+    'Clé',
+    'Description',
+    'Kicker',
+    'Sous-titre',
+    'Quote',
+    'Page title',
+    'Quick links eyebrow',
+    'Legal left',
+    'Legal right',
+    'CTA label',
+    'CTA href',
+    'Contenu HTML',
+  ]);
+  assert.deepEqual(tables.sectionItems.headers, [
+    'Nom',
+    'Statut',
+    'Section',
+    'Groupe',
+    'Ordre',
+    'Texte',
+    'Eyebrow',
+    'Kicker',
+    'Titre',
+    'Description',
+    'Valeur',
+    'Lien',
+    'Theme',
+    'Variant',
+    'Emoji',
+  ]);
 
   assert.equal(tables.publications.rows.length, 10);
   assert.equal(tables.agenda.rows.length, 15);
   assert.equal(tables.cantine.rows.length, 17);
   assert.equal(tables.sections.rows.length, 5);
+  assert.equal(tables.sectionItems.rows.length, 29);
 
   assert.equal(tables.publications.rows[0]['Ordre manuel'], '1');
   assert.equal(tables.publications.rows[9]['Ordre manuel'], '10');
@@ -120,6 +153,42 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
   assert.equal(
     tables.cantine.rows.find((row) => row['Jour'] === 'Mercredi')['Spécial'],
     'true',
+  );
+  assert.equal(
+    tables.sections.rows.find((row) => row['Clé'] === 'home-hero').Quote,
+    "L'actualité du village, claire, utile et bien envoyée.",
+  );
+  assert.equal(
+    tables.sections.rows.find((row) => row['Clé'] === 'footer')['Legal right'],
+    'Une initiative citoyenne pour renouer le dialogue',
+  );
+  assert.deepEqual(
+    tables.sectionItems.rows[0],
+    {
+      'Description': '',
+      'Emoji': '',
+      'Eyebrow': '',
+      'Groupe': 'masthead',
+      'Kicker': '',
+      'Lien': '',
+      'Nom': 'Édition locale',
+      'Ordre': '1',
+      'Section': 'home-hero',
+      'Statut': 'Publié',
+      'Texte': 'Édition locale',
+      'Theme': '',
+      'Titre': '',
+      'Valeur': '',
+      'Variant': '',
+    },
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'home-hero' && row.Groupe === 'feature').Titre,
+    'Une édition plus graphique, plus directe, plus pratique au quotidien',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'home-editorial' && row.Groupe === 'cta_link' && row.Ordre === '5').Texte,
+    'Agenda du village',
   );
 });
 
@@ -188,4 +257,5 @@ test('buildNotionImportFiles est deterministe sur deux executions', () => {
   });
 
   assert.deepEqual(first, second);
+  assert.ok(first['sections-site-items.csv']);
 });

@@ -1,9 +1,6 @@
 name: Deploy Journal ANNET demo to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       event_type:
@@ -63,6 +60,7 @@ jobs:
           NOTION_AGENDA_DATA_SOURCE_ID: ${{ secrets.NOTION_AGENDA_DATA_SOURCE_ID }}
           NOTION_MENU_ITEMS_DATA_SOURCE_ID: ${{ secrets.NOTION_MENU_ITEMS_DATA_SOURCE_ID }}
           NOTION_SITE_SECTIONS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTIONS_DATA_SOURCE_ID }}
+          NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID }}
           SITE_DEPLOY_TARGET: github-pages-demo
           SITE_PATH_PREFIX: /Journal_ANNET/
           SITE_TIME_ZONE: Europe/Paris
