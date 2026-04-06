@@ -753,6 +753,7 @@ permalink: portail.html
         const initialRubrique = initialSearchParams.get('rubrique');
         const initialSlug = initialSearchParams.get('slug');
         const initialPostId = initialSearchParams.get('post');
+        const initialQuery = initialSearchParams.get('q') || '';
         const portalIntroConfig = {
             all: {
                 description: 'Une lecture claire de la vie locale : événements, scolaire, travaux, vie associative et coups de cœur réunis dans une même page, avec filtres par rubrique et accès direct aux articles.',
@@ -809,11 +810,13 @@ permalink: portail.html
         const portalState = {
             posts: [],
             activeFilter: initialRubrique || 'all',
-            searchTerm: '',
+            searchTerm: initialQuery,
             favoriteItems: new Set(),
             targetSlug: initialSlug || '',
             targetPostId: initialPostId || ''
         };
+
+        portalSearchInput.value = portalState.searchTerm;
 
         function escapeHtml(value = '') {
             return String(value)
@@ -1254,6 +1257,37 @@ permalink: portail.html
             }
         }
 
+        function syncPortalUrl() {
+            const url = new URL(window.location.href);
+
+            if (portalState.activeFilter === 'all') {
+                url.searchParams.delete('rubrique');
+            } else {
+                url.searchParams.set('rubrique', portalState.activeFilter);
+            }
+
+            const normalizedQuery = portalState.searchTerm.trim();
+            if (normalizedQuery) {
+                url.searchParams.set('q', normalizedQuery);
+            } else {
+                url.searchParams.delete('q');
+            }
+
+            if (portalState.targetPostId) {
+                url.searchParams.set('post', portalState.targetPostId);
+            } else {
+                url.searchParams.delete('post');
+            }
+
+            if (portalState.targetSlug) {
+                url.searchParams.set('slug', portalState.targetSlug);
+            } else {
+                url.searchParams.delete('slug');
+            }
+
+            window.history.replaceState({}, '', url);
+        }
+
         function applyPortalFilter(filterValue, options = {}) {
             const { scroll = true, preserveTargetPost = false } = options;
             portalState.activeFilter = filterValue || 'all';
@@ -1266,24 +1300,7 @@ permalink: portail.html
             if (scroll) {
                 portalPostsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-
-            const url = new URL(window.location.href);
-            if (portalState.activeFilter === 'all') {
-                url.searchParams.delete('rubrique');
-            } else {
-                url.searchParams.set('rubrique', portalState.activeFilter);
-            }
-            if (portalState.targetPostId) {
-                url.searchParams.set('post', portalState.targetPostId);
-            } else {
-                url.searchParams.delete('post');
-            }
-            if (portalState.targetSlug) {
-                url.searchParams.set('slug', portalState.targetSlug);
-            } else {
-                url.searchParams.delete('slug');
-            }
-            window.history.replaceState({}, '', url);
+            syncPortalUrl();
         }
 
         function scrollToPortalPost() {
@@ -1343,7 +1360,10 @@ permalink: portail.html
 
         portalSearchInput.addEventListener('input', (event) => {
             portalState.searchTerm = event.target.value || '';
+            portalState.targetSlug = '';
+            portalState.targetPostId = '';
             rerenderPortal();
+            syncPortalUrl();
         });
 
         renderPortalFilters();

@@ -24,9 +24,12 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(indexHtml, /Cette semaine/);
   assert.match(indexHtml, /Cantine & familles/);
   assert.match(indexHtml, /Coup de cœur/);
+  assert.match(indexHtml, /Rechercher un titre, une rubrique, un lieu, un auteur/);
+  assert.match(indexHtml, /action="portail\.html"/);
   assert.match(indexHtml, />Actualités</);
   assert.doesNotMatch(indexHtml, /Stratégie de Diffusion/);
   assert.match(portalHtml, /portal-posts-data/);
+  assert.match(portalHtml, /initialSearchParams\.get\('q'\)/);
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
   assert.match(agendaHtml, /agenda-events-data/);
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
