@@ -424,7 +424,7 @@ permalink: portail.html
             text-transform: uppercase;
         }
         .portal-excerpt-card {
-            max-width: 64ch;
+            width: 100%;
             margin-top: 1rem;
             padding: 0.95rem 1rem;
             border: 1px solid rgba(22, 49, 74, 0.08);
@@ -473,10 +473,19 @@ permalink: portail.html
         }
         .portal-lead-text {
             margin-top: 0.4rem;
-            max-width: 62ch;
             font-size: 1.02rem;
             line-height: 1.78;
             color: var(--ink);
+        }
+        .portal-article-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        @media (min-width: 1280px) {
+            .portal-article-grid--with-aside {
+                grid-template-columns: minmax(0, 1.75fr) minmax(20rem, 0.95fr);
+                align-items: start;
+            }
         }
         .portal-note {
             color: var(--ink);
@@ -486,7 +495,6 @@ permalink: portail.html
         }
         .portal-note p,
         .portal-note li {
-            max-width: 70ch;
             color: #385067;
             line-height: 1.82;
         }
@@ -540,7 +548,6 @@ permalink: portail.html
         }
         .portal-note blockquote,
         .portal-note .notion-callout {
-            max-width: 70ch;
             padding: 1rem 1.1rem;
             border: 1px solid var(--line);
             border-radius: 14px;
@@ -552,7 +559,6 @@ permalink: portail.html
             padding-left: 1.25rem;
         }
         .portal-plain-list li {
-            max-width: 70ch;
             color: #385067;
             line-height: 1.8;
         }
@@ -560,7 +566,6 @@ permalink: portail.html
             display: grid;
             gap: 0.6rem;
             margin: 1rem 0;
-            max-width: 72ch;
         }
         .portal-note .notion-figure img {
             width: 100%;
@@ -800,7 +805,7 @@ permalink: portail.html
     <a href="#main-content" class="skip-link">Aller au contenu</a>
     {% include "site-nav.njk" %}
 
-    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <main id="main-content" class="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
         <section class="section-shell">
             <div class="p-2">
                 <div class="section-header">
@@ -1228,7 +1233,7 @@ permalink: portail.html
 
             if (post.type === 'evenement') {
                 return `
-                    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
+                    <div class="portal-article-grid portal-article-grid--with-aside mt-6">
                         <div class="paper-card p-5 md:p-6 bg-white/80">${textBlock}</div>
                         <aside class="paper-card p-5 md:p-6 space-y-4">
                             ${visualCard}
@@ -1252,7 +1257,7 @@ permalink: portail.html
 
             if (post.type === 'coup_de_coeur') {
                 return `
-                    <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
+                    <div class="portal-article-grid portal-article-grid--with-aside mt-6">
                         <div class="paper-card p-5 md:p-6 bg-white/80">
                             ${(post.auteur || post.edition) ? `
                                 <div class="flex flex-wrap gap-2 mb-4">
@@ -1282,7 +1287,7 @@ permalink: portail.html
             }
 
             return `
-                <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 mt-6">
+                <div class="portal-article-grid ${post.lieu || visualCard ? 'portal-article-grid--with-aside' : ''} mt-6">
                     <div class="paper-card p-5 md:p-6 bg-white/80 space-y-5">
                         ${textBlock}
                         ${highlightsCard}
