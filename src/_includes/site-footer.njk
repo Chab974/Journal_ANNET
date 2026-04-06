@@ -1,0 +1,36 @@
+<footer class="mt-16">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="rounded-[26px] overflow-hidden border border-ink/10 bg-[#fdfaf4] text-ink shadow-[0_18px_36px_rgba(47,28,22,0.08)]">
+            <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8 px-6 py-8 md:px-10 md:py-10">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.24em] font-bold text-vintage-red mb-3">{{ footerSection.kicker }}</p>
+                    <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight mb-3">{{ footerSection.title }}</h2>
+                    <p class="max-w-2xl text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
+                        {{ footerSection.description }}
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex flex-wrap gap-2">
+                        {% for item in journal.site.navigation %}
+                        <a href="{{ item.href }}" class="inline-flex items-center rounded-full border border-ink/10 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors{% if activePage == item.key %} text-white border-transparent{% endif %}" {% if activePage == item.key %}style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));"{% endif %}>
+                            {{ item.label }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for card in footerSection.cards %}
+                        <div class="rounded-3xl bg-white p-4 border border-ink/10">
+                            <p class="text-xs uppercase tracking-[0.18em] font-bold {% if loop.index0 == 0 %}text-vintage-red{% else %}text-vintage-blue{% endif %} mb-2">{{ card.kicker }}</p>
+                            <p class="text-sm text-[color:var(--muted)]">{{ card.description }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-ink/10 px-6 py-4 md:px-10 flex flex-col md:flex-row gap-3 md:items-center md:justify-between text-xs uppercase tracking-[0.18em] font-bold text-[color:var(--muted)]">
+                <span>{{ footerSection.legalLeft }}</span>
+                <span>{{ footerSection.legalRight }}</span>
+            </div>
+        </div>
+    </div>
+</footer>

@@ -1,6 +1,8 @@
 ---
 permalink: agenda.html
 ---
+{% set activePage = 'agenda' %}
+{% set footerSection = journal.siteSections['footer'] %}
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 <head>
@@ -48,6 +50,20 @@ permalink: agenda.html
                 radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
                 linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
         }
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: -3rem;
+            z-index: 80;
+            padding: 0.7rem 1rem;
+            border-radius: 999px;
+            background: var(--ink);
+            color: #fff;
+            font-weight: 700;
+        }
+        .skip-link:focus {
+            top: 1rem;
+        }
         .glass-nav {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(14px);
@@ -70,6 +86,37 @@ permalink: agenda.html
         .nav-link.is-active { color: var(--ink); opacity: 1; }
         .nav-link:hover::after,
         .nav-link.is-active::after { transform: scaleX(1); }
+        .nav-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.98);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+        .mobile-nav-panel {
+            padding: 0.2rem 0 1rem;
+            border-top: 1px solid var(--line);
+        }
+        .mobile-nav-link {
+            display: block;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid rgba(22, 49, 74, 0.08);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .mobile-nav-link.is-active {
+            color: var(--vintage-blue);
+        }
         .section-shell {
             border: 1px solid var(--line);
             border-radius: 18px;
@@ -261,32 +308,10 @@ permalink: agenda.html
     </style>
 </head>
 <body class="font-body antialiased text-ink">
-    <nav class="sticky top-0 z-50 glass-nav border-b border-ink/10">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center gap-4">
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-3 font-heading font-bold text-2xl tracking-tight">
-                    <span class="flex items-center justify-center w-11 h-11 rounded-xl text-white text-lg shadow-lg shadow-sky-200/70" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-green) 48%, var(--vintage-blue));">✦</span>
-                    <div>
-                        <div>Le Bulletin</div>
-                        <div class="text-[10px] uppercase tracking-[0.28em] text-vintage-red font-body">Annet-sur-Marne</div>
-                    </div>
-                </a>
-                <div class="hidden md:flex space-x-8 font-heading font-bold uppercase tracking-widest text-xs">
-                    <a href="index.html#contexte" class="nav-link">Contexte</a>
-                    <a href="index.html#piliers" class="nav-link">Ligne Éditoriale</a>
-                    <a href="index.html#maquette" class="nav-link">Maquette N°1</a>
-                    <a href="portail.html" class="nav-link">Portail Citoyen</a>
-                    <a href="agenda.html" class="nav-link is-active">Agenda</a>
-                    <a href="index.html#diffusion" class="nav-link">Diffusion</a>
-                </div>
-                <a href="portail.html" class="hidden lg:inline-flex items-center gap-2 rounded-full px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));">
-                    Voir les actualités
-                </a>
-            </div>
-        </div>
-    </nav>
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    {% include "site-nav.njk" %}
 
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
         <section class="section-shell">
             <div class="section-header">
                 <p class="section-kicker">Calendrier commun</p>
@@ -312,6 +337,8 @@ permalink: agenda.html
             </div>
         </section>
     </main>
+
+    {% include "site-footer.njk" %}
 
     <script>
         const agendaResults = document.getElementById('agenda-results');

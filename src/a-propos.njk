@@ -1,0 +1,343 @@
+---
+permalink: a-propos.html
+---
+{% set activePage = 'about' %}
+{% set homeHero = journal.siteSections['home-hero'] %}
+{% set homeDiffusion = journal.siteSections['home-diffusion'] %}
+{% set footerSection = journal.siteSections['footer'] %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="{{ journal.site.pathPrefix }}">
+    <title>À propos - Le Journal d'Annet-sur-Marne</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        body: ['Manrope', 'sans-serif'],
+                        heading: ['Sora', 'sans-serif'],
+                    },
+                    colors: {
+                        ink: '#16314a',
+                        'vintage-red': '#f6a318',
+                        'vintage-green': '#7fbf25',
+                        'vintage-blue': '#2894e3'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --paper: #f7faf7;
+            --paper-strong: #ffffff;
+            --ink: #16314a;
+            --muted: #536679;
+            --vintage-red: #f6a318;
+            --vintage-green: #7fbf25;
+            --vintage-blue: #2894e3;
+            --line: #d9e5ec;
+            --shadow-soft: 0 18px 48px rgba(31, 31, 28, 0.06);
+            --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
+        }
+        body {
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(246,163,24,0.10), transparent 22%),
+                radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
+                linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
+        }
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: -3rem;
+            z-index: 80;
+            padding: 0.7rem 1rem;
+            border-radius: 999px;
+            background: var(--ink);
+            color: #fff;
+            font-weight: 700;
+        }
+        .skip-link:focus {
+            top: 1rem;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 20px rgba(31, 31, 28, 0.05);
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.25s ease, opacity 0.25s ease;
+            opacity: 0.76;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -0.45rem;
+            width: 100%;
+            height: 2px;
+            background: var(--ink);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.25s ease;
+        }
+        .nav-link:hover,
+        .nav-link.is-active {
+            color: var(--ink);
+            opacity: 1;
+        }
+        .nav-link:hover::after,
+        .nav-link.is-active::after {
+            transform: scaleX(1);
+        }
+        .nav-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.98);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+        .mobile-nav-panel {
+            padding: 0.2rem 0 1rem;
+            border-top: 1px solid var(--line);
+        }
+        .mobile-nav-link {
+            display: block;
+            padding: 0.9rem 0;
+            border-bottom: 1px solid rgba(22, 49, 74, 0.08);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .mobile-nav-link.is-active {
+            color: var(--vintage-blue);
+        }
+        .hero-shell {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98)),
+                radial-gradient(circle at 88% 16%, rgba(246,163,24,0.14), transparent 20%),
+                radial-gradient(circle at 18% 82%, rgba(40,148,227,0.16), transparent 20%);
+            box-shadow: var(--shadow-soft);
+        }
+        .section-shell {
+            position: relative;
+            overflow: hidden;
+            padding: 1.5rem;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.94);
+            box-shadow: var(--shadow-card);
+        }
+        .section-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 14%);
+            pointer-events: none;
+        }
+        .section-header {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+            margin-bottom: 1.8rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--line);
+        }
+        .section-kicker {
+            font-size: 0.72rem;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--vintage-blue);
+        }
+        .paper-card {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.96);
+            box-shadow: 0 10px 20px rgba(31, 31, 28, 0.05);
+        }
+        .category-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.28rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.94);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="font-body antialiased text-ink">
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    {% include "site-nav.njk" %}
+
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+        <section class="hero-shell px-6 py-8 md:px-10 md:py-10">
+            <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.22em] font-bold text-[color:var(--muted)] mb-4">À propos du projet</p>
+                    <h1 class="text-4xl md:text-6xl font-heading font-black uppercase leading-[0.94] tracking-tight">
+                        Une édition locale claire, utile et constructive
+                    </h1>
+                    <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
+                        Cette page rassemble la vision éditoriale, la méthode de publication, la maquette du premier numéro et la stratégie de diffusion du Journal d'Annet.
+                    </p>
+                </div>
+                <div class="paper-card p-6 md:p-8">
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">Promesse éditoriale</p>
+                    <h2 class="text-3xl font-heading font-black uppercase leading-tight">{{ homeHero.editorial.title }}</h2>
+                    <p class="mt-4 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
+                        {{ homeHero.editorial.description }}
+                    </p>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        {% for label in homeHero.masthead %}
+                        <span class="category-chip text-vintage-blue">{{ label }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-shell">
+            <div class="section-header">
+                <span class="section-kicker">Vision éditoriale</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">Pourquoi ce journal existe</h2>
+                <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
+                    Le projet part d'une volonté simple : informer sérieusement sur la vie du village, relier les habitants et éviter les polémiques inutiles.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
+                <div class="paper-card p-6 md:p-8">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-3">Le point de départ</p>
+                    <p class="leading-relaxed text-base md:text-lg text-[color:var(--muted)]">
+                        La dynamique citoyenne née à Annet-sur-Marne a montré un besoin d'information locale mieux structurée, plus pédagogique et plus calme. Le journal cherche à rendre les décisions, les initiatives et les rendez-vous compréhensibles sans filtre partisan.
+                    </p>
+                    <blockquote class="mt-6 rounded-3xl border border-ink/10 bg-white p-5 font-heading text-lg leading-snug">
+                        Refuser la polémique et les attaques inutiles pour privilégier la compréhension des enjeux locaux, l'entraide et l'imagination d'un avenir commun.
+                    </blockquote>
+                </div>
+                <div class="paper-card p-6 md:p-8">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-3">Ce que la page d'accueil ne porte plus</p>
+                    <p class="text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
+                        La home se concentre désormais sur l'accès rapide aux contenus utiles. Le récit éditorial, la méthode et la maquette sont regroupés ici pour garder une page d'accueil plus courte et plus utile.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-shell">
+            <div class="section-header">
+                <span class="section-kicker">Méthode</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">Les 7 piliers éditoriaux</h2>
+                <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
+                    Chaque rubrique répond à une fonction précise : informer, ouvrir, aider, relier, préserver le cadre de vie et rendre visibles les acteurs locaux.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Info & politique locale</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Rendre compte des décisions municipales de manière neutre, pédagogique et sourcée.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Ouverture & intercommunalité</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Montrer qu'Annet n'est pas isolée et relayer ce qui se passe dans les communes voisines.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Guide citoyen</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Lutter contre les exclusions administratives et numériques avec des infos concrètes.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Lien social</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Mettre en valeur les habitants, les initiatives et les idées pour la vie collective.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-green mb-2">Écologie & cadre de vie</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Traiter les sujets environnementaux locaux de façon concrète et non idéologique.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Vie associative</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Donner de la visibilité aux assos, aux bénévoles et aux coopérations utiles.</p>
+                </article>
+                <article class="paper-card p-5 md:col-span-2 xl:col-span-3">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Soloprenariat & économie locale</p>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Valoriser les artisans, indépendants et commerces de proximité sans publicité déguisée.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section-shell">
+            <div class="section-header">
+                <span class="section-kicker">Prototype éditorial</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">La maquette du premier numéro</h2>
+                <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
+                    La maquette papier sert de référence narrative : un édito, des décryptages, un guide citoyen et une partie plus participative.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Page 1</p>
+                    <h3 class="text-2xl font-heading font-black">Édito & essentiel</h3>
+                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Présenter la démarche, puis donner tout de suite les informations les plus utiles à retenir.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Page 2</p>
+                    <h3 class="text-2xl font-heading font-black">Décryptage & voisins</h3>
+                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Expliquer une décision locale et ouvrir sur la vie intercommunale ou un rendez-vous voisin.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-green mb-2">Page 3</p>
+                    <h3 class="text-2xl font-heading font-black">Guide citoyen</h3>
+                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Apporter de l'aide concrète face aux démarches, à la dématérialisation et aux besoins du quotidien.</p>
+                </article>
+                <article class="paper-card p-5">
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Page 4</p>
+                    <h3 class="text-2xl font-heading font-black">Rencontre & agora</h3>
+                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Donner de la place aux habitants, aux portraits et aux idées proposées pour le prochain numéro.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section-shell">
+            <div class="section-header">
+                <span class="section-kicker">{{ homeDiffusion.kicker }}</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ homeDiffusion.title }}</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% for card in homeDiffusion.cards %}
+                <article class="paper-card p-6 text-center">
+                    <div class="text-4xl mb-4">{{ card.emoji }}</div>
+                    <h3 class="text-xl font-heading font-black uppercase mb-3">{{ card.title }}</h3>
+                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">{{ card.description }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    {% include "site-footer.njk" %}
+</body>
+</html>
