@@ -11,7 +11,13 @@
 
             <div class="hidden md:flex items-center gap-8 font-heading font-bold uppercase tracking-widest text-xs">
                 {% for item in journal.site.navigation %}
-                <a href="{{ item.href }}" class="nav-link nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}" {% if activePage == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
+                <a
+                    href="{{ item.href }}"
+                    class="nav-link nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}"
+                    data-nav-key="{{ item.key }}"
+                    {% if item.rubrique %}data-nav-rubrique="{{ item.rubrique }}"{% endif %}
+                    {% if activePage == item.key %}aria-current="page"{% endif %}
+                >{{ item.label }}</a>
                 {% endfor %}
             </div>
 
@@ -28,7 +34,13 @@
 
         <div id="site-mobile-nav" class="mobile-nav-panel hidden md:hidden" data-nav-panel>
             {% for item in journal.site.navigation %}
-            <a href="{{ item.href }}" class="mobile-nav-link mobile-nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}" {% if activePage == item.key %}aria-current="page"{% endif %}>{{ item.label }}</a>
+            <a
+                href="{{ item.href }}"
+                class="mobile-nav-link mobile-nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}"
+                data-nav-key="{{ item.key }}"
+                {% if item.rubrique %}data-nav-rubrique="{{ item.rubrique }}"{% endif %}
+                {% if activePage == item.key %}aria-current="page"{% endif %}
+            >{{ item.label }}</a>
             {% endfor %}
         </div>
     </div>
@@ -60,5 +72,22 @@
                 panel.classList.add('hidden');
             });
         });
+
+        const currentUrl = new URL(window.location.href);
+        const rubrique = currentUrl.searchParams.get('rubrique');
+        const lectureLinks = navRoot.querySelectorAll('[data-nav-key="lecture"]');
+        const actualitesLinks = navRoot.querySelectorAll('[data-nav-key="actualites"]');
+
+        if (rubrique === 'Coup de cœur littéraire' && /portail\.html$/.test(currentUrl.pathname)) {
+            actualitesLinks.forEach((link) => {
+                link.classList.remove('is-active');
+                link.removeAttribute('aria-current');
+            });
+
+            lectureLinks.forEach((link) => {
+                link.classList.add('is-active');
+                link.setAttribute('aria-current', 'page');
+            });
+        }
     })();
 </script>

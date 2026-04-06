@@ -23,6 +23,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(indexHtml, /En ce moment/);
   assert.match(indexHtml, /Cette semaine/);
   assert.match(indexHtml, /Cantine & familles/);
+  assert.match(indexHtml, /Coup de cœur/);
   assert.match(indexHtml, />Actualités</);
   assert.doesNotMatch(indexHtml, /Stratégie de Diffusion/);
   assert.match(portalHtml, /portal-posts-data/);

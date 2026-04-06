@@ -261,6 +261,12 @@ async function loadJournalData() {
       navigation: [
         { href: 'index.html', key: 'home', label: 'Accueil' },
         { href: 'portail.html', key: 'actualites', label: 'Actualités' },
+        {
+          href: buildPortalUrl({ rubrique: 'Coup de cœur littéraire' }),
+          key: 'lecture',
+          label: 'Coup de cœur',
+          rubrique: 'Coup de cœur littéraire',
+        },
         { href: 'agenda.html', key: 'agenda', label: 'Agenda' },
         { href: 'a-propos.html', key: 'about', label: 'À propos' },
       ],
