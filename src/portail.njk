@@ -511,6 +511,16 @@ permalink: portail.html
             line-height: 1.78;
             color: var(--ink);
         }
+        .portal-inline-facts {
+            display: grid;
+            gap: 1rem;
+        }
+        @media (min-width: 900px) {
+            .portal-inline-facts {
+                grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+                align-items: start;
+            }
+        }
         .portal-article-grid {
             display: grid;
             gap: 1.5rem;
@@ -1270,20 +1280,6 @@ permalink: portail.html
 
             const leadExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, 260);
             const fullTextSource = post.contenu_texte || post.resume || '';
-            const textBlock = `
-                <div class="space-y-5">
-                    ${leadExcerpt ? `
-                        <div class="portal-lead-card">
-                            <p class="portal-lead-label">En bref</p>
-                            <p class="portal-lead-text">${escapeHtml(leadExcerpt)}</p>
-                        </div>
-                    ` : ''}
-                    <div class="portal-note text-sm md:text-base leading-relaxed">
-                        ${post.contenu_html || renderPlainTextBody(fullTextSource)}
-                    </div>
-                </div>
-            `;
-
             const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
             const agendaCard = agendaEntries.length ? `
                 <div class="portal-fact-card">
@@ -1304,6 +1300,24 @@ permalink: portail.html
                     </div>
                 </div>
             ` : '';
+            const textBlock = `
+                <div class="space-y-5">
+                    ${leadExcerpt ? `
+                        <div class="portal-lead-card">
+                            <p class="portal-lead-label">En bref</p>
+                            <p class="portal-lead-text">${escapeHtml(leadExcerpt)}</p>
+                        </div>
+                    ` : ''}
+                    ${agendaCard ? `
+                        <div class="portal-inline-facts">
+                            ${agendaCard}
+                        </div>
+                    ` : ''}
+                    <div class="portal-note text-sm md:text-base leading-relaxed">
+                        ${post.contenu_html || renderPlainTextBody(fullTextSource)}
+                    </div>
+                </div>
+            `;
             const locationCard = post.lieu ? `
                 <div class="portal-fact-card">
                     <p class="portal-fact-title">📍 Localisation</p>
@@ -1331,7 +1345,7 @@ permalink: portail.html
                     </div>
                 ` : '';
 
-                return renderArticleLayout(textBlock, [visualCard, locationCard, agendaCard, calendarCard]);
+                return renderArticleLayout(textBlock, [visualCard, locationCard, calendarCard]);
             }
 
             if (post.type === 'coup_de_coeur') {
@@ -1368,7 +1382,7 @@ permalink: portail.html
                 `, [visualCard, externalLinkCard, mediathequeCard]);
             }
 
-            return renderArticleLayout(textBlock, [visualCard, locationCard, agendaCard, highlightsCard]);
+            return renderArticleLayout(textBlock, [visualCard, locationCard, highlightsCard]);
         }
 
         function getPortalSearchableText(post) {

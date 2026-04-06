@@ -41,6 +41,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /grid-template-columns:\s*minmax\(0,\s*1\.7fr\)\s*minmax\(18rem,\s*22rem\)/);
   assert.match(portalHtml, /portal-article-main/);
   assert.match(portalHtml, /portal-meta-stack/);
+  assert.match(portalHtml, /portal-inline-facts/);
   assert.match(portalHtml, /aria-label="Repères liés à cette publication"/);
   assert.doesNotMatch(portalHtml, /max-w-\[96rem\]/);
   assert.match(agendaHtml, /agenda-events-data/);
