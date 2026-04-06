@@ -28,7 +28,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /portal-posts-data/);
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
   assert.match(agendaHtml, /agenda-events-data/);
-  assert.match(aboutHtml, /Les 7 piliers éditoriaux/);
+  assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);
   assert.doesNotMatch(portalHtml, /fetch\('\.\/data\/citizen-posts\.json'/);
   assert.doesNotMatch(agendaHtml, /fetch\('\.\/data\/calendar-events\.json'/);

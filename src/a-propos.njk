@@ -189,6 +189,19 @@ permalink: a-propos.html
             letter-spacing: 0.12em;
             text-transform: uppercase;
         }
+        .fade-in {
+            animation: fadeIn 0.45s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body class="font-body antialiased text-ink">
@@ -250,42 +263,36 @@ permalink: a-propos.html
         </section>
 
         <section class="section-shell">
-            <div class="section-header">
-                <span class="section-kicker">Méthode</span>
-                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">Les 7 piliers éditoriaux</h2>
-                <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                    Chaque rubrique répond à une fonction précise : informer, ouvrir, aider, relier, préserver le cadre de vie et rendre visibles les acteurs locaux.
+            <div class="section-header text-center items-center">
+                <span class="section-kicker">Architecture éditoriale</span>
+                <h2 class="text-4xl font-heading font-black uppercase tracking-wider">Nos 7 piliers éditoriaux</h2>
+                <p class="max-w-2xl mx-auto italic text-[color:var(--muted)]">
+                    Découvrez l'ADN du journal en parcourant les piliers ci-dessous.
                 </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Info & politique locale</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Rendre compte des décisions municipales de manière neutre, pédagogique et sourcée.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Ouverture & intercommunalité</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Montrer qu'Annet n'est pas isolée et relayer ce qui se passe dans les communes voisines.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Guide citoyen</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Lutter contre les exclusions administratives et numériques avec des infos concrètes.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Lien social</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Mettre en valeur les habitants, les initiatives et les idées pour la vie collective.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-green mb-2">Écologie & cadre de vie</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Traiter les sujets environnementaux locaux de façon concrète et non idéologique.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Vie associative</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Donner de la visibilité aux assos, aux bénévoles et aux coopérations utiles.</p>
-                </article>
-                <article class="paper-card p-5 md:col-span-2 xl:col-span-3">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Soloprenariat & économie locale</p>
-                    <p class="text-sm leading-relaxed text-[color:var(--muted)]">Valoriser les artisans, indépendants et commerces de proximité sans publicité déguisée.</p>
-                </article>
+            <div class="flex flex-wrap justify-center gap-2 mb-8" id="pillar-buttons">
+                <button type="button" class="px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all bg-ink text-paper border-ink shadow-lg shadow-black/10" aria-pressed="true">
+                    Info & Politique Locale
+                </button>
+            </div>
+
+            <div id="pillar-content" class="paper-card p-8 md:p-12 min-h-[220px] flex items-center justify-center fade-in">
+                <div class="w-full max-w-4xl fade-in flex flex-col md:flex-row gap-8 items-center">
+                    <div class="text-6xl md:text-8xl grayscale opacity-80">⚖️</div>
+                    <div class="flex-1 space-y-4">
+                        <h3 class="text-3xl font-heading font-black uppercase text-ink mb-2 border-b-2 border-vintage-red pb-2 inline-block">Info & Politique Locale</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">Le Principe</h4>
+                                <p class="text-sm leading-relaxed text-justify">Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">L'Objectif</h4>
+                                <p class="text-sm leading-relaxed text-justify font-bold">Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -339,5 +346,67 @@ permalink: a-propos.html
     </main>
 
     {% include "site-footer.njk" %}
+
+    <script>
+        const pillarsData = [
+            { id: 'p1', title: 'Info & Politique Locale', icon: '⚖️', theme: 'vintage-red', principe: 'Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.', objectif: 'Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.' },
+            { id: 'p2', title: 'Ouverture & Intercommunalité', icon: '🤝', theme: 'vintage-red', principe: "Annet n'est pas une île. Donner la parole aux communes voisines et relayer leurs événements.", objectif: "Mutualiser les bonnes idées et encourager les échanges culturels et associatifs au-delà du village." },
+            { id: 'p3', title: 'Guide Citoyen', icon: '🛡️', theme: 'vintage-red', principe: 'Lutter contre les exclusions sociales, numériques et administratives avec des solutions concrètes.', objectif: 'Aider dans les démarches, faire connaître les aides existantes et créer des ponts entre les générations.' },
+            { id: 'p4', title: 'Lien Social', icon: '☕', theme: 'vintage-red', principe: 'Mettre en valeur les habitants, les initiatives locales et ouvrir le débat sur l’avenir.', objectif: 'Donner envie de se parler, créer des moments de convivialité et réfléchir collectivement à l’évolution du village.' },
+            { id: 'p5', title: 'Écologie & Cadre de Vie', icon: '🌱', theme: 'vintage-green', principe: 'Traiter les sujets environnementaux locaux de façon concrète et non idéologique.', objectif: 'Aider les habitants à comprendre les projets, à s’équiper et à participer aux initiatives locales.' },
+            { id: 'p6', title: 'Vie Associative', icon: '🎗️', theme: 'vintage-blue', principe: 'Mettre en lumière les associations, leurs bénévoles et leurs besoins, sans communication vitrine.', objectif: 'Donner de la visibilité aux initiatives, faciliter le recrutement de bénévoles et renforcer les coopérations entre assos.' },
+            { id: 'p7', title: 'Soloprenariat & Économie Locale', icon: '🛍️', theme: 'vintage-blue', principe: 'Valoriser les artisans, indépendants, micro-entreprises et commerces de proximité sans publicité déguisée.', objectif: 'Rendre ces activités identifiables, utiles et connectées aux habitants via des portraits, des services et des projets.' }
+        ];
+
+        const btnContainer = document.getElementById('pillar-buttons');
+        const contentContainer = document.getElementById('pillar-content');
+        let currentPillarId = 'p1';
+
+        function renderPillars() {
+            btnContainer.innerHTML = '';
+            pillarsData.forEach((pillar) => {
+                const isActive = pillar.id === currentPillarId;
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all ${isActive ? 'bg-ink text-paper border-ink shadow-lg shadow-black/10' : 'border-ink/10 bg-white/70 text-ink hover:bg-white hover:-translate-y-0.5'}`;
+                button.textContent = pillar.title;
+                button.setAttribute('aria-pressed', String(isActive));
+                button.onclick = () => {
+                    currentPillarId = pillar.id;
+                    renderPillars();
+                    renderPillarContent();
+                };
+                btnContainer.appendChild(button);
+            });
+        }
+
+        function renderPillarContent() {
+            const pillar = pillarsData.find((item) => item.id === currentPillarId);
+            const titleColor = pillar.theme === 'vintage-red' ? 'text-ink' : `text-${pillar.theme}`;
+            const accentLine = `border-${pillar.theme}`;
+
+            contentContainer.innerHTML = `
+                <div class="w-full max-w-4xl fade-in flex flex-col md:flex-row gap-8 items-center">
+                    <div class="text-6xl md:text-8xl grayscale opacity-80">${pillar.icon}</div>
+                    <div class="flex-1 space-y-4">
+                        <h3 class="text-3xl font-heading font-black uppercase ${titleColor} mb-2 border-b-2 ${accentLine} pb-2 inline-block">${pillar.title}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">Le Principe</h4>
+                                <p class="text-sm leading-relaxed text-justify">${pillar.principe}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">L'Objectif</h4>
+                                <p class="text-sm leading-relaxed text-justify font-bold">${pillar.objectif}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        renderPillars();
+        renderPillarContent();
+    </script>
 </body>
 </html>
