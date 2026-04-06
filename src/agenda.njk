@@ -258,27 +258,35 @@ permalink: agenda.html
         .agenda-toolbar {
             display: grid;
             grid-template-columns: 1fr;
+            grid-template-areas:
+                'search'
+                'count'
+                'filters';
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
         @media (min-width: 1024px) {
             .agenda-toolbar {
                 grid-template-columns: minmax(0, 1fr) auto;
+                grid-template-areas:
+                    'search count'
+                    'filters filters';
                 align-items: start;
             }
         }
+        .agenda-toolbar-main {
+            grid-area: search;
+        }
         .agenda-filters {
+            grid-area: filters;
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 0.55rem;
-            align-items: center;
-            overflow-x: auto;
-            padding-bottom: 0.35rem;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(40,148,227,0.45) transparent;
+            align-items: stretch;
+            width: 100%;
         }
         .agenda-filter {
-            flex: 0 0 auto;
+            flex: 0 1 auto;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -301,11 +309,18 @@ permalink: agenda.html
             border-color: var(--vintage-blue);
         }
         .agenda-count {
+            grid-area: count;
             font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: var(--muted);
+            justify-self: start;
+        }
+        @media (min-width: 1024px) {
+            .agenda-count {
+                justify-self: end;
+            }
         }
         .month-block + .month-block {
             margin-top: 2rem;
@@ -426,11 +441,11 @@ permalink: agenda.html
             </div>
 
             <div class="agenda-toolbar">
-                <div class="space-y-3">
+                <div class="agenda-toolbar-main">
                     <input id="agenda-search" class="agenda-search" type="search" placeholder="Rechercher un événement, une rubrique ou un lieu..." />
-                    <div id="agenda-filters" class="agenda-filters"></div>
                 </div>
                 <div id="agenda-count" class="agenda-count">0 date</div>
+                <div id="agenda-filters" class="agenda-filters"></div>
             </div>
 
             <div id="agenda-status" class="hidden"></div>
