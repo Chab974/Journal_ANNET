@@ -636,6 +636,74 @@ permalink: agenda.html
             color: var(--vintage-blue);
             background: rgba(255,255,255,0.96);
         }
+        .agenda-time-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.38rem 0.72rem;
+            border-radius: 999px;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            background: rgba(22, 49, 74, 0.04);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink);
+        }
+        .agenda-content {
+            display: grid;
+            gap: 0.95rem;
+            min-width: 0;
+        }
+        .agenda-meta-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .agenda-summary-card {
+            max-width: 64ch;
+            padding: 0.95rem 1rem;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            border-radius: 16px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,248,251,0.94)),
+                radial-gradient(circle at top left, rgba(40,148,227,0.08), transparent 35%);
+        }
+        .agenda-summary-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--vintage-blue);
+        }
+        .agenda-summary {
+            margin-top: 0.35rem;
+            font-size: 1rem;
+            line-height: 1.72;
+            color: var(--ink);
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .agenda-summary-note {
+            margin-top: 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .agenda-location-line {
+            display: inline-flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+            max-width: 60ch;
+            font-size: 0.94rem;
+            line-height: 1.6;
+            color: var(--muted);
+        }
         .agenda-actions {
             display: flex;
             flex-wrap: wrap;
@@ -754,6 +822,22 @@ permalink: agenda.html
             return normalized ? new Date(normalized) : new Date(NaN);
         }
 
+        function normalizeEditorialText(text) {
+            return String(text || '')
+                .replace(/\r\n?/g, '\n')
+                .replace(/\u00a0/g, ' ')
+                .replace(/[ \t]+/g, ' ')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        function splitEditorialSegments(text) {
+            return normalizeEditorialText(text)
+                .split(/\n{2,}|\n+|\s[–—-]\s|\s•\s/g)
+                .map((segment) => segment.replace(/^[•\-–—\s]+/, '').trim())
+                .filter(Boolean);
+        }
+
         function isValidDate(date) {
             return date instanceof Date && !Number.isNaN(date.getTime());
         }
@@ -768,6 +852,62 @@ permalink: agenda.html
 
         function getArticleUrl(eventItem) {
             return `portail.html?rubrique=${encodeURIComponent(eventItem.rubrique || '')}&slug=${encodeURIComponent(eventItem.post_slug || '')}`;
+        }
+
+        function isAdministrativeSegment(segment = '') {
+            return /^(date de (début|fin)|début|fin|horaire|heure|lieu|adresse)\s*:/i.test(segment);
+        }
+
+        function truncateEditorialText(text, maxLength = 220) {
+            const normalized = normalizeEditorialText(text);
+            if (!normalized || normalized.length <= maxLength) {
+                return normalized;
+            }
+
+            const slice = normalized.slice(0, maxLength);
+            const boundary = slice.lastIndexOf(' ');
+            return `${slice.slice(0, boundary > 100 ? boundary : maxLength).trim()}…`;
+        }
+
+        function buildReadableExcerpt(text, title = '', maxLength = 220) {
+            const normalized = normalizeEditorialText(text);
+            if (!normalized) {
+                return '';
+            }
+
+            const lowerTitle = normalizeEditorialText(title).toLowerCase();
+            const segments = splitEditorialSegments(normalized)
+                .filter((segment) => segment.toLowerCase() !== lowerTitle);
+
+            if (segments.length >= 2) {
+                const preferredSegments = [
+                    ...segments.filter((segment) => !isAdministrativeSegment(segment)),
+                    ...segments.filter((segment) => isAdministrativeSegment(segment)),
+                ];
+                const selected = [];
+
+                for (const segment of preferredSegments) {
+                    if (selected.includes(segment)) {
+                        continue;
+                    }
+
+                    const candidate = [...selected, segment].join(' • ');
+                    if (candidate.length > maxLength && selected.length > 0) {
+                        break;
+                    }
+
+                    selected.push(segment);
+                    if (selected.length === 3) {
+                        break;
+                    }
+                }
+
+                if (selected.length > 0) {
+                    return selected.join(' • ');
+                }
+            }
+
+            return truncateEditorialText(normalized, maxLength);
         }
 
         function toCalendarUrl(eventItem) {
@@ -963,6 +1103,9 @@ permalink: agenda.html
             const { start } = getEventBounds(eventItem);
             const dayParts = getDayParts(start);
             const articleUrl = getArticleUrl(eventItem);
+            const fullDescription = normalizeEditorialText(eventItem.description || '');
+            const summary = buildReadableExcerpt(fullDescription, eventItem.title, 220);
+            const isTruncatedSummary = Boolean(fullDescription && summary && fullDescription !== summary);
 
             return `
                 <article class="agenda-card">
@@ -971,14 +1114,30 @@ permalink: agenda.html
                         <div class="agenda-day-num">${escapeHtml(dayParts.day)}</div>
                         <div class="agenda-month">${escapeHtml(dayParts.month)}</div>
                     </div>
-                    <div>
-                        <div class="flex flex-wrap items-center gap-3 mb-3">
+                    <div class="agenda-content">
+                        <div class="agenda-meta-line">
                             <span class="agenda-rubrique">${escapeHtml(eventItem.rubrique || 'Agenda')}</span>
-                            <span class="text-sm font-semibold text-[color:var(--muted)]">${escapeHtml(eventItem.time_label || '')}</span>
+                            ${eventItem.time_label ? `
+                                <span class="agenda-time-pill">
+                                    <span aria-hidden="true">🕒</span>
+                                    <span>${escapeHtml(eventItem.time_label)}</span>
+                                </span>
+                            ` : ''}
                         </div>
                         <h3 class="text-2xl font-heading font-black leading-tight">${escapeHtml(eventItem.title || '')}</h3>
-                        <p class="mt-2 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">${escapeHtml(eventItem.description || '')}</p>
-                        ${eventItem.location ? `<p class="mt-3 text-sm font-semibold">📍 ${escapeHtml(eventItem.location)}</p>` : ''}
+                        ${summary ? `
+                            <div class="agenda-summary-card">
+                                <p class="agenda-summary-label">Résumé rapide</p>
+                                <p class="agenda-summary">${escapeHtml(summary)}</p>
+                                ${isTruncatedSummary ? `<p class="agenda-summary-note">La suite est détaillée dans l’article.</p>` : ''}
+                            </div>
+                        ` : ''}
+                        ${eventItem.location ? `
+                            <p class="agenda-location-line">
+                                <span aria-hidden="true">📍</span>
+                                <span>${escapeHtml(eventItem.location)}</span>
+                            </p>
+                        ` : ''}
                         <div class="agenda-actions">
                             <a class="agenda-link agenda-link--primary" href="${escapeHtml(toCalendarUrl(eventItem))}" target="_blank" rel="noopener noreferrer">
                                 <span aria-hidden="true">🗓️</span>

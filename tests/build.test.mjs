@@ -34,10 +34,13 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /portal-posts-data/);
   assert.match(portalHtml, /initialSearchParams\.get\('q'\)/);
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
+  assert.match(portalHtml, /Résumé rapide/);
+  assert.match(portalHtml, /En bref/);
   assert.match(agendaHtml, /agenda-events-data/);
   assert.match(agendaHtml, /Vue calendrier/);
   assert.match(agendaHtml, /Prochainement/);
   assert.match(agendaHtml, /Passés récemment/);
+  assert.match(agendaHtml, /Résumé rapide/);
   assert.ok(!embeddedAgenda.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);
