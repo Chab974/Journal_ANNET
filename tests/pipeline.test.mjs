@@ -285,3 +285,69 @@ test('buildSnapshotsFromSources construit des snapshots cohérents depuis Notion
   const validation = validateSnapshots(snapshots);
   assert.deepEqual(validation.errors, []);
 });
+
+test('buildSnapshotsFromSources accepte une clé de section texte pour Section items', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const numberProperty = (value) => ({
+    number: value,
+    type: 'number',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+  const statusProperty = (value) => ({
+    status: { name: value },
+    type: 'status',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [],
+    sectionPages: [
+      {
+        id: 'section-home-editorial-1',
+        properties: {
+          'Clé': richTextProperty('home-editorial'),
+          'Statut': statusProperty('Publié'),
+          'Titre': titleProperty('Portail Citoyen'),
+        },
+        url: 'https://notion.so/section-home-editorial-1',
+      },
+    ],
+    sectionItemPages: [
+      {
+        id: 'item-editorial-cta-1',
+        properties: {
+          'Groupe': selectProperty('cta_link'),
+          'Lien': richTextProperty('agenda.html'),
+          'Nom': titleProperty('Agenda du village'),
+          'Ordre': numberProperty(1),
+          'Section': richTextProperty('home-editorial'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Agenda du village'),
+        },
+      },
+    ],
+  });
+
+  assert.deepEqual(snapshots.siteSections['home-editorial'].ctaLinks, [
+    {
+      href: 'agenda.html',
+      label: 'Agenda du village',
+    },
+  ]);
+  assert.ok(
+    !snapshots.warnings.some((warning) => warning.includes('section liée absente') || warning.includes('section "home-editorial" inconnue')),
+  );
+});

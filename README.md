@@ -209,6 +209,15 @@ NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID=... # optionnel
 La variable `NOTION_MENU_ITEMS_DATA_SOURCE_ID` garde ce nom technique dans le code, mais la base Notion peut etre nommee `cantine_scolaire`.
 La base `Section items` contient les lignes répétées des sections de site: `actions`, `stats`, `cards`, `ctaLinks`, `masthead`, `titleLines`, `feature`, `editorial` et `highlight`. Si cette variable n’est pas renseignée, le build garde les valeurs par défaut et le JSON porté par chaque section.
 
+Pour la pré-remplir rapidement :
+
+```bash
+npm run generate:notion-imports
+```
+
+Puis importe [`notion-imports/sections-site-items.csv`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/notion-imports/sections-site-items.csv) dans la base `Section items`.
+La colonne `Section` peut maintenant être soit une vraie relation vers `Sections site`, soit une clé texte comme `home-hero`, `home-editorial`, `home-rubriques`, `home-diffusion` ou `footer`.
+
 ## 7. Générer les snapshots
 
 ### Sync manuelle

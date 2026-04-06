@@ -314,7 +314,26 @@ function parseJsonPayload(rawValue, warnings, label) {
   }
 }
 
-function buildSectionItemsMap(sectionItemPages, warnings) {
+function buildSectionIdByKeyMap(sectionPages) {
+  const sectionIdsByKey = new Map();
+
+  for (const page of ensureArray(sectionPages)) {
+    if (!isPublished(page, sectionFieldCandidates.status)) {
+      continue;
+    }
+
+    const key = readFirstText(page, sectionFieldCandidates.key) || slugify(readTitle(page, sectionFieldCandidates.title));
+    if (!key) {
+      continue;
+    }
+
+    sectionIdsByKey.set(key, page.id);
+  }
+
+  return sectionIdsByKey;
+}
+
+function buildSectionItemsMap(sectionItemPages, sectionIdsByKey, warnings) {
   const itemsBySectionId = new Map();
 
   for (const page of ensureArray(sectionItemPages)) {
@@ -322,9 +341,16 @@ function buildSectionItemsMap(sectionItemPages, warnings) {
       continue;
     }
 
-    const sectionId = readRelationId(page, sectionItemFieldCandidates.relation);
+    const relatedSectionId = readRelationId(page, sectionItemFieldCandidates.relation);
+    const rawSectionKey = slugify(readFirstText(page, sectionItemFieldCandidates.relation));
+    const sectionId = relatedSectionId || sectionIdsByKey.get(rawSectionKey) || '';
+
     if (!sectionId) {
-      warnings.push(`Élément de section ${page.id} ignoré: section liée absente.`);
+      if (rawSectionKey) {
+        warnings.push(`Élément de section ${page.id} ignoré: section "${rawSectionKey}" inconnue.`);
+      } else {
+        warnings.push(`Élément de section ${page.id} ignoré: section liée absente.`);
+      }
       continue;
     }
 
@@ -709,7 +735,8 @@ function enrichPublicationsWithAgenda(publications, agenda) {
 
 async function buildSiteSections(sectionPages, sectionItemPages, context) {
   const sections = structuredClone(defaultSiteSections);
-  const itemsBySectionId = buildSectionItemsMap(sectionItemPages, context.warnings);
+  const sectionIdsByKey = buildSectionIdByKeyMap(sectionPages);
+  const itemsBySectionId = buildSectionItemsMap(sectionItemPages, sectionIdsByKey, context.warnings);
   const seenSectionIds = new Set();
 
   for (const page of ensureArray(sectionPages)) {

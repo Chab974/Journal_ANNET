@@ -1,6 +1,6 @@
 ## Import CSV Notion
 
-Ces fichiers servent a creer rapidement les 4 bases attendues par la pipeline `Journal_ANNET`.
+Ces fichiers servent a creer rapidement les 4 bases principales attendues par la pipeline `Journal_ANNET`, plus la base optionnelle `Section items`.
 Ils sont regenes a partir des snapshots versionnes dans `data/`.
 
 Commande de regeneration :
@@ -22,6 +22,7 @@ Fichiers fournis :
 - `agenda.csv`
 - `cantine_scolaire.csv`
 - `sections-site.csv`
+- `sections-site-items.csv`
 
 Points a connaitre avant import :
 
@@ -34,6 +35,8 @@ Points a connaitre avant import :
 - Apres import, cree une vraie relation `Publication liée` vers la base `Publications`, reconnecte chaque ligne, puis supprime la colonne helper.
 - Les images et fichiers ne sont pas importes via ces CSV. Ajoute-les ensuite directement dans Notion si tu veux utiliser `Image`, `Couverture` ou des blocs image.
 - La base `Sections site` pilote surtout le contenu via la colonne `JSON`, deja pre-remplie avec les valeurs par defaut du site.
+- La base `Section items` contient les lignes repetitives et structurees des sections (`masthead`, `title_line`, `feature`, `editorial`, `stat`, `action`, `highlight`, `cta_link`, `item`, `card`).
+- La colonne `Section` de `sections-site-items.csv` peut rester en texte (`home-hero`, `home-editorial`, `home-rubriques`, `home-diffusion`, `footer`) ou etre transformee plus tard en vraie relation vers `Sections site`.
 - La base Notion peut etre nommee `cantine_scolaire`, meme si la variable technique du projet reste `NOTION_MENU_ITEMS_DATA_SOURCE_ID`.
 - `Ordre manuel`, `Ordre`, `Ordre jour` et certaines lignes speciales de cantine sont reconstruits automatiquement pendant la generation.
 
@@ -44,3 +47,4 @@ Ordre conseille :
 3. importer `agenda.csv` et `cantine_scolaire.csv`
 4. creer les vraies relations vers `Publications`
 5. importer `sections-site.csv`
+6. importer `sections-site-items.csv` si tu veux piloter les sections structurees hors du JSON
