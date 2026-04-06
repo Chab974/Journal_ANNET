@@ -241,11 +241,16 @@ permalink: a-propos.html
         .section-shell {
             position: relative;
             overflow: hidden;
-            padding: 1.5rem;
+            padding: 1.4rem;
             border: 1px solid var(--line);
             border-radius: 18px;
             background: rgba(255,255,255,0.94);
             box-shadow: var(--shadow-card);
+        }
+        @media (min-width: 768px) {
+            .section-shell {
+                padding: 1.75rem;
+            }
         }
         .section-shell::before {
             content: '';
@@ -307,7 +312,7 @@ permalink: a-propos.html
     <a href="#main-content" class="skip-link">Aller au contenu</a>
     {% include "site-nav.njk" %}
 
-    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
         <section class="hero-shell px-6 py-8 md:px-10 md:py-10">
             <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
                 <div>

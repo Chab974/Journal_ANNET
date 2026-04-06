@@ -222,17 +222,32 @@ permalink: agenda.html
             box-shadow: none;
         }
         .section-shell {
+            position: relative;
+            overflow: hidden;
             border: 1px solid var(--line);
             border-radius: 18px;
             background: rgba(255,255,255,0.94);
             box-shadow: var(--shadow-card);
-            padding: 1.5rem;
+            padding: 1.4rem;
+        }
+        .section-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 14%);
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .section-shell {
+                padding: 1.75rem;
+            }
         }
         .section-header {
+            position: relative;
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
-            margin-bottom: 1.75rem;
+            margin-bottom: 1.9rem;
             padding-bottom: 1.25rem;
             border-bottom: 1px solid var(--line);
         }
@@ -730,7 +745,7 @@ permalink: agenda.html
         }
         .agenda-empty {
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.96);
             box-shadow: var(--shadow-card);
             padding: 2rem;
@@ -742,7 +757,7 @@ permalink: agenda.html
     <a href="#main-content" class="skip-link">Aller au contenu</a>
     {% include "site-nav.njk" %}
 
-    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
         <section class="section-shell">
             <div class="section-header">
                 <p class="section-kicker">Calendrier commun</p>

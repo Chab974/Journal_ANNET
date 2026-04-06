@@ -230,17 +230,30 @@ permalink: portail.html
         .section-shell {
             position: relative;
             overflow: hidden;
-            padding: 1.5rem;
+            padding: 1.4rem;
             border: 1px solid var(--line);
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.94);
             box-shadow: var(--shadow-card);
         }
+        .section-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 14%);
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .section-shell {
+                padding: 1.75rem;
+            }
+        }
         .section-header {
+            position: relative;
             display: flex;
             flex-direction: column;
             gap: 0.9rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.9rem;
             padding-bottom: 1.25rem;
             border-bottom: 1px solid var(--line);
         }
@@ -253,7 +266,7 @@ permalink: portail.html
         }
         .paper-card {
             border: 1px solid var(--line);
-            border-radius: 14px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.96);
             box-shadow: 0 10px 20px rgba(31, 31, 28, 0.05);
         }
@@ -278,7 +291,7 @@ permalink: portail.html
                 'count'
                 'filters';
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
         }
         @media (min-width: 1024px) {
             .portal-toolbar {
@@ -352,7 +365,7 @@ permalink: portail.html
         .portal-card {
             position: relative;
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius: 18px;
             background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,246,242,0.98));
             box-shadow: var(--shadow-card);
         }
@@ -428,7 +441,7 @@ permalink: portail.html
             margin-top: 1rem;
             padding: 0.95rem 1rem;
             border: 1px solid rgba(22, 49, 74, 0.08);
-            border-radius: 16px;
+            border-radius: 18px;
             background:
                 linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,248,251,0.94)),
                 radial-gradient(circle at top left, rgba(40,148,227,0.08), transparent 35%);
@@ -461,7 +474,7 @@ permalink: portail.html
         .portal-lead-card {
             padding: 1rem 1.05rem;
             border: 1px solid rgba(22, 49, 74, 0.08);
-            border-radius: 16px;
+            border-radius: 18px;
             background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,248,251,0.94));
         }
         .portal-lead-label {
@@ -480,16 +493,20 @@ permalink: portail.html
         .portal-article-grid {
             display: grid;
             gap: 1.5rem;
+            align-items: start;
+        }
+        @media (min-width: 1024px) {
+            .portal-article-grid {
+                grid-template-columns: minmax(0, 1.7fr) minmax(18rem, 22rem);
+            }
+        }
+        .portal-article-main {
+            min-width: 0;
         }
         .portal-support-grid {
             display: grid;
             gap: 1rem;
-        }
-        @media (min-width: 960px) {
-            .portal-support-grid {
-                grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-                align-items: start;
-            }
+            align-content: start;
         }
         .portal-support-grid > * {
             min-width: 0;
@@ -498,12 +515,13 @@ permalink: portail.html
             color: var(--ink);
         }
         .portal-note > * + * {
-            margin-top: 1.15rem;
+            margin-top: 1.2rem;
         }
         .portal-note p,
         .portal-note li {
             color: #385067;
-            line-height: 1.82;
+            font-size: 1rem;
+            line-height: 1.86;
         }
         .portal-note h1,
         .portal-note h2,
@@ -511,6 +529,7 @@ permalink: portail.html
             font-family: 'Sora', sans-serif;
             font-weight: 800;
             line-height: 1.12;
+            letter-spacing: -0.02em;
             text-transform: none;
             color: var(--ink);
         }
@@ -555,9 +574,9 @@ permalink: portail.html
         }
         .portal-note blockquote,
         .portal-note .notion-callout {
-            padding: 1rem 1.1rem;
+            padding: 1.1rem 1.2rem;
             border: 1px solid var(--line);
-            border-radius: 14px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.92);
         }
         .portal-plain-list {
@@ -577,7 +596,8 @@ permalink: portail.html
         .portal-note .notion-figure img {
             width: 100%;
             border: 1px solid var(--line);
-            border-radius: 14px;
+            border-radius: 18px;
+            box-shadow: var(--shadow-card);
         }
         .portal-note .notion-figure figcaption {
             font-size: 0.78rem;
@@ -588,7 +608,7 @@ permalink: portail.html
         }
         .portal-cantine-day {
             border: 1px solid var(--line);
-            border-radius: 14px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.98);
         }
         .portal-cantine-item {
@@ -651,7 +671,7 @@ permalink: portail.html
             overflow: hidden;
             padding: 0.9rem;
             border: 1px solid rgba(246, 163, 24, 0.18);
-            border-radius: 18px;
+            border-radius: 20px;
             background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(251,246,238,0.98));
             box-shadow: 0 14px 26px rgba(22, 49, 74, 0.08);
         }
@@ -717,7 +737,7 @@ permalink: portail.html
         }
         .portal-fact-card {
             border: 1px solid var(--line);
-            border-radius: 14px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.94);
             padding: 1rem 1.05rem;
         }
@@ -760,7 +780,7 @@ permalink: portail.html
             gap: 1rem;
             padding: 0.85rem 0.95rem;
             border: 1px solid var(--line);
-            border-radius: 14px;
+            border-radius: 18px;
             background: rgba(255,255,255,0.96);
         }
         .portal-agenda-meta {
@@ -812,11 +832,11 @@ permalink: portail.html
     <a href="#main-content" class="skip-link">Aller au contenu</a>
     {% include "site-nav.njk" %}
 
-    <main id="main-content" class="max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
         <section class="section-shell">
-            <div class="p-2">
+            <div class="p-1 md:p-2">
                 <div class="section-header">
-                    <div class="max-w-5xl">
+                    <div class="max-w-4xl">
                         <p id="portal-page-kicker" class="section-kicker mb-3">Actualités locales filtrables</p>
                         <h1 id="portal-page-title" class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">Actualités</h1>
                         <p id="portal-page-description" class="text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
@@ -1176,8 +1196,30 @@ permalink: portail.html
             }
 
             return `
-                <div class="portal-support-grid">
+                <aside class="portal-support-grid" aria-label="Repères liés à cette publication">
                     ${items.join('')}
+                </aside>
+            `;
+        }
+
+        function renderArticleLayout(mainMarkup, supportCards = [], extraMainClasses = '') {
+            const items = supportCards.filter(Boolean);
+            const mainClass = ['paper-card', 'portal-article-main', 'p-5', 'md:p-6', 'bg-white/80', extraMainClasses]
+                .filter(Boolean)
+                .join(' ');
+
+            if (!items.length) {
+                return `
+                    <div class="mt-6">
+                        <div class="${mainClass}">${mainMarkup}</div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="portal-article-grid mt-6">
+                    <div class="${mainClass}">${mainMarkup}</div>
+                    ${renderSupportSection(items)}
                 </div>
             `;
         }
@@ -1268,12 +1310,7 @@ permalink: portail.html
                     </div>
                 ` : '';
 
-                return `
-                    <div class="portal-article-grid mt-6">
-                        <div class="paper-card p-5 md:p-6 bg-white/80">${textBlock}</div>
-                        ${renderSupportSection([visualCard, locationCard, agendaCard, calendarCard])}
-                    </div>
-                `;
+                return renderArticleLayout(textBlock, [visualCard, locationCard, agendaCard, calendarCard]);
             }
 
             if (post.type === 'coup_de_coeur') {
@@ -1295,31 +1332,22 @@ permalink: portail.html
                     </div>
                 ` : '';
 
-                return `
-                    <div class="portal-article-grid mt-6">
-                        <div class="paper-card p-5 md:p-6 bg-white/80">
-                            ${(post.auteur || post.edition) ? `
-                                <div class="flex flex-wrap gap-2 mb-4">
-                                    ${post.auteur ? renderMetaBadge(post.auteur, '✍️', 'portal-badge--certifié') : ''}
-                                    ${post.edition ? renderMetaBadge(post.edition, '📘') : ''}
-                                </div>
-                            ` : ''}
-                            ${textBlock}
-                        </div>
-                        ${renderSupportSection([visualCard, externalLinkCard, mediathequeCard])}
+                const metadataBlock = (post.auteur || post.edition) ? `
+                    <div class="flex flex-wrap gap-2">
+                        ${post.auteur ? renderMetaBadge(post.auteur, '✍️', 'portal-badge--certifié') : ''}
+                        ${post.edition ? renderMetaBadge(post.edition, '📘') : ''}
                     </div>
-                `;
+                ` : '';
+
+                return renderArticleLayout(`
+                    <div class="space-y-5">
+                        ${metadataBlock}
+                        ${textBlock}
+                    </div>
+                `, [visualCard, externalLinkCard, mediathequeCard]);
             }
 
-            return `
-                <div class="portal-article-grid mt-6">
-                    <div class="paper-card p-5 md:p-6 bg-white/80 space-y-5">
-                        ${textBlock}
-                        ${highlightsCard}
-                    </div>
-                    ${renderSupportSection([visualCard, locationCard, agendaCard])}
-                </div>
-            `;
+            return renderArticleLayout(textBlock, [visualCard, locationCard, agendaCard, highlightsCard]);
         }
 
         function getPortalSearchableText(post) {
