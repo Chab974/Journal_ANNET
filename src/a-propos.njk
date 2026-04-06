@@ -375,7 +375,7 @@ permalink: a-propos.html
                 </p>
             </div>
             <div class="flex flex-wrap justify-center gap-2 mb-8" id="pillar-buttons">
-                <button type="button" class="px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all bg-ink text-paper border-ink shadow-lg shadow-black/10" aria-pressed="true">
+                <button type="button" class="px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all border-ink/20 shadow-lg shadow-black/10 backdrop-blur-sm" style="background: rgba(22, 49, 74, 0.88); color: rgba(255, 255, 255, 0.96);" aria-pressed="true">
                     Info & Politique Locale
                 </button>
             </div>
@@ -472,7 +472,9 @@ permalink: a-propos.html
                 const isActive = pillar.id === currentPillarId;
                 const button = document.createElement('button');
                 button.type = 'button';
-                button.className = `px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all ${isActive ? 'bg-ink text-paper border-ink shadow-lg shadow-black/10' : 'border-ink/10 bg-white/70 text-ink hover:bg-white hover:-translate-y-0.5'}`;
+                button.className = `px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all ${isActive ? 'border-ink/20 shadow-lg shadow-black/10 backdrop-blur-sm' : 'border-ink/10 bg-white/70 text-ink hover:bg-white hover:-translate-y-0.5'}`;
+                button.style.background = isActive ? 'rgba(22, 49, 74, 0.88)' : '';
+                button.style.color = isActive ? 'rgba(255, 255, 255, 0.96)' : '';
                 button.textContent = pillar.title;
                 button.setAttribute('aria-pressed', String(isActive));
                 button.onclick = () => {
