@@ -460,14 +460,42 @@ function buildTextList(sectionItems, group) {
   return values.length > 0 ? values : null;
 }
 
+function chooseExtendedLabel(primaryValue, ...fallbackValues) {
+  const primary = String(primaryValue || '').trim();
+  const normalizedPrimary = primary.toLowerCase();
+
+  for (const value of fallbackValues) {
+    const candidate = String(value || '').trim();
+    if (!candidate) {
+      continue;
+    }
+
+    if (!primary) {
+      return candidate;
+    }
+
+    const normalizedCandidate = candidate.toLowerCase();
+    if (normalizedCandidate.includes(normalizedPrimary) && normalizedCandidate.length > normalizedPrimary.length) {
+      return candidate;
+    }
+  }
+
+  return primary;
+}
+
 function buildFeatureSectionItem(item, fallback = {}) {
   if (!item) {
     return null;
   }
 
+  const primaryKicker = item.kicker || item.eyebrow || fallback.kicker || '';
+
   return {
     description: item.description || fallback.description || '',
-    kicker: item.kicker || item.eyebrow || fallback.kicker || '',
+    kicker:
+      chooseExtendedLabel(primaryKicker, item.title, item.text, item.name) ||
+      fallback.title ||
+      '',
     title: item.title || item.text || fallback.title || '',
   };
 }
@@ -815,8 +843,8 @@ async function buildPublicationSnapshot(page, context) {
   const rawPublication = {
     auteur: readFirstText(page, publicationFieldCandidates.author),
     contenu_texte:
-      readFirstText(page, publicationFieldCandidates.textFallback) ||
       blockContent.plainText ||
+      readFirstText(page, publicationFieldCandidates.textFallback) ||
       readFirstText(page, publicationFieldCandidates.resume),
     date:
       readFirstText(page, publicationFieldCandidates.displayDate) ||

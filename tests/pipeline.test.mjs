@@ -286,6 +286,105 @@ test('buildSnapshotsFromSources construit des snapshots cohérents depuis Notion
   assert.deepEqual(validation.errors, []);
 });
 
+test('buildSnapshotsFromSources privilégie le corps de page Notion sur Contenu texte', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [
+      {
+        has_children: false,
+        id: 'block-body-1',
+        paragraph: {
+          rich_text: [{ plain_text: 'Corps prioritaire depuis la page Notion.' }],
+        },
+        type: 'paragraph',
+      },
+    ],
+    mediaResolver: async () => '',
+    publicationPages: [
+      {
+        id: 'publication-body-priority-1',
+        last_edited_time: '2026-04-07T10:00:00.000Z',
+        properties: {
+          'Contenu texte': richTextProperty('Ancien contenu de secours.'),
+          'Résumé': richTextProperty('Résumé court'),
+          'Rubrique': selectProperty('Vie locale'),
+          'Statut': selectProperty('Publié'),
+          'Titre': titleProperty('Article prioritaire'),
+          'Type': selectProperty('info'),
+        },
+        url: 'https://notion.so/publication-body-priority-1',
+      },
+    ],
+    sectionPages: [],
+    sectionItemPages: [],
+  });
+
+  assert.equal(snapshots.publications.length, 1);
+  assert.equal(snapshots.publications[0].contenu_texte, 'Corps prioritaire depuis la page Notion.');
+  assert.match(snapshots.publications[0].contenu_html, /Corps prioritaire depuis la page Notion/);
+});
+
+test('buildSnapshotsFromSources publie uniquement les contenus au statut select Publié', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+
+  const publicationPage = (id, status) => ({
+    id,
+    last_edited_time: '2026-04-07T10:00:00.000Z',
+    properties: {
+      'Résumé': richTextProperty(`Résumé ${id}`),
+      'Rubrique': selectProperty('Vie locale'),
+      'Statut': selectProperty(status),
+      'Titre': titleProperty(`Titre ${id}`),
+      'Type': selectProperty('info'),
+    },
+    url: `https://notion.so/${id}`,
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [
+      publicationPage('publication-select-draft-1', 'En cours'),
+      publicationPage('publication-select-review-1', 'A valider'),
+      publicationPage('publication-select-published-1', 'Publié'),
+    ],
+    sectionPages: [],
+    sectionItemPages: [],
+  });
+
+  assert.deepEqual(
+    snapshots.publications.map((publication) => publication.id),
+    ['publication-select-published-1'],
+  );
+});
+
 test('buildSnapshotsFromSources accepte une clé de section texte pour Section items', async () => {
   const titleProperty = (value) => ({
     title: [{ plain_text: value }],
@@ -405,6 +504,61 @@ test('buildSnapshotsFromSources ne reconstruit pas feature.title depuis Nom quan
 
   assert.equal(snapshots.siteSections['home-hero'].feature.kicker, 'Édition locale');
   assert.equal(snapshots.siteSections['home-hero'].feature.description, 'Une esthétique inspirée des newsletters visuelles.');
+  assert.equal(snapshots.siteSections['home-hero'].feature.title, '');
+});
+
+test('buildSnapshotsFromSources propage un Nom enrichi sur feature.kicker quand il étend le kicker', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+  const statusProperty = (value) => ({
+    status: { name: value },
+    type: 'status',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [],
+    sectionPages: [
+      {
+        id: 'section-home-hero-1',
+        properties: {
+          'Clé': richTextProperty('home-hero'),
+          'Statut': statusProperty('Publié'),
+          'Titre': titleProperty('Accueil'),
+        },
+        url: 'https://notion.so/section-home-hero-1',
+      },
+    ],
+    sectionItemPages: [
+      {
+        id: 'item-hero-feature-1',
+        properties: {
+          'Description': richTextProperty('Une esthétique inspirée des newsletters visuelles.'),
+          'Groupe': selectProperty('feature'),
+          'Kicker': richTextProperty('Édition locale'),
+          'Nom': titleProperty('Édition locale ♥️'),
+          'Section': richTextProperty('home-hero'),
+          'Statut': statusProperty('Publié'),
+          'Titre': richTextProperty(''),
+        },
+      },
+    ],
+  });
+
+  assert.equal(snapshots.siteSections['home-hero'].feature.kicker, 'Édition locale ♥️');
   assert.equal(snapshots.siteSections['home-hero'].feature.title, '');
 });
 
