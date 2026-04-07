@@ -1,4 +1,11 @@
 import { ensureArray, siteTimeZone, slugify } from '../utils.mjs';
+import { mergeSiteSections, defaultSiteSections } from '../default-site-sections.mjs';
+import {
+  legacySiteSectionOrder,
+  sectionItemGroupOrder,
+  sectionScalarFieldDefinitions,
+  siteSectionItemOrder,
+} from '../site-section-schema.mjs';
 
 const publicationsHeaders = [
   'Titre',
@@ -80,31 +87,6 @@ const siteSectionItemHeaders = [
   'Theme',
   'Variant',
   'Emoji',
-];
-
-const requiredSiteSectionOrder = ['home-hero', 'home-editorial', 'home-rubriques', 'home-diffusion', 'footer'];
-const sectionItemGroupOrder = new Map([
-  ['home-hero', ['masthead', 'title_line', 'feature', 'editorial', 'stat', 'action', 'field']],
-  ['home-editorial', ['highlight', 'action', 'cta_link', 'field']],
-  ['home-rubriques', ['item', 'field']],
-  ['home-diffusion', ['card', 'field']],
-  ['footer', ['card', 'field']],
-]);
-
-const sectionScalarFieldDefinitions = [
-  { field: 'title', property: 'title' },
-  { field: 'kicker', property: 'kicker' },
-  { field: 'eyebrow', property: 'eyebrow' },
-  { field: 'description', property: 'description' },
-  { field: 'quote', property: 'quote' },
-  { field: 'page_title', property: 'pageTitle' },
-  { field: 'quick_links_eyebrow', property: 'quickLinksEyebrow' },
-  { field: 'subtitle', property: 'subtitle' },
-  { field: 'legal_left', property: 'legalLeft' },
-  { field: 'legal_right', property: 'legalRight' },
-  { field: 'cta_label', property: 'cta_label' },
-  { field: 'cta_href', property: 'cta_href', valueType: 'href' },
-  { field: 'content_html', property: 'content_html' },
 ];
 
 const dayOrder = new Map([
@@ -486,19 +468,13 @@ function buildCantineRows(cantineEntries, publicationLookups, legacyPublicationD
 
 function buildSiteSectionRows(siteSections) {
   const sections = siteSections && typeof siteSections === 'object' ? siteSections : {};
-  const missingKeys = requiredSiteSectionOrder.filter((key) => !sections[key]);
+  const missingKeys = legacySiteSectionOrder.filter((key) => !sections[key]);
 
   if (missingKeys.length > 0) {
     throw new Error(`Sections de site manquantes: ${missingKeys.join(', ')}.`);
   }
 
-  const extraKeys = Object.keys(sections)
-    .filter((key) => !requiredSiteSectionOrder.includes(key))
-    .sort((left, right) => left.localeCompare(right));
-
-  const orderedKeys = [...requiredSiteSectionOrder, ...extraKeys];
-
-  return orderedKeys.map((key) => ({
+  return legacySiteSectionOrder.map((key) => ({
     'CTA href': asText(sections[key]?.cta_href),
     'CTA label': asText(sections[key]?.cta_label),
     'Clé': key,
@@ -569,9 +545,21 @@ function buildSectionFieldRows(sectionKey, section = {}) {
   return rows;
 }
 
+function buildRowsFromKeyedObjects(sectionKey, group, items, mapItem) {
+  return ensureArray(items).map((item, index) =>
+    buildSiteSectionItemRow(sectionKey, group, index + 1, mapItem(item, index)),
+  );
+}
+
+function buildRowsFromNamedObject(sectionKey, group, objectValue = {}, mapEntry) {
+  return Object.entries(objectValue ?? {}).map(([name, value], index) =>
+    buildSiteSectionItemRow(sectionKey, group, index + 1, mapEntry(name, value, index)),
+  );
+}
+
 function buildSiteSectionItemRows(siteSections) {
   const sections = siteSections && typeof siteSections === 'object' ? siteSections : {};
-  const missingKeys = requiredSiteSectionOrder.filter((key) => !sections[key]);
+  const missingKeys = siteSectionItemOrder.filter((key) => !sections[key]);
 
   if (missingKeys.length > 0) {
     throw new Error(`Sections de site manquantes: ${missingKeys.join(', ')}.`);
@@ -579,14 +567,27 @@ function buildSiteSectionItemRows(siteSections) {
 
   const rows = [];
 
-  for (const sectionKey of [...requiredSiteSectionOrder, ...Object.keys(sections)
-    .filter((key) => !requiredSiteSectionOrder.includes(key))
-    .sort((left, right) => left.localeCompare(right))]) {
+  for (const sectionKey of siteSectionItemOrder) {
     const section = sections[sectionKey] ?? {};
     const groupOrder = sectionItemGroupOrder.get(sectionKey) ?? [];
 
     for (const group of groupOrder) {
       switch (`${sectionKey}:${group}`) {
+        case 'site-nav:nav_item':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.items, (item, index) => ({
+            name: item?.key || `nav-${index + 1}`,
+            text: item?.label,
+          })));
+          break;
+
+        case 'home-page:quick_link_fallback':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.quickLinkFallbacks, (item, index) => ({
+            description: item?.description,
+            name: item?.rubrique || `fallback-${index + 1}`,
+            title: item?.title,
+          })));
+          break;
+
         case 'home-hero:masthead':
           rows.push(...buildRowsFromSectionList(sectionKey, group, section.masthead, (item) => ({
             name: asText(item),
@@ -680,6 +681,70 @@ function buildSiteSectionItemRows(siteSections) {
           })));
           break;
 
+        case 'portal-page:intro_variant':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.introVariants, (item, index) => ({
+            description: item?.description,
+            kicker: item?.kicker,
+            name: item?.key || `variant-${index + 1}`,
+            title: item?.title,
+          })));
+          break;
+
+        case 'portal-page:type_meta':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.typeMeta, (item, index) => ({
+            name: item?.key || `type-${index + 1}`,
+            text: item?.label,
+            value: item?.stamp,
+          })));
+          break;
+
+        case 'portal-page:contact_field':
+          rows.push(...buildRowsFromNamedObject(sectionKey, group, section.contact, (name, value) => ({
+            name,
+            text: value,
+          })));
+          break;
+
+        case 'portal-page:cantine_microcopy':
+          rows.push(...buildRowsFromNamedObject(sectionKey, group, section.cantineMicrocopy, (name, value) => ({
+            name,
+            text: value,
+          })));
+          break;
+
+        case 'agenda-page:phase':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.phases, (item, index) => ({
+            description: item?.description,
+            name: item?.key || `phase-${index + 1}`,
+            title: item?.title,
+          })));
+          break;
+
+        case 'agenda-page:weekday':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.weekdays, (item, index) => ({
+            name: item?.key || `weekday-${index + 1}`,
+            text: item?.label,
+          })));
+          break;
+
+        case 'about-page:pillar':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.pillars, (item, index) => ({
+            description: item?.principle,
+            name: item?.id || `pillar-${index + 1}`,
+            text: item?.objective,
+            title: item?.title,
+          })));
+          break;
+
+        case 'about-page:mockup_page':
+          rows.push(...buildRowsFromKeyedObjects(sectionKey, group, section.mockupPages, (item, index) => ({
+            description: item?.description,
+            kicker: item?.kicker,
+            name: item?.key || `mockup-${index + 1}`,
+            title: item?.title,
+          })));
+          break;
+
         case 'home-diffusion:card':
           rows.push(...buildRowsFromSectionList(sectionKey, group, section.cards, (item, index) => ({
             description: item?.description,
@@ -718,6 +783,7 @@ export function buildNotionImportTables({
   siteSections = {},
   timeZone = siteTimeZone,
 } = {}) {
+  const resolvedSiteSections = mergeSiteSections(defaultSiteSections, siteSections);
   const publicationLookups = createPublicationLookups(publications);
 
   return {
@@ -735,11 +801,11 @@ export function buildNotionImportTables({
     },
     sections: {
       headers: siteSectionHeaders,
-      rows: buildSiteSectionRows(siteSections),
+      rows: buildSiteSectionRows(resolvedSiteSections),
     },
     sectionItems: {
       headers: siteSectionItemHeaders,
-      rows: buildSiteSectionItemRows(siteSections),
+      rows: buildSiteSectionItemRows(resolvedSiteSections),
     },
   };
 }

@@ -109,7 +109,7 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
   assert.equal(tables.agenda.rows.length, 15);
   assert.equal(tables.cantine.rows.length, 17);
   assert.equal(tables.sections.rows.length, 5);
-  assert.equal(tables.sectionItems.rows.length, 44);
+  assert.equal(tables.sectionItems.rows.length, 239);
 
   assert.equal(tables.publications.rows[0]['Ordre manuel'], '1');
   assert.equal(tables.publications.rows[9]['Ordre manuel'], '10');
@@ -162,25 +162,13 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
     tables.sections.rows.find((row) => row['Clé'] === 'footer')['Legal right'],
     'Une initiative citoyenne pour renouer le dialogue',
   );
-  assert.deepEqual(
-    tables.sectionItems.rows[0],
-    {
-      'Description': '',
-      'Emoji': '',
-      'Eyebrow': '',
-      'Groupe': 'masthead',
-      'Kicker': '',
-      'Lien': '',
-      'Nom': 'Édition locale',
-      'Ordre': '1',
-      'Section': 'home-hero',
-      'Statut': 'Publié',
-      'Texte': 'Édition locale',
-      'Theme': '',
-      'Titre': '',
-      'Valeur': '',
-      'Variant': '',
-    },
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'site-nav' && row.Groupe === 'nav_item' && row.Nom === 'home').Texte,
+    'Accueil',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'home-page' && row.Groupe === 'quick_link_fallback' && row.Nom === 'Scolaire').Titre,
+    'Cantine et familles',
   );
   assert.equal(
     tables.sectionItems.rows.find((row) => row.Section === 'home-hero' && row.Groupe === 'feature').Titre,
@@ -221,6 +209,18 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
   assert.equal(
     tables.sectionItems.rows.find((row) => row.Section === 'home-diffusion' && row.Groupe === 'field' && row.Nom === 'title').Texte,
     'Stratégie de Diffusion',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'portal-page' && row.Groupe === 'type_meta' && row.Nom === 'cantine').Valeur,
+    'Restauration scolaire',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'agenda-page' && row.Groupe === 'phase' && row.Nom === 'near').Titre,
+    'Prochainement',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'about-page' && row.Groupe === 'pillar' && row.Nom === 'p1').Titre,
+    'Info & Politique Locale',
   );
 });
 

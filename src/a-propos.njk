@@ -2,18 +2,22 @@
 permalink: a-propos.html
 ---
 {% set activePage = 'about' %}
+{% set navSection = journal.siteSections['site-nav'] %}
+{% set aboutPage = journal.siteSections['about-page'] %}
 {% set homeHero = journal.siteSections['home-hero'] %}
 {% set homeDiffusion = journal.siteSections['home-diffusion'] %}
 {% set footerSection = journal.siteSections['footer'] %}
+{% set firstPillar = aboutPage.pillars[0] %}
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{ journal.site.pathPrefix }}">
-    <title>À propos - Le Journal d'Annet-sur-Marne</title>
+    <title>{{ aboutPage.pageTitle or 'À propos' }} - {{ navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne" }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <script id="about-copy-data" type="application/json">{{ aboutPage | inlineJson | safe }}</script>
     <script>
         tailwind.config = {
             theme: {
@@ -309,23 +313,21 @@ permalink: a-propos.html
     </style>
 </head>
 <body class="font-body antialiased text-ink">
-    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <a href="#main-content" class="skip-link">{{ navSection.skipLinkLabel or 'Aller au contenu' }}</a>
     {% include "site-nav.njk" %}
 
     <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
         <section class="hero-shell px-6 py-8 md:px-10 md:py-10">
             <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.22em] font-bold text-[color:var(--muted)] mb-4">À propos du projet</p>
-                    <h1 class="text-4xl md:text-6xl font-heading font-black uppercase leading-[0.94] tracking-tight">
-                        Une édition locale claire, utile et constructive
-                    </h1>
+                    <p class="text-xs uppercase tracking-[0.22em] font-bold text-[color:var(--muted)] mb-4">{{ aboutPage.kicker or 'À propos du projet' }}</p>
+                    <h1 class="text-4xl md:text-6xl font-heading font-black uppercase leading-[0.94] tracking-tight">{{ aboutPage.title or 'Une édition locale claire, utile et constructive' }}</h1>
                     <p class="mt-5 max-w-2xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                        Cette page rassemble la vision éditoriale, la méthode de publication, la maquette du premier numéro et la stratégie de diffusion du Journal d'Annet.
+                        {{ aboutPage.description or "Cette page rassemble la vision éditoriale, la méthode de publication, la maquette du premier numéro et la stratégie de diffusion du Journal d'Annet." }}
                     </p>
                 </div>
                 <div class="paper-card p-6 md:p-8">
-                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">Promesse éditoriale</p>
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">{{ aboutPage.heroSideLabel or 'Promesse éditoriale' }}</p>
                     <h2 class="text-3xl font-heading font-black uppercase leading-tight">{{ homeHero.editorial.title }}</h2>
                     <p class="mt-4 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
                         {{ homeHero.editorial.description }}
@@ -341,26 +343,26 @@ permalink: a-propos.html
 
         <section class="section-shell">
             <div class="section-header">
-                <span class="section-kicker">Vision éditoriale</span>
-                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">Pourquoi ce journal existe</h2>
+                <span class="section-kicker">{{ aboutPage.visionKicker or 'Vision éditoriale' }}</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ aboutPage.visionTitle or 'Pourquoi ce journal existe' }}</h2>
                 <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                    Le projet part d'une volonté simple : informer sérieusement sur la vie du village, relier les habitants et éviter les polémiques inutiles.
+                    {{ aboutPage.visionDescription or "Le projet part d'une volonté simple : informer sérieusement sur la vie du village, relier les habitants et éviter les polémiques inutiles." }}
                 </p>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
                 <div class="paper-card p-6 md:p-8">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-3">Le point de départ</p>
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-3">{{ aboutPage.originLabel or 'Le point de départ' }}</p>
                     <p class="leading-relaxed text-base md:text-lg text-[color:var(--muted)]">
-                        La dynamique citoyenne née à Annet-sur-Marne a montré un besoin d'information locale mieux structurée, plus pédagogique et plus calme. Le journal cherche à rendre les décisions, les initiatives et les rendez-vous compréhensibles sans filtre partisan.
+                        {{ aboutPage.originBody or "La dynamique citoyenne née à Annet-sur-Marne a montré un besoin d'information locale mieux structurée, plus pédagogique et plus calme. Le journal cherche à rendre les décisions, les initiatives et les rendez-vous compréhensibles sans filtre partisan." }}
                     </p>
                     <blockquote class="mt-6 rounded-3xl border border-ink/10 bg-white p-5 font-heading text-lg leading-snug">
-                        Refuser la polémique et les attaques inutiles pour privilégier la compréhension des enjeux locaux, l'entraide et l'imagination d'un avenir commun.
+                        {{ aboutPage.visionQuote or "Refuser la polémique et les attaques inutiles pour privilégier la compréhension des enjeux locaux, l'entraide et l'imagination d'un avenir commun." }}
                     </blockquote>
                 </div>
                 <div class="paper-card p-6 md:p-8">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-3">Ce que la page d'accueil ne porte plus</p>
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-3">{{ aboutPage.homeFocusLabel or "Ce que la page d'accueil ne porte plus" }}</p>
                     <p class="text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
-                        La home se concentre désormais sur l'accès rapide aux contenus utiles. Le récit éditorial, la méthode et la maquette sont regroupés ici pour garder une page d'accueil plus courte et plus utile.
+                        {{ aboutPage.homeFocusBody or "La home se concentre désormais sur l'accès rapide aux contenus utiles. Le récit éditorial, la méthode et la maquette sont regroupés ici pour garder une page d'accueil plus courte et plus utile." }}
                     </p>
                 </div>
             </div>
@@ -368,15 +370,15 @@ permalink: a-propos.html
 
         <section class="section-shell">
             <div class="section-header text-center items-center">
-                <span class="section-kicker">Architecture éditoriale</span>
-                <h2 class="text-4xl font-heading font-black uppercase tracking-wider">Nos 7 piliers éditoriaux</h2>
+                <span class="section-kicker">{{ aboutPage.pillarsKicker or 'Architecture éditoriale' }}</span>
+                <h2 class="text-4xl font-heading font-black uppercase tracking-wider">{{ aboutPage.pillarsTitle or 'Nos 7 piliers éditoriaux' }}</h2>
                 <p class="max-w-2xl mx-auto italic text-[color:var(--muted)]">
-                    Découvrez l'ADN du journal en parcourant les piliers ci-dessous.
+                    {{ aboutPage.pillarsDescription or "Découvrez l'ADN du journal en parcourant les piliers ci-dessous." }}
                 </p>
             </div>
             <div class="flex flex-wrap justify-center gap-2 mb-8" id="pillar-buttons">
                 <button type="button" class="px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all border-ink/20 shadow-lg shadow-black/10 backdrop-blur-sm" style="background: rgba(22, 49, 74, 0.88); color: rgba(255, 255, 255, 0.96);" aria-pressed="true">
-                    Info & Politique Locale
+                    {{ firstPillar.title or 'Info & Politique Locale' }}
                 </button>
             </div>
 
@@ -384,15 +386,15 @@ permalink: a-propos.html
                 <div class="w-full max-w-4xl fade-in flex flex-col md:flex-row gap-8 items-center">
                     <div class="text-6xl md:text-8xl grayscale opacity-80">⚖️</div>
                     <div class="flex-1 space-y-4">
-                        <h3 class="text-3xl font-heading font-black uppercase text-ink mb-2 border-b-2 border-vintage-red pb-2 inline-block">Info & Politique Locale</h3>
+                        <h3 class="text-3xl font-heading font-black uppercase text-ink mb-2 border-b-2 border-vintage-red pb-2 inline-block">{{ firstPillar.title or 'Info & Politique Locale' }}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div>
-                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">Le Principe</h4>
-                                <p class="text-sm leading-relaxed text-justify">Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.</p>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">{{ aboutPage.principleLabel or 'Le Principe' }}</h4>
+                                <p class="text-sm leading-relaxed text-justify">{{ firstPillar.principle or 'Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.' }}</p>
                             </div>
                             <div>
-                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">L'Objectif</h4>
-                                <p class="text-sm leading-relaxed text-justify font-bold">Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.</p>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">{{ aboutPage.objectiveLabel or "L'Objectif" }}</h4>
+                                <p class="text-sm leading-relaxed text-justify font-bold">{{ firstPillar.objective or 'Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.' }}</p>
                             </div>
                         </div>
                     </div>
@@ -402,33 +404,20 @@ permalink: a-propos.html
 
         <section class="section-shell">
             <div class="section-header">
-                <span class="section-kicker">Prototype éditorial</span>
-                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">La maquette du premier numéro</h2>
+                <span class="section-kicker">{{ aboutPage.prototypeKicker or 'Prototype éditorial' }}</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ aboutPage.prototypeTitle or 'La maquette du premier numéro' }}</h2>
                 <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                    La maquette papier sert de référence narrative : un édito, des décryptages, un guide citoyen et une partie plus participative.
+                    {{ aboutPage.prototypeDescription or 'La maquette papier sert de référence narrative : un édito, des décryptages, un guide citoyen et une partie plus participative.' }}
                 </p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for card in aboutPage.mockupPages %}
                 <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Page 1</p>
-                    <h3 class="text-2xl font-heading font-black">Édito & essentiel</h3>
-                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Présenter la démarche, puis donner tout de suite les informations les plus utiles à retenir.</p>
+                    <p class="text-xs uppercase tracking-[0.18em] font-bold {% if loop.index == 1 or loop.index == 4 %}text-vintage-red{% elif loop.index == 2 %}text-vintage-blue{% else %}text-vintage-green{% endif %} mb-2">{{ card.kicker }}</p>
+                    <h3 class="text-2xl font-heading font-black">{{ card.title }}</h3>
+                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">{{ card.description }}</p>
                 </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-blue mb-2">Page 2</p>
-                    <h3 class="text-2xl font-heading font-black">Décryptage & voisins</h3>
-                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Expliquer une décision locale et ouvrir sur la vie intercommunale ou un rendez-vous voisin.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-green mb-2">Page 3</p>
-                    <h3 class="text-2xl font-heading font-black">Guide citoyen</h3>
-                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Apporter de l'aide concrète face aux démarches, à la dématérialisation et aux besoins du quotidien.</p>
-                </article>
-                <article class="paper-card p-5">
-                    <p class="text-xs uppercase tracking-[0.18em] font-bold text-vintage-red mb-2">Page 4</p>
-                    <h3 class="text-2xl font-heading font-black">Rencontre & agora</h3>
-                    <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">Donner de la place aux habitants, aux portraits et aux idées proposées pour le prochain numéro.</p>
-                </article>
+                {% endfor %}
             </div>
         </section>
 
@@ -452,19 +441,21 @@ permalink: a-propos.html
     {% include "site-footer.njk" %}
 
     <script>
-        const pillarsData = [
-            { id: 'p1', title: 'Info & Politique Locale', icon: '⚖️', theme: 'vintage-red', principe: 'Rendre compte des décisions municipales et intercommunales de manière neutre, pédagogique et sourcée.', objectif: 'Permettre à chaque citoyen de comprendre les enjeux sans filtre partisan ou animosité.' },
-            { id: 'p2', title: 'Ouverture & Intercommunalité', icon: '🤝', theme: 'vintage-red', principe: "Annet n'est pas une île. Donner la parole aux communes voisines et relayer leurs événements.", objectif: "Mutualiser les bonnes idées et encourager les échanges culturels et associatifs au-delà du village." },
-            { id: 'p3', title: 'Guide Citoyen', icon: '🛡️', theme: 'vintage-red', principe: 'Lutter contre les exclusions sociales, numériques et administratives avec des solutions concrètes.', objectif: 'Aider dans les démarches, faire connaître les aides existantes et créer des ponts entre les générations.' },
-            { id: 'p4', title: 'Lien Social', icon: '☕', theme: 'vintage-red', principe: 'Mettre en valeur les habitants, les initiatives locales et ouvrir le débat sur l’avenir.', objectif: 'Donner envie de se parler, créer des moments de convivialité et réfléchir collectivement à l’évolution du village.' },
-            { id: 'p5', title: 'Écologie & Cadre de Vie', icon: '🌱', theme: 'vintage-green', principe: 'Traiter les sujets environnementaux locaux de façon concrète et non idéologique.', objectif: 'Aider les habitants à comprendre les projets, à s’équiper et à participer aux initiatives locales.' },
-            { id: 'p6', title: 'Vie Associative', icon: '🎗️', theme: 'vintage-blue', principe: 'Mettre en lumière les associations, leurs bénévoles et leurs besoins, sans communication vitrine.', objectif: 'Donner de la visibilité aux initiatives, faciliter le recrutement de bénévoles et renforcer les coopérations entre assos.' },
-            { id: 'p7', title: 'Soloprenariat & Économie Locale', icon: '🛍️', theme: 'vintage-blue', principe: 'Valoriser les artisans, indépendants, micro-entreprises et commerces de proximité sans publicité déguisée.', objectif: 'Rendre ces activités identifiables, utiles et connectées aux habitants via des portraits, des services et des projets.' }
-        ];
+        const aboutCopy = JSON.parse(document.getElementById('about-copy-data')?.textContent || '{}');
+        const pillarsData = aboutCopy.pillars || [];
+        const pillarVisuals = {
+            p1: { icon: '⚖️', theme: 'vintage-red' },
+            p2: { icon: '🤝', theme: 'vintage-red' },
+            p3: { icon: '🛡️', theme: 'vintage-red' },
+            p4: { icon: '☕', theme: 'vintage-red' },
+            p5: { icon: '🌱', theme: 'vintage-green' },
+            p6: { icon: '🎗️', theme: 'vintage-blue' },
+            p7: { icon: '🛍️', theme: 'vintage-blue' }
+        };
 
         const btnContainer = document.getElementById('pillar-buttons');
         const contentContainer = document.getElementById('pillar-content');
-        let currentPillarId = 'p1';
+        let currentPillarId = pillarsData[0]?.id || 'p1';
 
         function renderPillars() {
             btnContainer.innerHTML = '';
@@ -488,22 +479,26 @@ permalink: a-propos.html
 
         function renderPillarContent() {
             const pillar = pillarsData.find((item) => item.id === currentPillarId);
-            const titleColor = pillar.theme === 'vintage-red' ? 'text-ink' : `text-${pillar.theme}`;
-            const accentLine = `border-${pillar.theme}`;
+            if (!pillar) {
+                return;
+            }
+            const visuals = pillarVisuals[pillar.id] || { icon: '✦', theme: 'vintage-red' };
+            const titleColor = visuals.theme === 'vintage-red' ? 'text-ink' : `text-${visuals.theme}`;
+            const accentLine = `border-${visuals.theme}`;
 
             contentContainer.innerHTML = `
                 <div class="w-full max-w-4xl fade-in flex flex-col md:flex-row gap-8 items-center">
-                    <div class="text-6xl md:text-8xl grayscale opacity-80">${pillar.icon}</div>
+                    <div class="text-6xl md:text-8xl grayscale opacity-80">${visuals.icon}</div>
                     <div class="flex-1 space-y-4">
                         <h3 class="text-3xl font-heading font-black uppercase ${titleColor} mb-2 border-b-2 ${accentLine} pb-2 inline-block">${pillar.title}</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                             <div>
-                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">Le Principe</h4>
-                                <p class="text-sm leading-relaxed text-justify">${pillar.principe}</p>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">${aboutCopy.principleLabel || 'Le Principe'}</h4>
+                                <p class="text-sm leading-relaxed text-justify">${pillar.principle}</p>
                             </div>
                             <div>
-                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">L'Objectif</h4>
-                                <p class="text-sm leading-relaxed text-justify font-bold">${pillar.objectif}</p>
+                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">${aboutCopy.objectiveLabel || "L'Objectif"}</h4>
+                                <p class="text-sm leading-relaxed text-justify font-bold">${pillar.objective}</p>
                             </div>
                         </div>
                     </div>

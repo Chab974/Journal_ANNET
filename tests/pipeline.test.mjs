@@ -435,6 +435,38 @@ test('buildSnapshotsFromSources construit les sections depuis sections-site-item
     sectionPages: [],
     sectionItemPages: [
       {
+        id: 'item-site-nav-brand-title-1',
+        properties: {
+          'Groupe': selectProperty('field'),
+          'Nom': titleProperty('brand_title'),
+          'Section': richTextProperty('site-nav'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Le Bulletin citoyen'),
+        },
+      },
+      {
+        id: 'item-site-nav-home-1',
+        properties: {
+          'Groupe': selectProperty('nav_item'),
+          'Nom': titleProperty('home'),
+          'Ordre': { number: 1, type: 'number' },
+          'Section': richTextProperty('site-nav'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Une'),
+        },
+      },
+      {
+        id: 'item-home-page-fallback-1',
+        properties: {
+          'Description': richTextProperty('Parents, portail famille et repères utiles.'),
+          'Groupe': selectProperty('quick_link_fallback'),
+          'Nom': titleProperty('Scolaire'),
+          'Section': richTextProperty('home-page'),
+          'Statut': statusProperty('Publié'),
+          'Titre': richTextProperty('Vie scolaire'),
+        },
+      },
+      {
         id: 'item-home-hero-quote-1',
         properties: {
           'Groupe': selectProperty('field'),
@@ -464,12 +496,112 @@ test('buildSnapshotsFromSources construit les sections depuis sections-site-item
           'Texte': richTextProperty('Diffusion pilotée sans Sections site'),
         },
       },
+      {
+        id: 'item-portal-intro-all-1',
+        properties: {
+          'Description': richTextProperty('Un portail structuré page par page.'),
+          'Groupe': selectProperty('intro_variant'),
+          'Kicker': richTextProperty('Vue générale'),
+          'Nom': titleProperty('all'),
+          'Section': richTextProperty('portal-page'),
+          'Statut': statusProperty('Publié'),
+          'Titre': richTextProperty('Portail citoyen'),
+        },
+      },
+      {
+        id: 'item-portal-type-cantine-1',
+        properties: {
+          'Groupe': selectProperty('type_meta'),
+          'Nom': titleProperty('cantine'),
+          'Section': richTextProperty('portal-page'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Cantine utile'),
+          'Valeur': richTextProperty('Repas'),
+        },
+      },
+      {
+        id: 'item-portal-contact-phone-1',
+        properties: {
+          'Groupe': selectProperty('contact_field'),
+          'Nom': titleProperty('phone'),
+          'Section': richTextProperty('portal-page'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('01 00 00 00 00'),
+        },
+      },
+      {
+        id: 'item-portal-cantine-note-1',
+        properties: {
+          'Groupe': selectProperty('cantine_microcopy'),
+          'Nom': titleProperty('note_label'),
+          'Section': richTextProperty('portal-page'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Note pratique'),
+        },
+      },
+      {
+        id: 'item-agenda-phase-near-1',
+        properties: {
+          'Description': richTextProperty('Les dates les plus proches.'),
+          'Groupe': selectProperty('phase'),
+          'Nom': titleProperty('near'),
+          'Section': richTextProperty('agenda-page'),
+          'Statut': statusProperty('Publié'),
+          'Titre': richTextProperty('Bientôt'),
+        },
+      },
+      {
+        id: 'item-agenda-weekday-1',
+        properties: {
+          'Groupe': selectProperty('weekday'),
+          'Nom': titleProperty('monday'),
+          'Ordre': { number: 1, type: 'number' },
+          'Section': richTextProperty('agenda-page'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Lu'),
+        },
+      },
+      {
+        id: 'item-about-pillar-1',
+        properties: {
+          'Description': richTextProperty('Principe piloté depuis Section items.'),
+          'Groupe': selectProperty('pillar'),
+          'Nom': titleProperty('p1'),
+          'Section': richTextProperty('about-page'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Objectif piloté depuis Section items.'),
+          'Titre': richTextProperty('Pilier piloté'),
+        },
+      },
+      {
+        id: 'item-about-mockup-1',
+        properties: {
+          'Description': richTextProperty('Description maquette Notion.'),
+          'Groupe': selectProperty('mockup_page'),
+          'Kicker': richTextProperty('Page alpha'),
+          'Nom': titleProperty('page-1'),
+          'Section': richTextProperty('about-page'),
+          'Statut': statusProperty('Publié'),
+          'Titre': richTextProperty('Maquette alpha'),
+        },
+      },
     ],
   });
 
+  assert.equal(snapshots.siteSections['site-nav'].brandTitle, 'Le Bulletin citoyen');
+  assert.equal(snapshots.siteSections['site-nav'].items[0].label, 'Une');
+  assert.equal(snapshots.siteSections['home-page'].quickLinkFallbacks[0].title, 'Vie scolaire');
   assert.equal(snapshots.siteSections['home-hero'].quote, 'Une citation pilotée uniquement par Section items.');
   assert.equal(snapshots.siteSections.footer.legalRight, 'Mention footer portée par Section items.');
   assert.equal(snapshots.siteSections['home-diffusion'].title, 'Diffusion pilotée sans Sections site');
+  assert.equal(snapshots.siteSections['portal-page'].introVariants[0].title, 'Portail citoyen');
+  assert.equal(snapshots.siteSections['portal-page'].typeMeta[0].label, 'Cantine utile');
+  assert.equal(snapshots.siteSections['portal-page'].contact.phone, '01 00 00 00 00');
+  assert.equal(snapshots.siteSections['portal-page'].cantineMicrocopy.noteLabel, 'Note pratique');
+  assert.equal(snapshots.siteSections['agenda-page'].phases[0].title, 'Bientôt');
+  assert.equal(snapshots.siteSections['agenda-page'].weekdays[0].label, 'Lu');
+  assert.equal(snapshots.siteSections['about-page'].pillars[0].title, 'Pilier piloté');
+  assert.equal(snapshots.siteSections['about-page'].mockupPages[0].title, 'Maquette alpha');
 });
 
 test('buildSnapshotsFromSources exclut les coups de coeur de l’agenda', async () => {

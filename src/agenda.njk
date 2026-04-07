@@ -2,6 +2,8 @@
 permalink: agenda.html
 ---
 {% set activePage = 'agenda' %}
+{% set navSection = journal.siteSections['site-nav'] %}
+{% set agendaPage = journal.siteSections['agenda-page'] %}
 {% set footerSection = journal.siteSections['footer'] %}
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
@@ -9,10 +11,11 @@ permalink: agenda.html
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{ journal.site.pathPrefix }}">
-    <title>Agenda - Le Journal d'Annet-sur-Marne</title>
+    <title>{{ agendaPage.pageTitle or agendaPage.title or 'Agenda' }} - {{ navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne" }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <script id="agenda-events-data" type="application/json">{{ journal.agenda | inlineJson | safe }}</script>
+    <script id="agenda-copy-data" type="application/json">{{ agendaPage | inlineJson | safe }}</script>
     <script>
         tailwind.config = {
             theme: {
@@ -754,28 +757,28 @@ permalink: agenda.html
     </style>
 </head>
 <body class="font-body antialiased text-ink">
-    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <a href="#main-content" class="skip-link">{{ navSection.skipLinkLabel or 'Aller au contenu' }}</a>
     {% include "site-nav.njk" %}
 
     <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
         <section class="section-shell">
             <div class="section-header">
-                <p class="section-kicker">Calendrier commun</p>
-                <h1 class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight">Agenda du village</h1>
+                <p class="section-kicker">{{ agendaPage.kicker or 'Calendrier commun' }}</p>
+                <h1 class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight">{{ agendaPage.title or 'Agenda du village' }}</h1>
                 <p class="max-w-4xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                    Toutes les dates utiles au même endroit, avec filtres par rubrique et accès direct à l’article concerné.
+                    {{ agendaPage.description or 'Toutes les dates utiles au même endroit, avec filtres par rubrique et accès direct à l’article concerné.' }}
                 </p>
             </div>
 
             <div class="agenda-toolbar">
                 <div class="agenda-toolbar-main">
-                    <input id="agenda-search" class="agenda-search" type="search" placeholder="Rechercher un événement, une rubrique ou un lieu..." />
+                    <input id="agenda-search" class="agenda-search" type="search" placeholder="{{ agendaPage.searchPlaceholder or 'Rechercher un événement, une rubrique ou un lieu...' }}" />
                 </div>
                 <div class="agenda-toolbar-side">
-                    <div id="agenda-count" class="agenda-count">0 date</div>
-                    <div class="agenda-view-switch" aria-label="Choisir la vue de l'agenda">
-                        <button type="button" class="agenda-view-button" data-view="list" aria-pressed="true">Vue liste</button>
-                        <button type="button" class="agenda-view-button" data-view="calendar" aria-pressed="false">Vue calendrier</button>
+                    <div id="agenda-count" class="agenda-count">0 {{ agendaPage.countSingular or 'date' }}</div>
+                    <div class="agenda-view-switch" aria-label="{{ agendaPage.viewSwitchLabel or "Choisir la vue de l'agenda" }}">
+                        <button type="button" class="agenda-view-button" data-view="list" aria-pressed="true">{{ agendaPage.viewListLabel or 'Vue liste' }}</button>
+                        <button type="button" class="agenda-view-button" data-view="calendar" aria-pressed="false">{{ agendaPage.viewCalendarLabel or 'Vue calendrier' }}</button>
                     </div>
                 </div>
                 <div id="agenda-filters" class="agenda-filters"></div>
@@ -784,7 +787,7 @@ permalink: agenda.html
             <div id="agenda-status" class="hidden"></div>
             <div id="agenda-results">
                 <div class="agenda-empty">
-                    <p class="font-heading font-bold uppercase tracking-widest text-sm">Chargement des dates...</p>
+                    <p class="font-heading font-bold uppercase tracking-widest text-sm">{{ agendaPage.loadingTitle or 'Chargement des dates...' }}</p>
                 </div>
             </div>
         </section>
@@ -799,9 +802,11 @@ permalink: agenda.html
         const agendaCount = document.getElementById('agenda-count');
         const agendaStatus = document.getElementById('agenda-status');
         const agendaViewButtons = Array.from(document.querySelectorAll('.agenda-view-button'));
+        const agendaCopy = JSON.parse(document.getElementById('agenda-copy-data')?.textContent || '{}');
         const searchParams = new URLSearchParams(window.location.search);
         const oneDayMs = 24 * 60 * 60 * 1000;
-        const weekDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        const weekDayLabels = (agendaCopy.weekdays || []).map((item) => item.label).filter(Boolean);
+        const agendaPhaseConfig = Object.fromEntries((agendaCopy.phases || []).map((item) => [item.key, item]));
 
         const rubriqueOrder = [
             'all',
@@ -936,7 +941,7 @@ permalink: agenda.html
 
         function getMonthLabel(date) {
             if (!isValidDate(date)) {
-                return 'Autres dates';
+                return agendaCopy.undatedMonthLabel || 'Autres dates';
             }
             return new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
         }
@@ -1054,43 +1059,43 @@ permalink: agenda.html
             return [
                 {
                     key: 'near',
-                    title: 'Prochainement',
-                    description: 'Les dates prévues entre aujourd’hui et les 30 prochains jours, classées de la plus proche à la plus lointaine.',
+                    title: agendaPhaseConfig.near?.title || 'Prochainement',
+                    description: agendaPhaseConfig.near?.description || 'Les dates prévues entre aujourd’hui et les 30 prochains jours, classées de la plus proche à la plus lointaine.',
                     events: near
                 },
                 {
                     key: 'later',
-                    title: 'À venir plus loin',
-                    description: 'Les rendez-vous déjà publiés mais situés au-delà des 30 prochains jours.',
+                    title: agendaPhaseConfig.later?.title || 'À venir plus loin',
+                    description: agendaPhaseConfig.later?.description || 'Les rendez-vous déjà publiés mais situés au-delà des 30 prochains jours.',
                     events: later
                 },
                 {
                     key: 'past',
-                    title: 'Passés récemment',
-                    description: 'Les événements terminés dans les 30 derniers jours, classés du plus récent au plus ancien.',
+                    title: agendaPhaseConfig.past?.title || 'Passés récemment',
+                    description: agendaPhaseConfig.past?.description || 'Les événements terminés dans les 30 derniers jours, classés du plus récent au plus ancien.',
                     events: past
                 },
                 {
                     key: 'undated',
-                    title: 'Dates à préciser',
-                    description: 'Les entrées sans date exploitable restent visibles ici le temps de compléter la fiche agenda.',
+                    title: agendaPhaseConfig.undated?.title || 'Dates à préciser',
+                    description: agendaPhaseConfig.undated?.description || 'Les entrées sans date exploitable restent visibles ici le temps de compléter la fiche agenda.',
                     events: undated
                 }
             ].filter((section) => section.events.length);
         }
 
         function renderCount(filteredEvents, sections) {
-            const totalLabel = `${filteredEvents.length} date${filteredEvents.length > 1 ? 's' : ''}`;
+            const totalLabel = `${filteredEvents.length} ${filteredEvents.length > 1 ? (agendaCopy.countPlural || 'dates') : (agendaCopy.countSingular || 'date')}`;
             if (agendaState.view !== 'list' || !sections.length) {
                 agendaCount.textContent = totalLabel;
                 return;
             }
 
             const detailBySection = {
-                later: 'plus loin',
-                near: 'proches',
-                past: 'passées',
-                undated: 'à préciser'
+                later: agendaCopy.detailLaterLabel || 'plus loin',
+                near: agendaCopy.detailNearLabel || 'proches',
+                past: agendaCopy.detailPastLabel || 'passées',
+                undated: agendaCopy.detailUndatedLabel || 'à préciser'
             };
             const details = sections
                 .map((section) => `${section.events.length} ${detailBySection[section.key] || 'dates'}`)
@@ -1104,7 +1109,7 @@ permalink: agenda.html
 
             events.forEach((eventItem) => {
                 const { start } = getEventBounds(eventItem);
-                const monthLabel = isValidDate(start) ? getMonthLabel(start) : 'Autres dates';
+                const monthLabel = isValidDate(start) ? getMonthLabel(start) : (agendaCopy.undatedMonthLabel || 'Autres dates');
                 if (!grouped.has(monthLabel)) {
                     grouped.set(monthLabel, []);
                 }
@@ -1131,7 +1136,7 @@ permalink: agenda.html
                     </div>
                     <div class="agenda-content">
                         <div class="agenda-meta-line">
-                            <span class="agenda-rubrique">${escapeHtml(eventItem.rubrique || 'Agenda')}</span>
+                            <span class="agenda-rubrique">${escapeHtml(eventItem.rubrique || agendaCopy.defaultRubriqueLabel || 'Agenda')}</span>
                             ${eventItem.time_label ? `
                                 <span class="agenda-time-pill">
                                     <span aria-hidden="true">🕒</span>
@@ -1142,9 +1147,9 @@ permalink: agenda.html
                         <h3 class="text-2xl font-heading font-black leading-tight">${escapeHtml(eventItem.title || '')}</h3>
                         ${summary ? `
                             <div class="agenda-summary-card">
-                                <p class="agenda-summary-label">Résumé rapide</p>
+                                <p class="agenda-summary-label">${escapeHtml(agendaCopy.summaryLabel || 'Résumé rapide')}</p>
                                 <p class="agenda-summary">${escapeHtml(summary)}</p>
-                                ${isTruncatedSummary ? `<p class="agenda-summary-note">La suite est détaillée dans l’article.</p>` : ''}
+                                ${isTruncatedSummary ? `<p class="agenda-summary-note">${escapeHtml(agendaCopy.summaryNote || 'La suite est détaillée dans l’article.')}</p>` : ''}
                             </div>
                         ` : ''}
                         ${eventItem.location ? `
@@ -1156,11 +1161,11 @@ permalink: agenda.html
                         <div class="agenda-actions">
                             <a class="agenda-link agenda-link--primary" href="${escapeHtml(toCalendarUrl(eventItem))}" target="_blank" rel="noopener noreferrer">
                                 <span aria-hidden="true">🗓️</span>
-                                <span>Ajouter à l'agenda</span>
+                                <span>${escapeHtml(agendaCopy.addToCalendarLabel || "Ajouter à l'agenda")}</span>
                             </a>
                             <a class="agenda-link" href="${escapeHtml(articleUrl)}">
                                 <span aria-hidden="true">↗</span>
-                                <span>Voir l'article</span>
+                                <span>${escapeHtml(agendaCopy.viewArticleLabel || "Voir l'article")}</span>
                             </a>
                         </div>
                     </div>
@@ -1187,7 +1192,7 @@ permalink: agenda.html
                             <p class="agenda-phase-kicker">${escapeHtml(section.title)}</p>
                             <p class="agenda-phase-description">${escapeHtml(section.description)}</p>
                         </div>
-                        <span class="agenda-phase-count">${section.events.length} date${section.events.length > 1 ? 's' : ''}</span>
+                        <span class="agenda-phase-count">${section.events.length} ${section.events.length > 1 ? (agendaCopy.countPlural || 'dates') : (agendaCopy.countSingular || 'date')}</span>
                     </div>
                     ${renderMonthBlocks(section.events)}
                 </section>
@@ -1297,26 +1302,26 @@ permalink: agenda.html
                 <section class="agenda-calendar-shell">
                     <div class="agenda-calendar-nav">
                         <div>
-                            <p class="agenda-phase-kicker">Vue calendrier</p>
+                            <p class="agenda-phase-kicker">${escapeHtml(agendaCopy.calendarKicker || 'Vue calendrier')}</p>
                             <h2 class="agenda-calendar-title">${escapeHtml(getMonthLabel(monthDate))}</h2>
-                            <p class="agenda-phase-description">Retrouve les rendez-vous du mois, avec accès direct aux articles et aux ajouts Google Calendar.</p>
+                            <p class="agenda-phase-description">${escapeHtml(agendaCopy.calendarDescription || 'Retrouve les rendez-vous du mois, avec accès direct aux articles et aux ajouts Google Calendar.')}</p>
                         </div>
                         <div class="agenda-calendar-nav-buttons">
-                            <button id="agenda-month-prev" type="button" class="agenda-calendar-button" ${previousMonth ? '' : 'disabled'}>Mois précédent</button>
-                            <button id="agenda-month-next" type="button" class="agenda-calendar-button" ${nextMonth ? '' : 'disabled'}>Mois suivant</button>
+                            <button id="agenda-month-prev" type="button" class="agenda-calendar-button" ${previousMonth ? '' : 'disabled'}>${escapeHtml(agendaCopy.prevMonthLabel || 'Mois précédent')}</button>
+                            <button id="agenda-month-next" type="button" class="agenda-calendar-button" ${nextMonth ? '' : 'disabled'}>${escapeHtml(agendaCopy.nextMonthLabel || 'Mois suivant')}</button>
                         </div>
                     </div>
 
                     <div>
                         <div class="agenda-calendar-weekdays">
-                            ${weekDayLabels.map((label) => `<div class="agenda-calendar-dayname">${escapeHtml(label)}</div>`).join('')}
+                            ${(weekDayLabels.length ? weekDayLabels : ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']).map((label) => `<div class="agenda-calendar-dayname">${escapeHtml(label)}</div>`).join('')}
                         </div>
                         <div class="agenda-calendar-grid">
                             ${calendarCells.map((cell) => `
                                 <article class="agenda-calendar-cell${cell.inMonth ? '' : ' agenda-calendar-cell--outside'}${cell.isToday ? ' agenda-calendar-cell--today' : ''}">
                                     <div class="agenda-calendar-cell-head">
                                         <span class="agenda-calendar-date">${escapeHtml(String(cell.date.getUTCDate()))}</span>
-                                        ${cell.isToday ? '<span class="agenda-calendar-today">Aujourd’hui</span>' : ''}
+                                        ${cell.isToday ? `<span class="agenda-calendar-today">${escapeHtml(agendaCopy.todayLabel || 'Aujourd’hui')}</span>` : ''}
                                     </div>
                                     <div class="agenda-calendar-events">
                                         ${cell.events.slice(0, 2).map((eventItem) => `
@@ -1333,15 +1338,15 @@ permalink: agenda.html
                     </div>
 
                     <section class="month-block">
-                        <h2 class="month-title">Rendez-vous du mois</h2>
+                        <h2 class="month-title">${escapeHtml(agendaCopy.monthEventsTitle || 'Rendez-vous du mois')}</h2>
                         ${monthEvents.length ? `
                             <div class="agenda-list">
                                 ${monthEvents.map(renderEventCard).join('')}
                             </div>
                         ` : `
                             <div class="agenda-empty">
-                                <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune date ce mois-ci.</p>
-                                <p class="mt-3 text-sm text-[color:var(--muted)]">Change de mois ou ajuste les filtres pour afficher d’autres rendez-vous.</p>
+                                <p class="font-heading font-bold uppercase tracking-widest text-sm">${escapeHtml(agendaCopy.monthEmptyTitle || 'Aucune date ce mois-ci.')}</p>
+                                <p class="mt-3 text-sm text-[color:var(--muted)]">${escapeHtml(agendaCopy.monthEmptyDescription || 'Change de mois ou ajuste les filtres pour afficher d’autres rendez-vous.')}</p>
                             </div>
                         `}
                     </section>
@@ -1381,7 +1386,7 @@ permalink: agenda.html
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'agenda-filter';
-                button.textContent = rubrique === 'all' ? 'Toutes' : rubrique;
+                button.textContent = rubrique === 'all' ? (agendaCopy.allFilterLabel || 'Toutes') : rubrique;
                 button.setAttribute('aria-pressed', String(agendaState.activeFilter === rubrique));
                 button.onclick = () => {
                     agendaState.activeFilter = rubrique;
@@ -1402,8 +1407,8 @@ permalink: agenda.html
             if (!filteredEvents.length) {
                 agendaResults.innerHTML = `
                     <div class="agenda-empty">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune date pour ce filtre.</p>
-                        <p class="mt-3 text-sm text-[color:var(--muted)]">Essaie une autre rubrique ou élargis la recherche.</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">${escapeHtml(agendaCopy.emptyFilterTitle || 'Aucune date pour ce filtre.')}</p>
+                        <p class="mt-3 text-sm text-[color:var(--muted)]">${escapeHtml(agendaCopy.emptyFilterDescription || 'Essaie une autre rubrique ou élargis la recherche.')}</p>
                     </div>
                 `;
                 return;
@@ -1448,7 +1453,7 @@ permalink: agenda.html
                 const payload = document.getElementById('agenda-events-data');
                 const loadedEvents = JSON.parse(payload?.textContent || '[]');
                 if (!Array.isArray(loadedEvents)) {
-                    throw new Error('Le snapshot agenda est invalide.');
+                    throw new Error(agendaCopy.snapshotErrorMessage || 'Le snapshot agenda est invalide.');
                 }
                 agendaState.events = loadedEvents
                     .slice()
@@ -1461,7 +1466,7 @@ permalink: agenda.html
             } catch (error) {
                 agendaResults.innerHTML = `
                     <div class="agenda-empty">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm text-vintage-red">Impossible de charger l'agenda.</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm text-vintage-red">${escapeHtml(agendaCopy.loadErrorTitle || "Impossible de charger l'agenda.")}</p>
                         <p class="mt-3 text-sm">${escapeHtml(error.message)}</p>
                     </div>
                 `;

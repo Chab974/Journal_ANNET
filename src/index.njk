@@ -2,6 +2,8 @@
 permalink: index.html
 ---
 {% set activePage = 'home' %}
+{% set navSection = journal.siteSections['site-nav'] %}
+{% set homePage = journal.siteSections['home-page'] %}
 {% set homeHero = journal.siteSections['home-hero'] %}
 {% set homeRubriques = journal.siteSections['home-rubriques'] %}
 {% set footerSection = journal.siteSections['footer'] %}
@@ -17,7 +19,7 @@ permalink: index.html
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{ journal.site.pathPrefix }}">
-    <title>{{ heroTitleLines | join(' ') }}</title>
+    <title>{{ homePage.pageTitle or (heroTitleLines | join(' ')) }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -452,7 +454,7 @@ permalink: index.html
     </style>
 </head>
 <body class="font-body antialiased text-ink">
-    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <a href="#main-content" class="skip-link">{{ navSection.skipLinkLabel or 'Aller au contenu' }}</a>
     {% include "site-nav.njk" %}
 
     <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
@@ -475,19 +477,19 @@ permalink: index.html
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
-                        <a href="portail.html" class="action-pill bg-vintage-red text-white shadow-lg shadow-orange-200/70">Actualités</a>
-                        <a href="agenda.html" class="action-pill bg-vintage-blue text-white shadow-lg shadow-sky-200/70">Agenda</a>
-                        <a href="{{ cantineEntry.href if cantineEntry else 'portail.html?rubrique=Scolaire' }}" class="action-pill bg-vintage-green text-white shadow-lg shadow-lime-200/70">Cantine & familles</a>
+                        <a href="portail.html" class="action-pill bg-vintage-red text-white shadow-lg shadow-orange-200/70">{{ homePage.heroPrimaryLabel or 'Actualités' }}</a>
+                        <a href="agenda.html" class="action-pill bg-vintage-blue text-white shadow-lg shadow-sky-200/70">{{ homePage.heroAgendaLabel or 'Agenda' }}</a>
+                        <a href="{{ cantineEntry.href if cantineEntry else 'portail.html?rubrique=Scolaire' }}" class="action-pill bg-vintage-green text-white shadow-lg shadow-lime-200/70">{{ homePage.heroCantineLabel or 'Cantine & familles' }}</a>
                     </div>
                     <p class="text-sm font-semibold tracking-[0.08em] uppercase text-[color:var(--muted)]">
-                        Trois parcours immédiats pour trouver une info utile en moins de cinq secondes.
+                        {{ homePage.heroHelper or 'Trois parcours immédiats pour trouver une info utile en moins de cinq secondes.' }}
                     </p>
                 </div>
 
                 <div class="paper-card p-6 md:p-8{% if upcomingEvents.length %} paper-card--event{% endif %}">
                     {% if upcomingEvents.length %}
                     {% set nextEvent = upcomingEvents[0] %}
-                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-green mb-3">Prochain rendez-vous</p>
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-green mb-3">{{ homePage.nextEventLabel or 'Prochain rendez-vous' }}</p>
                     <h2 class="text-3xl font-heading font-black uppercase leading-tight">{{ nextEvent.title }}</h2>
                     <p class="mt-3 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">{{ nextEvent.description }}</p>
                     <div class="mt-5 flex flex-wrap gap-3">
@@ -500,11 +502,11 @@ permalink: index.html
                     <p class="mt-4 text-sm font-semibold">Lieu : {{ nextEvent.location }}</p>
                     {% endif %}
                     <div class="mt-6 flex flex-wrap gap-3">
-                        <a href="agenda.html" class="inline-flex items-center rounded-full bg-vintage-blue px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-sky-200/70">Voir tout l'agenda</a>
-                        <a href="{{ nextEvent.articleHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">Voir l'article</a>
+                        <a href="agenda.html" class="inline-flex items-center rounded-full bg-vintage-blue px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-sky-200/70">{{ homePage.viewAllAgendaLabel or "Voir tout l'agenda" }}</a>
+                        <a href="{{ nextEvent.articleHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">{{ homePage.viewArticleLabel or "Voir l'article" }}</a>
                     </div>
                     {% elif featuredPublication %}
-                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">À la une</p>
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">{{ homePage.featuredLabel or 'À la une' }}</p>
                     <h2 class="text-3xl font-heading font-black uppercase leading-tight">{{ featuredPublication.titre }}</h2>
                     <p class="mt-3 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">{{ featuredPublication.resume }}</p>
                     <div class="mt-5 flex flex-wrap gap-3">
@@ -513,12 +515,12 @@ permalink: index.html
                         <span class="category-chip text-ink">{{ featuredPublication.date }}</span>
                         {% endif %}
                     </div>
-                    <a href="{{ featuredPublication.href }}" class="mt-6 inline-flex items-center rounded-full bg-vintage-red px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200/70">Lire l'article</a>
+                    <a href="{{ featuredPublication.href }}" class="mt-6 inline-flex items-center rounded-full bg-vintage-red px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200/70">{{ homePage.readArticleLabel or "Lire l'article" }}</a>
                     {% else %}
-                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-blue mb-3">Accueil utile</p>
-                    <h2 class="text-3xl font-heading font-black uppercase leading-tight">Toutes les infos locales au même endroit</h2>
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-blue mb-3">{{ homePage.fallbackKicker or 'Accueil utile' }}</p>
+                    <h2 class="text-3xl font-heading font-black uppercase leading-tight">{{ homePage.fallbackTitle or 'Toutes les infos locales au même endroit' }}</h2>
                     <p class="mt-3 text-sm md:text-base leading-relaxed text-[color:var(--muted)]">
-                        Ouvre les actualités, consulte l'agenda ou retrouve les informations familles sans passer par une page manifeste longue.
+                        {{ homePage.fallbackDescription or "Ouvre les actualités, consulte l'agenda ou retrouve les informations familles sans passer par une page manifeste longue." }}
                     </p>
                     {% endif %}
                 </div>
@@ -528,35 +530,35 @@ permalink: index.html
         <section class="section-shell">
             <div class="home-search-shell">
                 <div>
-                    <span class="section-kicker text-vintage-green">Recherche rapide</span>
-                    <h2 class="mt-3 text-2xl md:text-3xl font-heading font-black uppercase tracking-tight">Trouver un titre, une rubrique ou un lieu</h2>
+                    <span class="section-kicker text-vintage-green">{{ homePage.searchKicker or 'Recherche rapide' }}</span>
+                    <h2 class="mt-3 text-2xl md:text-3xl font-heading font-black uppercase tracking-tight">{{ homePage.searchTitle or 'Trouver un titre, une rubrique ou un lieu' }}</h2>
                 </div>
-                <p class="home-search-caption">La recherche ouvre le portail avec la requête déjà appliquée.</p>
+                <p class="home-search-caption">{{ homePage.searchCaption or 'La recherche ouvre le portail avec la requête déjà appliquée.' }}</p>
             </div>
-            <form action="portail.html" method="get" class="home-search-form mt-6" role="search" aria-label="Rechercher dans les actualités locales">
-                <label for="home-search" class="sr-only">Rechercher dans les actualités locales</label>
+            <form action="portail.html" method="get" class="home-search-form mt-6" role="search" aria-label="{{ homePage.searchAriaLabel or 'Rechercher dans les actualités locales' }}">
+                <label for="home-search" class="sr-only">{{ homePage.searchAriaLabel or 'Rechercher dans les actualités locales' }}</label>
                 <input
                     id="home-search"
                     name="q"
                     type="search"
                     class="home-search-input"
-                    placeholder="Rechercher un titre, une rubrique, un lieu, un auteur..."
+                    placeholder="{{ homePage.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu, un auteur...' }}"
                 />
-                <button type="submit" class="home-search-button">Rechercher</button>
+                <button type="submit" class="home-search-button">{{ homePage.searchButtonLabel or 'Rechercher' }}</button>
             </form>
         </section>
 
         <section class="section-shell">
             <div class="section-header">
-                <span class="section-kicker">En ce moment</span>
+                <span class="section-kicker">{{ homePage.spotlightKicker or 'En ce moment' }}</span>
                 <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
                     <div>
-                        <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">L'essentiel du village</h2>
+                        <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ homePage.spotlightTitle or "L'essentiel du village" }}</h2>
                         <p class="mt-3 max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                            Une carte principale pour le sujet à lire tout de suite, puis quelques raccourcis utiles pour continuer.
+                            {{ homePage.spotlightDescription or 'Une carte principale pour le sujet à lire tout de suite, puis quelques raccourcis utiles pour continuer.' }}
                         </p>
                     </div>
-                    <a href="portail.html" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">Voir toutes les actualités</a>
+                    <a href="portail.html" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">{{ homePage.viewAllLabel or 'Voir toutes les actualités' }}</a>
                 </div>
             </div>
 
@@ -576,8 +578,8 @@ permalink: index.html
                     <p class="mt-4 text-sm font-semibold">Lieu : {{ featuredPublication.lieu }}</p>
                     {% endif %}
                     <div class="mt-6 flex flex-wrap gap-3">
-                        <a href="{{ featuredPublication.href }}" class="inline-flex items-center rounded-full bg-vintage-red px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200/70">Lire l'article</a>
-                        <a href="{{ featuredPublication.rubriqueHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">Voir la rubrique</a>
+                        <a href="{{ featuredPublication.href }}" class="inline-flex items-center rounded-full bg-vintage-red px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200/70">{{ homePage.readArticleLabel or "Lire l'article" }}</a>
+                        <a href="{{ featuredPublication.rubriqueHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">{{ homePage.viewRubriqueLabel or 'Voir la rubrique' }}</a>
                     </div>
                 </article>
 
@@ -590,32 +592,32 @@ permalink: index.html
                         </div>
                         <h3 class="text-2xl font-heading font-black leading-tight">{{ post.titre }}</h3>
                         <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">{{ post.resume }}</p>
-                        <a href="{{ post.href }}" class="mt-4 inline-flex items-center text-sm font-bold uppercase tracking-[0.12em] text-vintage-blue">Ouvrir</a>
+                        <a href="{{ post.href }}" class="mt-4 inline-flex items-center text-sm font-bold uppercase tracking-[0.12em] text-vintage-blue">{{ homePage.openLabel or 'Ouvrir' }}</a>
                     </article>
                     {% endfor %}
                 </div>
             </div>
             {% else %}
             <div class="paper-card p-8 text-center">
-                <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune publication n'est disponible pour le moment.</p>
+                <p class="font-heading font-bold uppercase tracking-widest text-sm">{{ homePage.emptyPublicationsTitle or "Aucune publication n'est disponible pour le moment." }}</p>
             </div>
             {% endif %}
         </section>
 
         <section class="section-shell">
             <div class="section-header">
-                <span class="section-kicker">Cette semaine</span>
-                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">Agenda commun et repères familles</h2>
+                <span class="section-kicker">{{ homePage.weeklyKicker or 'Cette semaine' }}</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ homePage.weeklyTitle or 'Agenda commun et repères familles' }}</h2>
                 <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                    Les prochains événements d'un côté, la cantine de la semaine de l'autre, pour ne pas changer de page à chaque besoin.
+                    {{ homePage.weeklyDescription or "Les prochains événements d'un côté, la cantine de la semaine de l'autre, pour ne pas changer de page à chaque besoin." }}
                 </p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
                 <div class="paper-card p-6 md:p-8">
                     <div class="flex items-center justify-between gap-4 mb-5">
-                        <h3 class="text-2xl font-heading font-black uppercase">Prochains événements</h3>
-                        <a href="agenda.html" class="text-sm font-bold uppercase tracking-[0.12em] text-vintage-blue">Agenda complet</a>
+                        <h3 class="text-2xl font-heading font-black uppercase">{{ homePage.upcomingTitle or 'Prochains événements' }}</h3>
+                        <a href="agenda.html" class="text-sm font-bold uppercase tracking-[0.12em] text-vintage-blue">{{ homePage.upcomingLinkLabel or 'Agenda complet' }}</a>
                     </div>
                     {% if upcomingEvents.length %}
                     {% for eventItem in upcomingEvents %}
@@ -635,33 +637,33 @@ permalink: index.html
                             {% endif %}
                         </div>
                         <div class="mt-4 flex flex-wrap gap-3">
-                            <a href="{{ eventItem.articleHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.12em]">Voir l'article</a>
-                            <a href="agenda.html" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.12em]">Voir l'agenda</a>
+                            <a href="{{ eventItem.articleHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.12em]">{{ homePage.viewArticleLabel or "Voir l'article" }}</a>
+                            <a href="agenda.html" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.12em]">{{ homePage.eventAgendaLabel or "Voir l'agenda" }}</a>
                         </div>
                     </article>
                     {% endfor %}
                     {% else %}
                     <div class="rounded-2xl border border-ink/10 bg-white p-5">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune date disponible pour le moment.</p>
-                        <p class="mt-2 text-sm text-[color:var(--muted)]">L'agenda complet reste accessible dès qu'un événement est publié.</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">{{ homePage.emptyUpcomingTitle or 'Aucune date disponible pour le moment.' }}</p>
+                        <p class="mt-2 text-sm text-[color:var(--muted)]">{{ homePage.emptyUpcomingDescription or "L'agenda complet reste accessible dès qu'un événement est publié." }}</p>
                     </div>
                     {% endif %}
                 </div>
 
                 <div class="paper-card p-6 md:p-8">
                     <div class="flex items-center justify-between gap-4 mb-5">
-                        <h3 class="text-2xl font-heading font-black uppercase">Cantine & familles</h3>
-                        <a href="{{ cantineEntry.href if cantineEntry else 'portail.html?rubrique=Scolaire' }}" class="text-sm font-bold uppercase tracking-[0.12em] text-vintage-red">Ouvrir la rubrique</a>
+                        <h3 class="text-2xl font-heading font-black uppercase">{{ homePage.cantineTitle or 'Cantine & familles' }}</h3>
+                        <a href="{{ cantineEntry.href if cantineEntry else 'portail.html?rubrique=Scolaire' }}" class="text-sm font-bold uppercase tracking-[0.12em] text-vintage-red">{{ homePage.cantineLinkLabel or 'Ouvrir la rubrique' }}</a>
                     </div>
                     {% if cantineEntry %}
                     <p class="text-base leading-relaxed text-[color:var(--muted)]">
-                        {{ cantineEntry.publication_title }} rassemble les repères de la semaine pour la restauration scolaire.
+                        {{ (homePage.cantineIntroTemplate or '{title} rassemble les repères de la semaine pour la restauration scolaire.') | replace('{title}', cantineEntry.publication_title or '') }}
                     </p>
                     <div class="mt-5 flex flex-wrap gap-3">
-                        <span class="category-chip text-vintage-green">{{ cantineEntry.days | length }} jours</span>
+                        <span class="category-chip text-vintage-green">{{ cantineEntry.days | length }} {{ homePage.cantineDaysLabel or 'jours' }}</span>
                         <span class="category-chip text-ink">{{ cantineEntry.totalItems }} plats</span>
                         {% if cantineEntry.specialTitle %}
-                        <span class="category-chip text-vintage-red">{{ cantineEntry.specialTitle }} : note spéciale</span>
+                        <span class="category-chip text-vintage-red">{{ (homePage.cantineSpecialTemplate or '{day} : note spéciale') | replace('{day}', cantineEntry.specialTitle or '') }}</span>
                         {% endif %}
                     </div>
                     <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -671,16 +673,22 @@ permalink: index.html
                             {% if day.isSpecial %}
                             <p class="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">{{ day.message }}</p>
                             {% else %}
-                            <p class="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">{{ day.itemsCount }} plat{% if day.itemsCount > 1 %}s{% endif %} annoncés.</p>
+                            <p class="mt-2 text-sm leading-relaxed text-[color:var(--muted)]">
+                                {% if day.itemsCount > 1 %}
+                                {{ (homePage.cantineItemsPluralTemplate or '{count} plats annoncés.') | replace('{count}', day.itemsCount) }}
+                                {% else %}
+                                {{ (homePage.cantineItemsSingularTemplate or '{count} plat annoncé.') | replace('{count}', day.itemsCount) }}
+                                {% endif %}
+                            </p>
                             {% endif %}
                         </div>
                         {% endfor %}
                     </div>
-                    <a href="{{ cantineEntry.href }}" class="mt-6 inline-flex items-center rounded-full bg-vintage-green px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-lime-200/70">Voir le détail cantine</a>
+                    <a href="{{ cantineEntry.href }}" class="mt-6 inline-flex items-center rounded-full bg-vintage-green px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-lime-200/70">{{ homePage.cantineDetailLabel or 'Voir le détail cantine' }}</a>
                     {% else %}
                     <div class="rounded-2xl border border-ink/10 bg-white p-5">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune publication cantine disponible.</p>
-                        <p class="mt-2 text-sm text-[color:var(--muted)]">La rubrique scolaire reste accessible pour les informations familles.</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">{{ homePage.emptyCantineTitle or 'Aucune publication cantine disponible.' }}</p>
+                        <p class="mt-2 text-sm text-[color:var(--muted)]">{{ homePage.emptyCantineDescription or 'La rubrique scolaire reste accessible pour les informations familles.' }}</p>
                     </div>
                     {% endif %}
                 </div>
@@ -689,8 +697,8 @@ permalink: index.html
 
         <section class="section-shell">
             <div class="section-header">
-                <span class="section-kicker">Accès rapide</span>
-                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">Retrouver une rubrique en un clic</h2>
+                <span class="section-kicker">{{ homePage.quickLinksKicker or 'Accès rapide' }}</span>
+                <h2 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ homePage.quickLinksTitle or 'Retrouver une rubrique en un clic' }}</h2>
                 <p class="max-w-3xl text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
                     {{ homeRubriques.description or "Chaque rubrique ouvre directement le portail sur le bon filtre, avec le premier article publié quand il existe." }}
                 </p>
@@ -702,7 +710,7 @@ permalink: index.html
                     <h3 class="text-2xl font-heading font-black leading-tight">{{ link.headline }}</h3>
                     <p class="mt-3 text-sm leading-relaxed text-[color:var(--muted)]">{{ link.description }}</p>
                     <p class="mt-4 text-xs font-bold uppercase tracking-[0.12em] {% if link.hasContent %}{{ link.chipClass }}{% else %}text-[color:var(--muted)]{% endif %}">
-                        {% if link.hasContent %}Ouvrir la rubrique{% else %}Rubrique prête à accueillir du contenu{% endif %}
+                        {% if link.hasContent %}{{ homePage.quickLinksOpenLabel or 'Ouvrir la rubrique' }}{% else %}{{ homePage.quickLinksEmptyLabel or 'Rubrique prête à accueillir du contenu' }}{% endif %}
                     </p>
                 </a>
                 {% endfor %}

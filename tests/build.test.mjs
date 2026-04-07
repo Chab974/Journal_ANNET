@@ -25,7 +25,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
 
   assert.match(indexHtml, /En ce moment/);
   assert.match(indexHtml, /Cette semaine/);
-  assert.match(indexHtml, /Cantine & familles/);
+  assert.match(indexHtml, /Cantine (?:&|&amp;) familles/);
   assert.match(indexHtml, /Coup de cœur/);
   assert.match(indexHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
   assert.match(indexHtml, /Rechercher un titre, une rubrique, un lieu, un auteur/);
@@ -33,6 +33,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(indexHtml, />Actualités</);
   assert.doesNotMatch(indexHtml, /Stratégie de Diffusion/);
   assert.match(portalHtml, /portal-posts-data/);
+  assert.match(portalHtml, /portal-copy-data/);
   assert.match(portalHtml, /initialSearchParams\.get\('q'\)/);
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
   assert.match(portalHtml, /Résumé rapide/);
@@ -43,17 +44,22 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /portal-meta-stack/);
   assert.match(portalHtml, /portal-inline-facts/);
   assert.match(portalHtml, /aria-label="Repères liés à cette publication"/);
+  assert.doesNotMatch(portalHtml, /const portalIntroConfig = \{/);
   assert.doesNotMatch(portalHtml, /max-w-\[96rem\]/);
   assert.match(agendaHtml, /agenda-events-data/);
+  assert.match(agendaHtml, /agenda-copy-data/);
   assert.match(agendaHtml, /Vue calendrier/);
   assert.match(agendaHtml, /Prochainement/);
   assert.match(agendaHtml, /Passés récemment/);
   assert.match(agendaHtml, /Résumé rapide/);
   assert.match(agendaHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.doesNotMatch(agendaHtml, /const weekDayLabels = \['Lun', 'Mar', 'Mer'/);
   assert.ok(!embeddedAgenda.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);
   assert.match(aboutHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.match(aboutHtml, /about-copy-data/);
+  assert.doesNotMatch(aboutHtml, /const pillarsData = \[/);
   assert.doesNotMatch(portalHtml, /fetch\('\.\/data\/citizen-posts\.json'/);
   assert.doesNotMatch(agendaHtml, /fetch\('\.\/data\/calendar-events\.json'/);
 });

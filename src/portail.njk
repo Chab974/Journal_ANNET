@@ -2,6 +2,8 @@
 permalink: portail.html
 ---
 {% set activePage = 'actualites' %}
+{% set navSection = journal.siteSections['site-nav'] %}
+{% set portalPage = journal.siteSections['portal-page'] %}
 {% set footerSection = journal.siteSections['footer'] %}
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
@@ -9,10 +11,11 @@ permalink: portail.html
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{ journal.site.pathPrefix }}">
-    <title>Actualités - Le Journal d'Annet-sur-Marne</title>
+    <title>{{ portalPage.pageTitle or portalPage.title or 'Actualités' }} - {{ navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne" }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <script id="portal-posts-data" type="application/json">{{ journal.publications | inlineJson | safe }}</script>
+    <script id="portal-copy-data" type="application/json">{{ portalPage | inlineJson | safe }}</script>
     <script>
         tailwind.config = {
             safelist: [
@@ -860,7 +863,7 @@ permalink: portail.html
     </style>
 </head>
 <body class="font-body antialiased text-ink">
-    <a href="#main-content" class="skip-link">Aller au contenu</a>
+    <a href="#main-content" class="skip-link">{{ navSection.skipLinkLabel or 'Aller au contenu' }}</a>
     {% include "site-nav.njk" %}
 
     <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
@@ -868,32 +871,32 @@ permalink: portail.html
             <div class="p-1 md:p-2">
                 <div class="section-header">
                     <div class="max-w-4xl">
-                        <p id="portal-page-kicker" class="section-kicker mb-3">Actualités locales filtrables</p>
-                        <h1 id="portal-page-title" class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">Actualités</h1>
+                        <p id="portal-page-kicker" class="section-kicker mb-3">{{ portalPage.kicker or 'Actualités locales filtrables' }}</p>
+                        <h1 id="portal-page-title" class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">{{ portalPage.title or 'Actualités' }}</h1>
                         <p id="portal-page-description" class="text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
-                            Une lecture claire de la vie locale : événements, scolaire, travaux, vie associative et coups de cœur réunis dans une même page, avec filtres par rubrique et accès direct aux articles.
+                            {{ portalPage.description or 'Une lecture claire de la vie locale : événements, scolaire, travaux, vie associative et coups de cœur réunis dans une même page, avec filtres par rubrique et accès direct aux articles.' }}
                         </p>
                     </div>
                     <div class="flex flex-wrap gap-3">
                         <a href="agenda.html" class="inline-flex items-center gap-2 rounded-full bg-vintage-blue px-5 py-3 text-white text-xs font-bold uppercase tracking-[0.2em] shadow-lg shadow-sky-200/60 transition-transform hover:-translate-y-0.5">
                             <span aria-hidden="true">🗓️</span>
-                            <span>Voir l'agenda commun</span>
+                            <span>{{ portalPage.agendaCtaLabel or "Voir l'agenda commun" }}</span>
                         </a>
                     </div>
                 </div>
 
                 <div class="portal-toolbar">
                     <div class="portal-toolbar-main">
-                        <input id="portal-search" class="portal-search" type="search" placeholder="Rechercher un titre, une rubrique, un lieu, un auteur..." />
+                        <input id="portal-search" class="portal-search" type="search" placeholder="{{ portalPage.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu, un auteur...' }}" />
                     </div>
-                    <div id="portal-count" class="portal-count">0 publication</div>
+                    <div id="portal-count" class="portal-count">0 {{ portalPage.countSingular or 'publication' }}</div>
                     <div id="portal-filters" class="portal-filters"></div>
                 </div>
 
                 <div id="portal-status" class="hidden"></div>
                 <div id="portal-posts" class="space-y-8">
                     <div class="paper-card p-8 text-center">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Chargement des publications...</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">{{ portalPage.loadingTitle or 'Chargement des publications...' }}</p>
                     </div>
                 </div>
             </div>
@@ -911,55 +914,32 @@ permalink: portail.html
         const portalPageKicker = document.getElementById('portal-page-kicker');
         const portalPageTitle = document.getElementById('portal-page-title');
         const portalPageDescription = document.getElementById('portal-page-description');
+        const portalCopy = JSON.parse(document.getElementById('portal-copy-data')?.textContent || '{}');
+        const portalTitleSuffix = {{ (navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne") | inlineJson | safe }};
         const initialSearchParams = new URLSearchParams(window.location.search);
         const initialRubrique = initialSearchParams.get('rubrique');
         const initialSlug = initialSearchParams.get('slug');
         const initialPostId = initialSearchParams.get('post');
         const initialQuery = initialSearchParams.get('q') || '';
-        const portalIntroConfig = {
-            all: {
-                description: 'Une lecture claire de la vie locale : événements, scolaire, travaux, vie associative et coups de cœur réunis dans une même page, avec filtres par rubrique et accès direct aux articles.',
-                kicker: 'Actualités locales filtrables',
-                title: 'Actualités',
-            },
-            'Coup de cœur littéraire': {
-                description: 'Les recommandations de lecture et les sélections de Médi’Annet réunies dans une vue dédiée, avec accès direct aux résumés et aux ouvrages mis en avant.',
-                kicker: 'Sélection lecture',
-                title: 'Coup de cœur',
-            },
-            'Scolaire': {
-                description: 'Les informations familles, la cantine et les repères utiles liés à la vie scolaire regroupés dans une même vue.',
-                kicker: 'Informations familles',
-                title: 'Cantine & familles',
-            },
-            'Travaux et mobilité': {
-                description: 'Les alertes, chantiers et informations de circulation utiles au quotidien dans une vue plus ciblée.',
-                kicker: 'Infos pratiques',
-                title: 'Travaux & mobilité',
-            },
-            'Vie associative': {
-                description: 'Les rendez-vous associatifs, appels à bénévoles et actualités des collectifs locaux dans une vue dédiée.',
-                kicker: 'Vie collective',
-                title: 'Vie associative',
-            },
-            'Vie locale': {
-                description: 'Les informations de proximité, initiatives locales et rendez-vous du village rassemblés sur une même page.',
-                kicker: 'Vie du village',
-                title: 'Vie locale',
-            },
-            'Événements': {
-                description: 'Les temps forts, sorties et rendez-vous publics du village avec accès direct aux articles détaillés.',
-                kicker: 'Temps forts',
-                title: 'Événements',
-            },
+        const portalIntroConfig = Object.fromEntries((portalCopy.introVariants || []).map((item) => [item.key, item]));
+        const portalTypeVisuals = {
+            cantine: { theme: 'border-vintage-green', accent: 'text-vintage-green', icon: '🍽️', iconBg: '#ebf5ee' },
+            evenement: { theme: 'border-vintage-blue', accent: 'text-vintage-blue', icon: '🗓️', iconBg: '#eef0f9' },
+            alerte: { theme: 'border-vintage-red', accent: 'text-vintage-red', icon: '📢', iconBg: '#f9ece8' },
+            info: { theme: 'border-ink', accent: 'text-ink', icon: 'ℹ️', iconBg: '#f2ede9' },
+            coup_de_coeur: { theme: 'border-vintage-red', accent: 'text-vintage-red', icon: '📚', iconBg: '#faedf1' }
         };
-        const portalTypeConfig = {
-            cantine: { label: 'Cantine', theme: 'border-vintage-green', accent: 'text-vintage-green', stamp: 'Restauration scolaire', icon: '🍽️', iconBg: '#ebf5ee' },
-            evenement: { label: 'Événement', theme: 'border-vintage-blue', accent: 'text-vintage-blue', stamp: 'Agenda', icon: '🗓️', iconBg: '#eef0f9' },
-            alerte: { label: 'Alerte / Travaux', theme: 'border-vintage-red', accent: 'text-vintage-red', stamp: 'Vigilance', icon: '📢', iconBg: '#f9ece8' },
-            info: { label: 'Information', theme: 'border-ink', accent: 'text-ink', stamp: 'Infos', icon: 'ℹ️', iconBg: '#f2ede9' },
-            coup_de_coeur: { label: 'Médiathèque', theme: 'border-vintage-red', accent: 'text-vintage-red', stamp: 'Lecture', icon: '📚', iconBg: '#faedf1' }
-        };
+        const portalTypeText = Object.fromEntries((portalCopy.typeMeta || []).map((item) => [item.key, item]));
+        const portalTypeConfig = Object.fromEntries(Object.entries(portalTypeVisuals).map(([key, visual]) => [
+            key,
+            {
+                ...visual,
+                label: portalTypeText[key]?.label || 'Information',
+                stamp: portalTypeText[key]?.stamp || '',
+            }
+        ]));
+        const portalContact = portalCopy.contact || {};
+        const portalCantineCopy = portalCopy.cantineMicrocopy || {};
         const portalRubriqueOrder = [
             'all',
             'Événements',
@@ -987,6 +967,10 @@ permalink: portail.html
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function formatTemplate(template, replacements = {}) {
+            return String(template || '').replace(/\{(\w+)\}/g, (_, key) => String(replacements[key] ?? ''));
         }
 
         function normalizeEditorialText(text) {
@@ -1183,10 +1167,10 @@ permalink: portail.html
                         <div class="portal-cantine-day p-4">
                             <div class="flex items-center justify-between gap-4 border-b border-ink/10 pb-2 mb-3">
                                 <h4 class="font-heading font-black uppercase tracking-widest text-lg">${escapeHtml(day.day || '')}</h4>
-                                <span class="text-xs uppercase tracking-widest font-bold">${day.isSpecial ? 'Note' : 'Service'}</span>
+                                <span class="text-xs uppercase tracking-widest font-bold">${escapeHtml(day.isSpecial ? (portalCantineCopy.noteLabel || 'Note') : (portalCantineCopy.serviceLabel || 'Service'))}</span>
                             </div>
                             ${day.isSpecial ? `
-                                <p class="text-sm leading-relaxed italic">${escapeHtml(day.message || 'Aucune information cantine communiquée.')}</p>
+                                <p class="text-sm leading-relaxed italic">${escapeHtml(day.message || portalCantineCopy.emptyMessage || 'Aucune information cantine communiquée.')}</p>
                             ` : `
                                 <ul class="space-y-1">
                                     ${(day.items || []).map((item, itemIndex) => {
@@ -1206,8 +1190,8 @@ permalink: portail.html
                                                 class="portal-favorite-button"
                                                 data-favorite-item="${escapeHtml(itemKey)}"
                                                 aria-pressed="${isFavorite ? 'true' : 'false'}"
-                                                aria-label="Marquer comme coup de coeur"
-                                                title="Coup de coeur"
+                                                aria-label="${escapeHtml(portalCantineCopy.favoriteAria || 'Marquer comme coup de cœur')}"
+                                                title="${escapeHtml(portalCantineCopy.favoriteTitle || 'Coup de cœur')}"
                                             >${isFavorite ? '♥' : '♡'}</button>
                                         </li>
                                         `;
@@ -1283,17 +1267,17 @@ permalink: portail.html
             const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
             const agendaCard = agendaEntries.length ? `
                 <div class="portal-fact-card">
-                    <p class="portal-fact-title">🗓️ Dates à l'agenda</p>
+                    <p class="portal-fact-title">🗓️ ${escapeHtml(portalCopy.agendaDatesTitle || "Dates à l'agenda")}</p>
                     <div class="portal-agenda-list">
                         ${agendaEntries.map((entry) => `
                             <div class="portal-agenda-item">
                                 <div class="portal-agenda-meta">
                                     <span class="portal-agenda-date">${escapeHtml(entry.label || '')}</span>
-                                    <span class="portal-agenda-hours">${escapeHtml(entry.hours || 'Horaire communiqué')}</span>
+                                    <span class="portal-agenda-hours">${escapeHtml(entry.hours || portalCopy.defaultHoursLabel || 'Horaire communiqué')}</span>
                                 </div>
                                 <a class="portal-agenda-link" href="${escapeHtml(getGoogleCalendarUrlForEntry(post, entry))}" target="_blank" rel="noopener noreferrer">
                                     <span aria-hidden="true">↗</span>
-                                    <span>Agenda</span>
+                                    <span>${escapeHtml(portalCopy.agendaLinkLabel || 'Agenda')}</span>
                                 </a>
                             </div>
                         `).join('')}
@@ -1304,7 +1288,7 @@ permalink: portail.html
                 <div class="space-y-5">
                     ${leadExcerpt ? `
                         <div class="portal-lead-card">
-                            <p class="portal-lead-label">En bref</p>
+                            <p class="portal-lead-label">${escapeHtml(portalCopy.briefLabel || 'En bref')}</p>
                             <p class="portal-lead-text">${escapeHtml(leadExcerpt)}</p>
                         </div>
                     ` : ''}
@@ -1320,14 +1304,14 @@ permalink: portail.html
             `;
             const locationCard = post.lieu ? `
                 <div class="portal-fact-card">
-                    <p class="portal-fact-title">📍 Localisation</p>
+                    <p class="portal-fact-title">📍 ${escapeHtml(portalCopy.locationTitle || 'Localisation')}</p>
                     <p class="text-sm leading-relaxed">${escapeHtml(post.lieu)}</p>
                 </div>
             ` : '';
 
             const highlightsCard = Array.isArray(post.highlights) && post.highlights.length ? `
                 <div class="portal-fact-card">
-                    <p class="portal-fact-title">À retenir</p>
+                    <p class="portal-fact-title">${escapeHtml(portalCopy.highlightsTitle || 'À retenir')}</p>
                     <ul class="portal-feature-list">
                         ${post.highlights.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
                     </ul>
@@ -1337,10 +1321,10 @@ permalink: portail.html
             if (post.type === 'evenement') {
                 const calendarCard = post.date_debut_iso ? `
                     <div class="portal-fact-card">
-                        <p class="portal-fact-title">🗓️ Calendrier</p>
+                        <p class="portal-fact-title">🗓️ ${escapeHtml(portalCopy.calendarTitle || 'Calendrier')}</p>
                         <a class="portal-link text-sm" href="${escapeHtml(getGoogleCalendarUrl(post))}" target="_blank" rel="noopener noreferrer">
                             <span aria-hidden="true">🗓️</span>
-                            <span>Ajouter à l'agenda ↗</span>
+                            <span>${escapeHtml(portalCopy.addToCalendarLabel || "Ajouter à l'agenda")} ↗</span>
                         </a>
                     </div>
                 ` : '';
@@ -1351,18 +1335,18 @@ permalink: portail.html
             if (post.type === 'coup_de_coeur') {
                 const mediathequeCard = `
                     <div class="portal-fact-card">
-                        <p class="portal-fact-title">ℹ️ Médi'Annet</p>
-                        <p class="text-sm mb-2 font-semibold">Contactez Rose</p>
-                        <p class="text-sm">📞 <a class="underline" href="tel:0160038596">01 60 03 85 96</a></p>
-                        <p class="text-sm break-all">✉️ <a class="underline" href="mailto:mediatheque@annetsurmarne.fr">mediatheque@annetsurmarne.fr</a></p>
+                        <p class="portal-fact-title">ℹ️ ${escapeHtml(portalCopy.mediathequeTitle || "Médi'Annet")}</p>
+                        <p class="text-sm mb-2 font-semibold">${escapeHtml(portalCopy.mediathequeContactTitle || (portalContact.name ? `Contactez ${portalContact.name}` : 'Contact'))}</p>
+                        <p class="text-sm">📞 <a class="underline" href="tel:${escapeHtml(String(portalContact.phone || '').replace(/\s+/g, ''))}">${escapeHtml(portalContact.phone || '')}</a></p>
+                        <p class="text-sm break-all">✉️ <a class="underline" href="mailto:${escapeHtml(portalContact.email || '')}">${escapeHtml(portalContact.email || '')}</a></p>
                     </div>
                 `;
                 const externalLinkCard = post.lien_externe ? `
                     <div class="portal-fact-card">
-                        <p class="portal-fact-title">↗ Ressource</p>
+                        <p class="portal-fact-title">↗ ${escapeHtml(portalCopy.resourceTitle || 'Ressource')}</p>
                         <a class="portal-link text-sm" href="${escapeHtml(post.lien_externe)}" target="_blank" rel="noopener noreferrer">
                             <span aria-hidden="true">↗</span>
-                            <span>En savoir plus</span>
+                            <span>${escapeHtml(portalCopy.learnMoreLabel || 'En savoir plus')}</span>
                         </a>
                     </div>
                 ` : '';
@@ -1426,12 +1410,20 @@ permalink: portail.html
 
         function getPortalIntro(filterValue) {
             if (!filterValue || filterValue === 'all') {
-                return portalIntroConfig.all;
+                return portalIntroConfig.all || {
+                    description: portalCopy.description || '',
+                    kicker: portalCopy.kicker || '',
+                    title: portalCopy.title || '',
+                };
             }
 
             return portalIntroConfig[filterValue] || {
-                description: `Les publications de la rubrique ${filterValue.toLowerCase()} regroupées dans une seule vue avec filtres et accès direct aux articles.`,
-                kicker: 'Rubrique filtrée',
+                description: formatTemplate(
+                    portalCopy.filteredRubriqueDescriptionTemplate ||
+                        'Les publications de la rubrique {rubrique} regroupées dans une seule vue avec filtres et accès direct aux articles.',
+                    { rubrique: filterValue.toLowerCase() },
+                ),
+                kicker: portalCopy.filteredRubriqueKicker || 'Rubrique filtrée',
                 title: filterValue,
             };
         }
@@ -1441,7 +1433,7 @@ permalink: portail.html
             portalPageKicker.textContent = intro.kicker;
             portalPageTitle.textContent = intro.title;
             portalPageDescription.textContent = intro.description;
-            document.title = `${intro.title} - Le Journal d'Annet-sur-Marne`;
+            document.title = `${intro.title} - ${portalTitleSuffix}`;
         }
 
         function getTargetPortalPost() {
@@ -1468,7 +1460,7 @@ permalink: portail.html
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'portal-filter';
-                button.textContent = option.label;
+                button.textContent = option.value === 'all' ? (portalCopy.allFilterLabel || option.label) : option.label;
                 button.setAttribute('aria-pressed', String(portalState.activeFilter === option.value));
                 button.onclick = () => applyPortalFilter(option.value, { scroll: false });
                 portalFiltersContainer.appendChild(button);
@@ -1476,12 +1468,12 @@ permalink: portail.html
         }
 
         function renderPortalPosts(posts) {
-            portalCount.textContent = `${posts.length} publication${posts.length > 1 ? 's' : ''}`;
+            portalCount.textContent = `${posts.length} ${posts.length > 1 ? (portalCopy.countPlural || 'publications') : (portalCopy.countSingular || 'publication')}`;
             if (!Array.isArray(posts) || posts.length === 0) {
                 portalPostsContainer.innerHTML = `
                     <div class="paper-card p-8 text-center">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm">Aucune publication disponible.</p>
-                        <p class="mt-3 text-sm text-[color:var(--muted)]">Essayez un autre filtre ou une autre recherche.</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm">${escapeHtml(portalCopy.emptyTitle || 'Aucune publication disponible.')}</p>
+                        <p class="mt-3 text-sm text-[color:var(--muted)]">${escapeHtml(portalCopy.emptyDescription || 'Essayez un autre filtre ou une autre recherche.')}</p>
                     </div>
                 `;
                 return;
@@ -1507,15 +1499,15 @@ permalink: portail.html
                                 <h3 class="text-3xl font-heading font-black leading-tight mt-4">${escapeHtml(post.titre || '')}</h3>
                                 ${cardExcerpt ? `
                                     <div class="portal-excerpt-card">
-                                        <p class="portal-excerpt-label">Résumé rapide</p>
+                                        <p class="portal-excerpt-label">${escapeHtml(portalCopy.summaryLabel || 'Résumé rapide')}</p>
                                         <p class="portal-excerpt-text">${escapeHtml(cardExcerpt)}</p>
-                                        ${summaryIsTruncated ? `<p class="portal-excerpt-note">Le détail complet est visible dans l’article ci-dessous.</p>` : ''}
+                                        ${summaryIsTruncated ? `<p class="portal-excerpt-note">${escapeHtml(portalCopy.summaryNote || 'Le détail complet est visible dans l’article ci-dessous.')}</p>` : ''}
                                     </div>
                                 ` : ''}
                             </div>
                             <div class="portal-date-pill">
                                 <span aria-hidden="true">🕒</span>
-                                <span>${escapeHtml(post.date || 'Publication')}</span>
+                                <span>${escapeHtml(post.date || portalCopy.dateFallbackLabel || 'Publication')}</span>
                             </div>
                         </div>
                         ${renderPostBody(post)}
@@ -1539,10 +1531,10 @@ permalink: portail.html
                 image.addEventListener('error', () => {
                     image.removeAttribute('src');
                     image.classList.add('is-fallback');
-                    image.alt = 'Couverture indisponible';
+                    image.alt = portalCopy.missingCoverLabel || 'Couverture indisponible';
                     image.replaceWith(Object.assign(document.createElement('div'), {
                         className: `${image.className} is-fallback`,
-                        textContent: 'Couverture indisponible'
+                        textContent: portalCopy.missingCoverLabel || 'Couverture indisponible'
                     }));
                 }, { once: true });
             });
@@ -1630,7 +1622,7 @@ permalink: portail.html
                 const loadedPosts = JSON.parse(payload?.textContent || '[]');
 
                 if (!Array.isArray(loadedPosts) || loadedPosts.length === 0) {
-                    throw new Error('Le snapshot de publications est introuvable.');
+                    throw new Error(portalCopy.snapshotErrorMessage || 'Le snapshot de publications est introuvable.');
                 }
 
                 portalState.posts = loadedPosts;
@@ -1647,11 +1639,11 @@ permalink: portail.html
             } catch (error) {
                 portalPostsContainer.innerHTML = `
                     <div class="paper-card p-8 text-center bg-white">
-                        <p class="font-heading font-bold uppercase tracking-widest text-sm text-vintage-red">Impossible de charger les publications.</p>
+                        <p class="font-heading font-bold uppercase tracking-widest text-sm text-vintage-red">${escapeHtml(portalCopy.loadErrorTitle || 'Impossible de charger les publications.')}</p>
                         <p class="mt-3 text-sm">${escapeHtml(error.message)}</p>
                     </div>
                 `;
-                setPortalStatus('Le portail n’a pas pu charger les contenus.', 'error');
+                setPortalStatus(portalCopy.loadErrorStatus || 'Le portail n’a pas pu charger les contenus.', 'error');
             }
         }
 

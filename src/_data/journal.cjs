@@ -11,41 +11,6 @@ const rubriqueOrder = [
   'Vie locale',
 ];
 
-const publicationTypeLabels = {
-  alerte: 'Alerte',
-  cantine: 'Cantine',
-  coup_de_coeur: 'Lecture',
-  evenement: 'Événement',
-  info: 'Information',
-};
-
-const rubriqueFallbacks = {
-  'Coup de cœur littéraire': {
-    description: 'Sélection de lectures et recommandations culturelles locales.',
-    headline: 'Lecture et médiathèque',
-  },
-  'Scolaire': {
-    description: 'Cantine, portail famille et informations utiles pour les parents.',
-    headline: 'Cantine et familles',
-  },
-  'Travaux et mobilité': {
-    description: 'Circulation, chantiers et alertes utiles au quotidien.',
-    headline: 'Travaux et mobilité',
-  },
-  'Vie associative': {
-    description: 'Associations, bénévolat et rendez-vous collectifs à suivre.',
-    headline: 'Vie associative',
-  },
-  'Vie locale': {
-    description: 'Vie du village, initiatives et infos de proximité.',
-    headline: 'Vie locale',
-  },
-  'Événements': {
-    description: 'Temps forts, sorties et rendez-vous à venir dans le village.',
-    headline: 'Événements à venir',
-  },
-};
-
 const quickLinkThemes = {
   'Coup de cœur littéraire': {
     accentClass: 'quick-link-accent--brown',
@@ -147,7 +112,31 @@ function sortAgendaEntries(a = {}, b = {}) {
   return String(a.start_iso || '').localeCompare(String(b.start_iso || ''));
 }
 
-function decoratePublication(entry = {}) {
+function interpolateTemplate(template, replacements = {}) {
+  return String(template || '').replace(/\{(\w+)\}/g, (_, key) => String(replacements[key] ?? ''));
+}
+
+function createPublicationTypeLabelMap(portalPage = {}) {
+  const labels = {
+    alerte: 'Alerte',
+    cantine: 'Cantine',
+    coup_de_coeur: 'Lecture',
+    evenement: 'Événement',
+    info: 'Information',
+  };
+
+  for (const item of portalPage.typeMeta || []) {
+    if (!item?.key || !item?.label) {
+      continue;
+    }
+
+    labels[item.key] = item.label;
+  }
+
+  return labels;
+}
+
+function decoratePublication(entry = {}, publicationTypeLabels = {}) {
   return {
     ...entry,
     href: buildPortalUrl({ rubrique: entry.rubrique, slug: entry.slug }),
@@ -156,10 +145,29 @@ function decoratePublication(entry = {}) {
   };
 }
 
-function buildQuickLinks(publications = []) {
+function createQuickLinkFallbackMap(homePage = {}) {
+  const map = new Map();
+
+  for (const item of homePage.quickLinkFallbacks || []) {
+    if (!item?.rubrique) {
+      continue;
+    }
+
+    map.set(item.rubrique, {
+      description: item.description || '',
+      headline: item.title || item.rubrique,
+    });
+  }
+
+  return map;
+}
+
+function buildQuickLinks(publications = [], homePage = {}) {
+  const fallbackMap = createQuickLinkFallbackMap(homePage);
+
   return rubriqueOrder.map((rubrique) => {
     const publication = publications.find((entry) => entry.rubrique === rubrique);
-    const fallback = rubriqueFallbacks[rubrique] || {
+    const fallback = fallbackMap.get(rubrique) || {
       description: 'Retrouver les informations de cette rubrique dans le portail.',
       headline: rubrique,
     };
@@ -219,30 +227,81 @@ function buildUpcomingEvents(agenda = [], referenceDate = new Date()) {
   return (upcoming.length ? upcoming : sortedEvents).slice(0, 3);
 }
 
-function buildHomeData({ agenda = [], cantine = [], publications = [], referenceDate = new Date() } = {}) {
+function buildHomeData({
+  agenda = [],
+  cantine = [],
+  publications = [],
+  referenceDate = new Date(),
+  siteSections = {},
+} = {}) {
+  const homePage = siteSections['home-page'] || {};
+  const portalPage = siteSections['portal-page'] || {};
+  const publicationTypeLabels = createPublicationTypeLabelMap(portalPage);
   const featuredPublication = publications.find((entry) => entry.featured) || publications[0] || null;
   const featuredPublicationId = featuredPublication?.id || null;
 
   return {
     cantineEntry: buildCantineSummary(cantine[0]),
-    featuredPublication: featuredPublication ? decoratePublication(featuredPublication) : null,
-    quickLinks: buildQuickLinks(publications),
+    featuredPublication: featuredPublication ? decoratePublication(featuredPublication, publicationTypeLabels) : null,
+    quickLinks: buildQuickLinks(publications, homePage),
     secondaryPublications: publications
       .filter((entry) => entry.id !== featuredPublicationId)
       .slice(0, 3)
-      .map(decoratePublication),
+      .map((entry) => decoratePublication(entry, publicationTypeLabels)),
     upcomingEvents: buildUpcomingEvents(agenda, referenceDate),
   };
 }
 
+function buildNavigation(siteNav = {}) {
+  const defaults = new Map([
+    ['home', 'Accueil'],
+    ['actualites', 'Actualités'],
+    ['lecture', 'Coup de cœur'],
+    ['agenda', 'Agenda'],
+    ['about', 'À propos'],
+  ]);
+  const labels = new Map(
+    (siteNav.items || [])
+      .filter((item) => item?.key)
+      .map((item) => [item.key, item.label || defaults.get(item.key) || item.key]),
+  );
+
+  return [
+    { href: 'index.html', key: 'home', label: labels.get('home') || defaults.get('home') },
+    { href: 'portail.html', key: 'actualites', label: labels.get('actualites') || defaults.get('actualites') },
+    {
+      href: buildPortalUrl({ rubrique: 'Coup de cœur littéraire' }),
+      key: 'lecture',
+      label: labels.get('lecture') || defaults.get('lecture'),
+      rubrique: 'Coup de cœur littéraire',
+    },
+    { href: 'agenda.html', key: 'agenda', label: labels.get('agenda') || defaults.get('agenda') },
+    { href: 'a-propos.html', key: 'about', label: labels.get('about') || defaults.get('about') },
+  ];
+}
+
 async function loadJournalData() {
-  const publications = (await readJson('publications.json', [])).map(normalizePublicationEntry);
-  const agenda = await readJson('agenda.json', []);
-  const cantine = (await readJson('cantine.json', [])).map(normalizeCantineEntry);
-  const siteSections = await readJson('site-sections.json', {});
+  const [
+    { defaultSiteSections, mergeSiteSections },
+    rawPublications,
+    rawAgenda,
+    rawCantine,
+    rawSiteSections,
+  ] = await Promise.all([
+    import('../../scripts/lib/default-site-sections.mjs'),
+    readJson('publications.json', []),
+    readJson('agenda.json', []),
+    readJson('cantine.json', []),
+    readJson('site-sections.json', {}),
+  ]);
+  const publications = rawPublications.map(normalizePublicationEntry);
+  const agenda = rawAgenda;
+  const cantine = rawCantine.map(normalizeCantineEntry);
+  const siteSections = mergeSiteSections(defaultSiteSections, rawSiteSections);
   const pathPrefix = normalizePathPrefix(process.env.SITE_PATH_PREFIX);
   const deployTarget = process.env.SITE_DEPLOY_TARGET || 'vercel';
   const buildTime = new Date();
+  const siteNav = siteSections['site-nav'] || {};
 
   return {
     agenda,
@@ -253,23 +312,13 @@ async function loadJournalData() {
       cantine,
       publications,
       referenceDate: buildTime,
+      siteSections,
     }),
     publications,
     site: {
       deployTarget,
       isDemo: deployTarget === 'github-pages-demo',
-      navigation: [
-        { href: 'index.html', key: 'home', label: 'Accueil' },
-        { href: 'portail.html', key: 'actualites', label: 'Actualités' },
-        {
-          href: buildPortalUrl({ rubrique: 'Coup de cœur littéraire' }),
-          key: 'lecture',
-          label: 'Coup de cœur',
-          rubrique: 'Coup de cœur littéraire',
-        },
-        { href: 'agenda.html', key: 'agenda', label: 'Agenda' },
-        { href: 'a-propos.html', key: 'about', label: 'À propos' },
-      ],
+      navigation: buildNavigation(siteNav),
       pathPrefix,
     },
     siteSections,
@@ -283,7 +332,10 @@ module.exports.__private__ = {
   buildPortalUrl,
   buildQuickLinks,
   buildUpcomingEvents,
+  buildNavigation,
+  createPublicationTypeLabelMap,
   decoratePublication,
+  interpolateTemplate,
   parseIsoDate,
   sortAgendaEntries,
 };

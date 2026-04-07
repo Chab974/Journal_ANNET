@@ -1,5 +1,6 @@
 import { normalizePublication } from '../../../lib/shared/publicationSchema.js';
 import { defaultSiteSections } from '../default-site-sections.mjs';
+import { sectionScalarFieldDefinitions } from '../site-section-schema.mjs';
 import {
   compareOptionalNumbers,
   ensureArray,
@@ -410,21 +411,6 @@ function readSectionScalarItemValue(item) {
 }
 
 function applyScalarSectionItems(sectionKey, baseSection, sectionItems, warnings) {
-  const scalarDefinitions = [
-    ['title', 'title'],
-    ['kicker', 'kicker'],
-    ['eyebrow', 'eyebrow'],
-    ['description', 'description'],
-    ['quote', 'quote'],
-    ['page_title', 'pageTitle'],
-    ['quick_links_eyebrow', 'quickLinksEyebrow'],
-    ['subtitle', 'subtitle'],
-    ['legal_left', 'legalLeft'],
-    ['legal_right', 'legalRight'],
-    ['cta_label', 'cta_label'],
-    ['cta_href', 'cta_href'],
-    ['content_html', 'content_html'],
-  ];
   const scalarItems = getSectionScalarItems(sectionItems);
   if (scalarItems.length === 0) {
     return baseSection;
@@ -432,7 +418,7 @@ function applyScalarSectionItems(sectionKey, baseSection, sectionItems, warnings
 
   const section = { ...baseSection };
 
-  for (const [fieldKey, propertyName] of scalarDefinitions) {
+  for (const { field: fieldKey, property: propertyName } of sectionScalarFieldDefinitions) {
     const matches = scalarItems.filter((item) =>
       normalizeSectionScalarField(item.name || item.title || item.text) === fieldKey,
     );
@@ -524,8 +510,142 @@ function buildActionSectionItems(sectionItems, fallback = null, fieldName = 'the
   }));
 }
 
+function buildNamedLabelItems(sectionItems, group, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, group);
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    key: item.name || item.title || item.text || '',
+    label: item.text || item.title || item.name || '',
+  }));
+}
+
+function buildQuickLinkFallbackItems(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'quick_link_fallback');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    description: item.description || '',
+    rubrique: item.name || item.title || item.text || '',
+    title: item.title || item.text || item.name || '',
+  }));
+}
+
+function buildPortalIntroVariants(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'intro_variant');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    description: item.description || '',
+    key: item.name || item.title || item.text || '',
+    kicker: item.kicker || item.eyebrow || '',
+    title: item.title || item.text || item.name || '',
+  }));
+}
+
+function buildPortalTypeMeta(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'type_meta');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    key: item.name || item.title || item.text || '',
+    label: item.text || item.title || item.name || '',
+    stamp: item.value || item.kicker || item.description || '',
+  }));
+}
+
+function buildKeyedTextObject(sectionItems, group, fallback = {}, fieldMap = {}) {
+  const items = getSortedGroupItems(sectionItems, group);
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  const next = { ...(fallback ?? {}) };
+
+  for (const item of items) {
+    const rawKey = normalizeSectionScalarField(item.name || item.title || item.text);
+    const propertyName = fieldMap[rawKey] || rawKey;
+    next[propertyName] = item.href || item.text || item.title || item.description || item.value || '';
+  }
+
+  return next;
+}
+
+function buildAgendaPhases(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'phase');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    description: item.description || '',
+    key: item.name || item.title || item.text || '',
+    title: item.title || item.text || item.name || '',
+  }));
+}
+
+function buildAgendaWeekdays(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'weekday');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    key: item.name || item.title || item.text || '',
+    label: item.text || item.title || item.name || '',
+  }));
+}
+
+function buildAboutPillars(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'pillar');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    id: item.name || item.title || item.text || '',
+    objective: item.text || '',
+    principle: item.description || '',
+    title: item.title || item.name || '',
+  }));
+}
+
+function buildMockupPages(sectionItems, fallback = null) {
+  const items = getSortedGroupItems(sectionItems, 'mockup_page');
+  if (items.length === 0) {
+    return fallback;
+  }
+
+  return items.map((item) => ({
+    description: item.description || '',
+    key: item.name || item.title || item.text || '',
+    kicker: item.kicker || item.eyebrow || '',
+    title: item.title || item.text || item.name || '',
+  }));
+}
+
 function applyStructuredSectionItems(sectionKey, baseSection, sectionItems, warnings) {
   switch (sectionKey) {
+    case 'site-nav':
+      return {
+        ...baseSection,
+        items: buildNamedLabelItems(sectionItems, 'nav_item', baseSection.items),
+      };
+
+    case 'home-page':
+      return {
+        ...baseSection,
+        quickLinkFallbacks: buildQuickLinkFallbackItems(sectionItems, baseSection.quickLinkFallbacks),
+      };
+
     case 'home-hero': {
       const featureItem = pickSingularGroupItem(sectionItems, 'feature', sectionKey, warnings);
       const editorialItem = pickSingularGroupItem(sectionItems, 'editorial', sectionKey, warnings);
@@ -627,6 +747,39 @@ function applyStructuredSectionItems(sectionKey, baseSection, sectionItems, warn
         })),
       };
     }
+
+    case 'portal-page':
+      return {
+        ...baseSection,
+        cantineMicrocopy: buildKeyedTextObject(sectionItems, 'cantine_microcopy', baseSection.cantineMicrocopy, {
+          empty_message: 'emptyMessage',
+          favorite_aria: 'favoriteAria',
+          favorite_title: 'favoriteTitle',
+          note_label: 'noteLabel',
+          service_label: 'serviceLabel',
+        }),
+        contact: buildKeyedTextObject(sectionItems, 'contact_field', baseSection.contact, {
+          name: 'name',
+          phone: 'phone',
+          email: 'email',
+        }),
+        introVariants: buildPortalIntroVariants(sectionItems, baseSection.introVariants),
+        typeMeta: buildPortalTypeMeta(sectionItems, baseSection.typeMeta),
+      };
+
+    case 'agenda-page':
+      return {
+        ...baseSection,
+        phases: buildAgendaPhases(sectionItems, baseSection.phases),
+        weekdays: buildAgendaWeekdays(sectionItems, baseSection.weekdays),
+      };
+
+    case 'about-page':
+      return {
+        ...baseSection,
+        mockupPages: buildMockupPages(sectionItems, baseSection.mockupPages),
+        pillars: buildAboutPillars(sectionItems, baseSection.pillars),
+      };
 
     default:
       return baseSection;
