@@ -6,6 +6,21 @@ import {
   toDispatchMetadata,
   verifyNotionSignature,
 } from '../../scripts/lib/notion/webhook.mjs';
+import {
+  isProductionReconcileBlocked,
+  mergeProductionReconcileEvent,
+} from '../../scripts/lib/content-reconcile-state.mjs';
+import {
+  dispatchProductionReconcileWorkflow,
+  loadProductionReconcileState,
+  resolveProductionReconcileStateConfig,
+  resolveProductionWorkflowDispatchConfig,
+  saveProductionReconcileState,
+} from '../../scripts/lib/content-reconcile-github.mjs';
+import {
+  dispatchGitHubWorkflow,
+  resolveGitHubRepositoryConfig,
+} from '../../scripts/lib/github-api.mjs';
 import { readRawRequestBody } from '../../scripts/lib/request-body.mjs';
 import { createNotionClient, retrievePage } from '../../scripts/lib/notion/client.mjs';
 
@@ -23,43 +38,9 @@ function sendJson(response, statusCode, body) {
   response.end(JSON.stringify(body));
 }
 
-async function triggerVercelDeploy() {
-  const { VERCEL_DEPLOY_HOOK_URL } = process.env;
-
-  if (!VERCEL_DEPLOY_HOOK_URL) {
-    throw new Error('Variable VERCEL_DEPLOY_HOOK_URL manquante pour relancer le déploiement Vercel.');
-  }
-
-  const response = await fetch(VERCEL_DEPLOY_HOOK_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'journal-annet-webhook',
-    },
-  });
-
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(`Échec du deploy hook Vercel (${response.status}): ${details}`);
-  }
-
-  const contentType = response.headers.get('content-type') ?? '';
-  if (contentType.includes('application/json')) {
-    return response.json();
-  }
-
-  return {
-    ok: true,
-    status: response.status,
-  };
-}
-
 async function triggerGitHubPagesDemo(metadata) {
   const {
     GITHUB_PAGES_AUTO_DEPLOY_ENABLED,
-    GITHUB_REPOSITORY_NAME,
-    GITHUB_REPOSITORY_OWNER,
-    GITHUB_WEBHOOK_TOKEN,
     GITHUB_WORKFLOW_FILE,
     GITHUB_WORKFLOW_REF = 'main',
   } = process.env;
@@ -72,44 +53,59 @@ async function triggerGitHubPagesDemo(metadata) {
     };
   }
 
-  const isConfigured =
-    GITHUB_REPOSITORY_NAME &&
-    GITHUB_REPOSITORY_OWNER &&
-    GITHUB_WEBHOOK_TOKEN &&
-    GITHUB_WORKFLOW_FILE;
-
-  if (!isConfigured) {
+  if (!GITHUB_WORKFLOW_FILE) {
     return {
       configured: false,
       skipped: true,
     };
   }
 
-  const response = await fetch(
-    `https://api.github.com/repos/${GITHUB_REPOSITORY_OWNER}/${GITHUB_REPOSITORY_NAME}/actions/workflows/${GITHUB_WORKFLOW_FILE}/dispatches`,
-    {
-      method: 'POST',
-      headers: {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${GITHUB_WEBHOOK_TOKEN}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'journal-annet-webhook',
-      },
-      body: JSON.stringify({
-        inputs: metadata,
-        ref: GITHUB_WORKFLOW_REF,
-      }),
-    },
-  );
-
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(`Échec du workflow GitHub Pages démo (${response.status}): ${details}`);
-  }
+  const githubConfig = resolveGitHubRepositoryConfig();
+  await dispatchGitHubWorkflow(githubConfig, {
+    inputs: metadata,
+    ref: GITHUB_WORKFLOW_REF,
+    workflowFile: GITHUB_WORKFLOW_FILE,
+  });
 
   return {
     configured: true,
     dispatched: true,
+  };
+}
+
+async function recordProductionReconcileState(metadata) {
+  const stateConfig = resolveProductionReconcileStateConfig();
+  const { state } = await loadProductionReconcileState(stateConfig);
+  const nextState = mergeProductionReconcileEvent(state, metadata);
+
+  await saveProductionReconcileState(stateConfig, {
+    state: nextState,
+  });
+
+  return {
+    issueNumber: stateConfig.issueNumber,
+    state: nextState,
+  };
+}
+
+async function triggerProductionReconcile(metadata, state) {
+  if (isProductionReconcileBlocked(state)) {
+    return {
+      blocked_until: state.blocked_until,
+      dispatched: false,
+      reason: 'blocked_until',
+      skipped: true,
+    };
+  }
+
+  const workflowConfig = resolveProductionWorkflowDispatchConfig();
+  const workflow = await dispatchProductionReconcileWorkflow(workflowConfig, {
+    inputs: metadata,
+  });
+
+  return {
+    ...workflow,
+    configured: true,
   };
 }
 
@@ -191,28 +187,77 @@ export default async function notionWebhook(request, response) {
 
   try {
     const metadata = toDispatchMetadata(payload);
-    console.info('Notion webhook dispatching deploy', metadata);
-    const [vercel, githubPagesDemo] = await Promise.all([
-      triggerVercelDeploy(),
+    console.info('Notion webhook enqueueing production reconcile', metadata);
+    const reconcile = await recordProductionReconcileState(metadata);
+
+    const [productionResult, githubPagesDemoResult] = await Promise.allSettled([
+      triggerProductionReconcile(metadata, reconcile.state),
       triggerGitHubPagesDemo(metadata),
     ]);
+    let githubPagesDemo = null;
+    let production = null;
 
-    console.info('Notion webhook deploy dispatched', {
+    if (productionResult.status === 'fulfilled') {
+      production = productionResult.value;
+    } else {
+      console.warn('Notion webhook production reconcile dispatch failed', {
+        entity_id: payload?.entity?.id ?? null,
+        error: productionResult.reason?.message ?? String(productionResult.reason),
+        event_action: metadata.event_action,
+        event_type: payload?.type ?? null,
+      });
+
+      production = {
+        configured: true,
+        dispatched: false,
+        error: productionResult.reason?.message ?? String(productionResult.reason),
+        failed: true,
+      };
+    }
+
+    if (githubPagesDemoResult.status === 'fulfilled') {
+      githubPagesDemo = githubPagesDemoResult.value;
+    } else {
+      console.warn('Notion webhook GitHub Pages dispatch failed', {
+        entity_id: payload?.entity?.id ?? null,
+        error: githubPagesDemoResult.reason?.message ?? String(githubPagesDemoResult.reason),
+        event_action: metadata.event_action,
+        event_type: payload?.type ?? null,
+      });
+
+      githubPagesDemo = {
+        configured: true,
+        error: githubPagesDemoResult.reason?.message ?? String(githubPagesDemoResult.reason),
+        failed: true,
+      };
+    }
+
+    console.info('Notion webhook reconcile queued', {
       event_action: metadata.event_action,
       event_type: payload?.type ?? null,
+      production_blocked_until: reconcile.state.blocked_until,
+      production_dirty: reconcile.state.dirty,
+      production_failed: Boolean(production?.failed),
+      production_workflow_dispatched: Boolean(production?.dispatched),
       github_pages_configured: Boolean(githubPagesDemo?.configured),
-      vercel_ok: Boolean(vercel),
+      github_pages_failed: Boolean(githubPagesDemo?.failed),
     });
 
     sendJson(response, 202, {
       deploy: {
         githubPagesDemo,
-        vercel,
       },
-      dispatched: true,
       event: metadata,
       event_type: payload.type,
       ok: true,
+      productionReconcile: {
+        blocked_until: reconcile.state.blocked_until,
+        dirty: reconcile.state.dirty,
+        issue_number: reconcile.issueNumber,
+        last_event_at: reconcile.state.last_event_at,
+        workflow: production,
+      },
+      queued: true,
     });
   } catch (error) {
     console.error('Notion webhook dispatch failed', {

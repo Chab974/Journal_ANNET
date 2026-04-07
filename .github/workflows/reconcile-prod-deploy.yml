@@ -1,0 +1,66 @@
+name: Reconcile Journal ANNET production deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      event_type:
+        description: "Notion event type"
+        required: false
+        type: string
+      event_id:
+        description: "Notion event id"
+        required: false
+        type: string
+      entity_id:
+        description: "Notion entity id"
+        required: false
+        type: string
+      event_timestamp:
+        description: "Notion event timestamp"
+        required: false
+        type: string
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: journal-annet-production-reconcile
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          cache: npm
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Reconcile production deploy
+        env:
+          CONTENT_RECONCILE_DEBOUNCE_MINUTES: ${{ vars.CONTENT_RECONCILE_DEBOUNCE_MINUTES }}
+          CONTENT_RECONCILE_STATE_ISSUE_NUMBER: ${{ vars.CONTENT_RECONCILE_STATE_ISSUE_NUMBER }}
+          GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ github.token }}
+          NOTION_AGENDA_DATA_SOURCE_ID: ${{ secrets.NOTION_AGENDA_DATA_SOURCE_ID }}
+          NOTION_MENU_ITEMS_DATA_SOURCE_ID: ${{ secrets.NOTION_MENU_ITEMS_DATA_SOURCE_ID }}
+          NOTION_PUBLICATIONS_DATA_SOURCE_ID: ${{ secrets.NOTION_PUBLICATIONS_DATA_SOURCE_ID }}
+          NOTION_SITE_SECTIONS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTIONS_DATA_SOURCE_ID }}
+          NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          RECONCILE_TRIGGER_SOURCE: ${{ github.event_name == 'workflow_dispatch' && 'webhook' || 'schedule' }}
+          SITE_TIME_ZONE: Europe/Paris
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: node scripts/reconcile-production.mjs
