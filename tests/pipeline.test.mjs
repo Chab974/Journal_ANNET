@@ -352,6 +352,126 @@ test('buildSnapshotsFromSources accepte une clé de section texte pour Section i
   );
 });
 
+test('buildSnapshotsFromSources ne reconstruit pas feature.title depuis Nom quand Titre est vide', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+  const statusProperty = (value) => ({
+    status: { name: value },
+    type: 'status',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [],
+    sectionPages: [
+      {
+        id: 'section-home-hero-1',
+        properties: {
+          'Clé': richTextProperty('home-hero'),
+          'Statut': statusProperty('Publié'),
+          'Titre': titleProperty('Accueil'),
+        },
+        url: 'https://notion.so/section-home-hero-1',
+      },
+    ],
+    sectionItemPages: [
+      {
+        id: 'item-hero-feature-1',
+        properties: {
+          'Description': richTextProperty('Une esthétique inspirée des newsletters visuelles.'),
+          'Groupe': selectProperty('feature'),
+          'Kicker': richTextProperty('Édition locale'),
+          'Nom': titleProperty('Édition locale'),
+          'Section': richTextProperty('home-hero'),
+          'Statut': statusProperty('Publié'),
+          'Titre': richTextProperty(''),
+        },
+      },
+    ],
+  });
+
+  assert.equal(snapshots.siteSections['home-hero'].feature.kicker, 'Édition locale');
+  assert.equal(snapshots.siteSections['home-hero'].feature.description, 'Une esthétique inspirée des newsletters visuelles.');
+  assert.equal(snapshots.siteSections['home-hero'].feature.title, '');
+});
+
+test('buildSnapshotsFromSources construit les sections depuis sections-site-items seul', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+  const statusProperty = (value) => ({
+    status: { name: value },
+    type: 'status',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [],
+    sectionPages: [],
+    sectionItemPages: [
+      {
+        id: 'item-home-hero-quote-1',
+        properties: {
+          'Groupe': selectProperty('field'),
+          'Nom': titleProperty('quote'),
+          'Section': richTextProperty('home-hero'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Une citation pilotée uniquement par Section items.'),
+        },
+      },
+      {
+        id: 'item-footer-legal-right-1',
+        properties: {
+          'Groupe': selectProperty('field'),
+          'Nom': titleProperty('legal_right'),
+          'Section': richTextProperty('footer'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Mention footer portée par Section items.'),
+        },
+      },
+      {
+        id: 'item-home-diffusion-title-1',
+        properties: {
+          'Groupe': selectProperty('field'),
+          'Nom': titleProperty('title'),
+          'Section': richTextProperty('home-diffusion'),
+          'Statut': statusProperty('Publié'),
+          'Texte': richTextProperty('Diffusion pilotée sans Sections site'),
+        },
+      },
+    ],
+  });
+
+  assert.equal(snapshots.siteSections['home-hero'].quote, 'Une citation pilotée uniquement par Section items.');
+  assert.equal(snapshots.siteSections.footer.legalRight, 'Mention footer portée par Section items.');
+  assert.equal(snapshots.siteSections['home-diffusion'].title, 'Diffusion pilotée sans Sections site');
+});
+
 test('buildSnapshotsFromSources exclut les coups de coeur de l’agenda', async () => {
   const snapshots = await buildSnapshotsFromSources({
     agendaPages: [

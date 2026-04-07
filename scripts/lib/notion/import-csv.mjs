@@ -84,12 +84,28 @@ const siteSectionItemHeaders = [
 
 const requiredSiteSectionOrder = ['home-hero', 'home-editorial', 'home-rubriques', 'home-diffusion', 'footer'];
 const sectionItemGroupOrder = new Map([
-  ['home-hero', ['masthead', 'title_line', 'feature', 'editorial', 'stat', 'action']],
-  ['home-editorial', ['highlight', 'action', 'cta_link']],
-  ['home-rubriques', ['item']],
-  ['home-diffusion', ['card']],
-  ['footer', ['card']],
+  ['home-hero', ['masthead', 'title_line', 'feature', 'editorial', 'stat', 'action', 'field']],
+  ['home-editorial', ['highlight', 'action', 'cta_link', 'field']],
+  ['home-rubriques', ['item', 'field']],
+  ['home-diffusion', ['card', 'field']],
+  ['footer', ['card', 'field']],
 ]);
+
+const sectionScalarFieldDefinitions = [
+  { field: 'title', property: 'title' },
+  { field: 'kicker', property: 'kicker' },
+  { field: 'eyebrow', property: 'eyebrow' },
+  { field: 'description', property: 'description' },
+  { field: 'quote', property: 'quote' },
+  { field: 'page_title', property: 'pageTitle' },
+  { field: 'quick_links_eyebrow', property: 'quickLinksEyebrow' },
+  { field: 'subtitle', property: 'subtitle' },
+  { field: 'legal_left', property: 'legalLeft' },
+  { field: 'legal_right', property: 'legalRight' },
+  { field: 'cta_label', property: 'cta_label' },
+  { field: 'cta_href', property: 'cta_href', valueType: 'href' },
+  { field: 'content_html', property: 'content_html' },
+];
 
 const dayOrder = new Map([
   ['lundi', 1],
@@ -530,6 +546,29 @@ function buildRowsFromSectionList(sectionKey, group, items, mapItem) {
   );
 }
 
+function buildSectionFieldRows(sectionKey, section = {}) {
+  const rows = [];
+  let order = 1;
+
+  for (const definition of sectionScalarFieldDefinitions) {
+    const rawValue = section?.[definition.property];
+    const value = asText(rawValue);
+
+    if (!value) {
+      continue;
+    }
+
+    rows.push(buildSiteSectionItemRow(sectionKey, 'field', order, {
+      href: definition.valueType === 'href' ? value : '',
+      name: definition.field,
+      text: definition.valueType === 'href' ? '' : value,
+    }));
+    order += 1;
+  }
+
+  return rows;
+}
+
 function buildSiteSectionItemRows(siteSections) {
   const sections = siteSections && typeof siteSections === 'object' ? siteSections : {};
   const missingKeys = requiredSiteSectionOrder.filter((key) => !sections[key]);
@@ -656,6 +695,10 @@ function buildSiteSectionItemRows(siteSections) {
             kicker: item?.kicker,
             name: item?.kicker || `Carte ${index + 1}`,
           })));
+          break;
+
+        case `${sectionKey}:field`:
+          rows.push(...buildSectionFieldRows(sectionKey, section));
           break;
 
         default:

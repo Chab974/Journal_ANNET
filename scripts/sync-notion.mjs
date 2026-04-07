@@ -18,7 +18,9 @@ const [
   queryDataSourcePages(notion, syncConfig.dataSourceIds.publications),
   queryDataSourcePages(notion, syncConfig.dataSourceIds.agenda),
   queryDataSourcePages(notion, syncConfig.dataSourceIds.menuItems),
-  queryDataSourcePages(notion, syncConfig.dataSourceIds.siteSections),
+  syncConfig.dataSourceIds.siteSections
+    ? queryDataSourcePages(notion, syncConfig.dataSourceIds.siteSections)
+    : Promise.resolve([]),
   syncConfig.dataSourceIds.sectionItems
     ? queryDataSourcePages(notion, syncConfig.dataSourceIds.sectionItems)
     : Promise.resolve([]),

@@ -109,7 +109,7 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
   assert.equal(tables.agenda.rows.length, 15);
   assert.equal(tables.cantine.rows.length, 17);
   assert.equal(tables.sections.rows.length, 5);
-  assert.equal(tables.sectionItems.rows.length, 29);
+  assert.equal(tables.sectionItems.rows.length, 44);
 
   assert.equal(tables.publications.rows[0]['Ordre manuel'], '1');
   assert.equal(tables.publications.rows[9]['Ordre manuel'], '10');
@@ -193,6 +193,34 @@ test('buildNotionImportTables reconstruit des tables CSV coherentes depuis les s
   assert.equal(
     tables.sectionItems.rows.find((row) => row.Section === 'home-editorial' && row.Groupe === 'cta_link' && row.Ordre === '5').Texte,
     'Agenda du village',
+  );
+  assert.deepEqual(
+    tables.sectionItems.rows.find((row) => row.Section === 'home-hero' && row.Groupe === 'field' && row.Nom === 'quote'),
+    {
+      'Description': '',
+      'Emoji': '',
+      'Eyebrow': '',
+      'Groupe': 'field',
+      'Kicker': '',
+      'Lien': '',
+      'Nom': 'quote',
+      'Ordre': '1',
+      'Section': 'home-hero',
+      'Statut': 'Publié',
+      'Texte': "L'actualité du village, claire, utile et bien envoyée.",
+      'Theme': '',
+      'Titre': '',
+      'Valeur': '',
+      'Variant': '',
+    },
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'footer' && row.Groupe === 'field' && row.Nom === 'legal_right').Texte,
+    'Une initiative citoyenne pour renouer le dialogue',
+  );
+  assert.equal(
+    tables.sectionItems.rows.find((row) => row.Section === 'home-diffusion' && row.Groupe === 'field' && row.Nom === 'title').Texte,
+    'Stratégie de Diffusion',
   );
 });
 

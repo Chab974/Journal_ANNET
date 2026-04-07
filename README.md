@@ -134,9 +134,12 @@ cp .env.example .env
 - `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` si tu utilises la base `Section items`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 - `SITE_TIME_ZONE`
+
+Variable optionnelle :
+
+- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID` pour garder la base legacy `Sections site`
 
 Valeur recommandée :
 
@@ -168,15 +171,14 @@ GITHUB_WORKFLOW_REF=main
 
 ## 6. Préparer Notion
 
-Le pipeline attend 4 data sources principales :
+Le pipeline attend 3 data sources principales et 1 base de sections recommandée :
 
 1. `Publications`
 2. `Agenda`
 3. `cantine_scolaire`
-4. `Sections site`
-Une 5e base optionnelle peut enrichir les sections de site :
+4. `Section items`
 
-5. `Section items`
+La base legacy `Sections site` reste supportée, mais elle est désormais optionnelle.
 
 ### Étape 1 - Créer l’intégration Notion
 
@@ -186,7 +188,7 @@ Dans Notion Developers :
 2. activer la lecture du contenu
 3. récupérer le token
 
-### Étape 2 - Partager les 4 data sources principales
+### Étape 2 - Partager les data sources utilisées
 
 Pour chaque data source :
 
@@ -194,7 +196,8 @@ Pour chaque data source :
 2. ouvrir `Add connections`
 3. ajouter l’intégration
 
-Si tu utilises `Section items`, partage aussi cette base avec l’intégration.
+Partage au minimum `Publications`, `Agenda`, `cantine_scolaire` et `Section items`.
+Si tu gardes `Sections site` en mode legacy, partage aussi cette base.
 
 ### Étape 3 - Renseigner les IDs
 
@@ -202,12 +205,18 @@ Si tu utilises `Section items`, partage aussi cette base avec l’intégration.
 NOTION_PUBLICATIONS_DATA_SOURCE_ID=...
 NOTION_AGENDA_DATA_SOURCE_ID=...
 NOTION_MENU_ITEMS_DATA_SOURCE_ID=...
-NOTION_SITE_SECTIONS_DATA_SOURCE_ID=...
-NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID=... # optionnel
+NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID=...
+NOTION_SITE_SECTIONS_DATA_SOURCE_ID=... # optionnel legacy
 ```
 
 La variable `NOTION_MENU_ITEMS_DATA_SOURCE_ID` garde ce nom technique dans le code, mais la base Notion peut etre nommee `cantine_scolaire`.
-La base `Section items` contient les lignes répétées des sections de site: `actions`, `stats`, `cards`, `ctaLinks`, `masthead`, `titleLines`, `feature`, `editorial` et `highlight`. Si cette variable n’est pas renseignée, le build garde les valeurs par défaut et le JSON porté par chaque section.
+La base `Section items` peut maintenant piloter seule les sections du site. Elle porte à la fois :
+
+- les groupes structurés : `actions`, `stats`, `cards`, `ctaLinks`, `masthead`, `titleLines`, `feature`, `editorial`, `highlight`
+- les champs scalaires via `Groupe = field`, par exemple `title`, `description`, `quote`, `legal_left`, `legal_right`, `cta_label`, `cta_href`
+
+Si `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` n’est pas renseignée, le build garde uniquement les valeurs par défaut versionnées.
+Si `NOTION_SITE_SECTIONS_DATA_SOURCE_ID` n’est pas renseignée, la colonne `Section` de `Section items` doit contenir une clé texte comme `home-hero`, `home-editorial`, `home-rubriques`, `home-diffusion` ou `footer`.
 
 Pour la pré-remplir rapidement :
 
@@ -216,7 +225,7 @@ npm run generate:notion-imports
 ```
 
 Puis importe [`notion-imports/sections-site-items.csv`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/notion-imports/sections-site-items.csv) dans la base `Section items`.
-La colonne `Section` peut maintenant être soit une vraie relation vers `Sections site`, soit une clé texte comme `home-hero`, `home-editorial`, `home-rubriques`, `home-diffusion` ou `footer`.
+La colonne `Section` peut être soit une vraie relation vers `Sections site`, soit une clé texte comme `home-hero`, `home-editorial`, `home-rubriques`, `home-diffusion` ou `footer`.
 
 ## 7. Générer les snapshots
 
@@ -228,8 +237,9 @@ npm run sync:notion
 
 Cette commande :
 
-- interroge les 4 data sources principales
+- interroge `Publications`, `Agenda` et `cantine_scolaire`
 - interroge `Section items` si la variable associée est renseignée
+- interroge `Sections site` seulement si la variable legacy est renseignée
 - filtre les contenus non publiés
 - reconstruit les données de cantine
 - résout les relations agenda -> publication
@@ -302,12 +312,12 @@ Ajouter au minimum :
 - `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 - `SITE_TIME_ZONE`
 - `NOTION_WEBHOOK_VERIFICATION_TOKEN`
 - `VERCEL_DEPLOY_HOOK_URL`
 
-Ajoute aussi `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` si tu utilises la base `Section items` pour piloter les cartes, actions, stats ou autres répétitions des sections.
+Ajoute aussi `NOTION_SITE_SECTIONS_DATA_SOURCE_ID` si tu conserves la base legacy `Sections site`.
 
 Si tu veux aussi que le webhook Notion relance GitHub Pages, ajoute en plus les variables GitHub optionnelles dans Vercel.
 
@@ -329,9 +339,9 @@ Ajouter :
 - `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
-- `NOTION_SITE_SECTIONS_DATA_SOURCE_ID`
+- `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
 
-Ajoute aussi `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID` si le workflow GitHub Pages doit reconstruire ces éléments structurés depuis Notion.
+Ajoute aussi `NOTION_SITE_SECTIONS_DATA_SOURCE_ID` si le workflow GitHub Pages doit encore lire la base legacy `Sections site`.
 
 ### Étape 3 - Laisser le workflow déployer la démo
 

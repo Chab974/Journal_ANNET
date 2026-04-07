@@ -163,6 +163,10 @@ function normalizeSectionItemGroup(value) {
   return slugify(value).replaceAll('-', '_');
 }
 
+function normalizeSectionScalarField(value) {
+  return slugify(value).replaceAll('-', '_');
+}
+
 function sortStructuredSectionItems(items) {
   return ensureArray(items).slice().sort((left, right) => {
     const order = compareOptionalNumbers(left.order, right.order);
@@ -314,8 +318,8 @@ function parseJsonPayload(rawValue, warnings, label) {
   }
 }
 
-function buildSectionIdByKeyMap(sectionPages) {
-  const sectionIdsByKey = new Map();
+function buildSectionKeyByIdMap(sectionPages) {
+  const sectionKeyById = new Map();
 
   for (const page of ensureArray(sectionPages)) {
     if (!isPublished(page, sectionFieldCandidates.status)) {
@@ -327,14 +331,14 @@ function buildSectionIdByKeyMap(sectionPages) {
       continue;
     }
 
-    sectionIdsByKey.set(key, page.id);
+    sectionKeyById.set(page.id, key);
   }
 
-  return sectionIdsByKey;
+  return sectionKeyById;
 }
 
-function buildSectionItemsMap(sectionItemPages, sectionIdsByKey, warnings) {
-  const itemsBySectionId = new Map();
+function buildSectionItemsMap(sectionItemPages, sectionKeyById, warnings) {
+  const itemsBySectionKey = new Map();
 
   for (const page of ensureArray(sectionItemPages)) {
     if (!isPublished(page, sectionItemFieldCandidates.status)) {
@@ -343,11 +347,13 @@ function buildSectionItemsMap(sectionItemPages, sectionIdsByKey, warnings) {
 
     const relatedSectionId = readRelationId(page, sectionItemFieldCandidates.relation);
     const rawSectionKey = slugify(readFirstText(page, sectionItemFieldCandidates.relation));
-    const sectionId = relatedSectionId || sectionIdsByKey.get(rawSectionKey) || '';
+    const sectionKey = rawSectionKey || sectionKeyById.get(relatedSectionId) || '';
 
-    if (!sectionId) {
+    if (!sectionKey) {
       if (rawSectionKey) {
         warnings.push(`Élément de section ${page.id} ignoré: section "${rawSectionKey}" inconnue.`);
+      } else if (relatedSectionId) {
+        warnings.push(`Élément de section ${page.id} ignoré: relation de section "${relatedSectionId}" non résolue. Utilise une clé texte si la base "Sections site" n'est plus branchée.`);
       } else {
         warnings.push(`Élément de section ${page.id} ignoré: section liée absente.`);
       }
@@ -377,20 +383,72 @@ function buildSectionItemsMap(sectionItemPages, sectionIdsByKey, warnings) {
       variant: readFirstText(page, sectionItemFieldCandidates.variant),
     };
 
-    if (!itemsBySectionId.has(sectionId)) {
-      itemsBySectionId.set(sectionId, []);
+    if (!itemsBySectionKey.has(sectionKey)) {
+      itemsBySectionKey.set(sectionKey, []);
     }
 
-    itemsBySectionId.get(sectionId).push(item);
+    itemsBySectionKey.get(sectionKey).push(item);
   }
 
-  return itemsBySectionId;
+  return itemsBySectionKey;
 }
 
 function getSortedGroupItems(sectionItems, group) {
   return sortStructuredSectionItems(
     ensureArray(sectionItems).filter((item) => item.group === group),
   );
+}
+
+function getSectionScalarItems(sectionItems) {
+  return sortStructuredSectionItems(
+    ensureArray(sectionItems).filter((item) => item.group === 'field'),
+  );
+}
+
+function readSectionScalarItemValue(item) {
+  return item.href || item.text || item.description || item.title || item.value || item.kicker || item.eyebrow || '';
+}
+
+function applyScalarSectionItems(sectionKey, baseSection, sectionItems, warnings) {
+  const scalarDefinitions = [
+    ['title', 'title'],
+    ['kicker', 'kicker'],
+    ['eyebrow', 'eyebrow'],
+    ['description', 'description'],
+    ['quote', 'quote'],
+    ['page_title', 'pageTitle'],
+    ['quick_links_eyebrow', 'quickLinksEyebrow'],
+    ['subtitle', 'subtitle'],
+    ['legal_left', 'legalLeft'],
+    ['legal_right', 'legalRight'],
+    ['cta_label', 'cta_label'],
+    ['cta_href', 'cta_href'],
+    ['content_html', 'content_html'],
+  ];
+  const scalarItems = getSectionScalarItems(sectionItems);
+  if (scalarItems.length === 0) {
+    return baseSection;
+  }
+
+  const section = { ...baseSection };
+
+  for (const [fieldKey, propertyName] of scalarDefinitions) {
+    const matches = scalarItems.filter((item) =>
+      normalizeSectionScalarField(item.name || item.title || item.text) === fieldKey,
+    );
+
+    if (matches.length === 0) {
+      continue;
+    }
+
+    if (matches.length > 1) {
+      warnings.push(`Section ${sectionKey}: champ scalaire "${fieldKey}" multiple, première entrée conservée.`);
+    }
+
+    section[propertyName] = readSectionScalarItemValue(matches[0]);
+  }
+
+  return section;
 }
 
 function pickSingularGroupItem(sectionItems, group, sectionKey, warnings) {
@@ -424,7 +482,7 @@ function buildFeatureSectionItem(item, fallback = {}) {
   return {
     description: item.description || fallback.description || '',
     kicker: item.kicker || item.eyebrow || fallback.kicker || '',
-    title: item.title || item.text || item.name || fallback.title || '',
+    title: item.title || item.text || fallback.title || '',
   };
 }
 
@@ -742,9 +800,9 @@ function enrichPublicationsWithAgenda(publications, agenda) {
 
 async function buildSiteSections(sectionPages, sectionItemPages, context) {
   const sections = structuredClone(defaultSiteSections);
-  const sectionIdsByKey = buildSectionIdByKeyMap(sectionPages);
-  const itemsBySectionId = buildSectionItemsMap(sectionItemPages, sectionIdsByKey, context.warnings);
-  const seenSectionIds = new Set();
+  const sectionKeyById = buildSectionKeyByIdMap(sectionPages);
+  const itemsBySectionKey = buildSectionItemsMap(sectionItemPages, sectionKeyById, context.warnings);
+  const seenSectionKeys = new Set();
 
   for (const page of ensureArray(sectionPages)) {
     if (!isPublished(page, sectionFieldCandidates.status)) {
@@ -823,21 +881,28 @@ async function buildSiteSections(sectionPages, sectionItemPages, context) {
       title: readTitle(page, sectionFieldCandidates.title) || payload.title || sections[key]?.title || key,
     };
 
-    seenSectionIds.add(page.id);
+    seenSectionKeys.add(key);
+    const sectionItems = itemsBySectionKey.get(key) ?? [];
     sections[key] = applyStructuredSectionItems(
       key,
-      baseSection,
-      itemsBySectionId.get(page.id) ?? [],
+      applyScalarSectionItems(key, baseSection, sectionItems, context.warnings),
+      sectionItems,
       context.warnings,
     );
   }
 
-  for (const [sectionId, items] of itemsBySectionId.entries()) {
-    if (!seenSectionIds.has(sectionId)) {
-      for (const item of items) {
-        context.warnings.push(`Élément de section ${item.id} ignoré: section liée inconnue ou non publiée.`);
-      }
+  for (const [sectionKey, items] of itemsBySectionKey.entries()) {
+    if (seenSectionKeys.has(sectionKey)) {
+      continue;
     }
+
+    const baseSection = sections[sectionKey] ?? {};
+    sections[sectionKey] = applyStructuredSectionItems(
+      sectionKey,
+      applyScalarSectionItems(sectionKey, baseSection, items, context.warnings),
+      items,
+      context.warnings,
+    );
   }
 
   return sections;
