@@ -24,9 +24,8 @@ import {
   propertyToPlainText,
   propertyToRelationIds,
 } from './property-helpers.mjs';
-
-const publishedStatusSlugs = new Set(['publie', 'published', 'public']);
-const publicationTypeDefaults = {
+import { defaultStatusCandidates, isPublishedStatusValue, readPublicationStatus } from './publication-status.mjs';
+export const publicationTypeDefaults = {
   alerte: 'Travaux et mobilité',
   cantine: 'Scolaire',
   coup_de_coeur: 'Coup de cœur littéraire',
@@ -43,7 +42,7 @@ const dayOrder = new Map([
   ['dimanche', 7],
 ]);
 
-const publicationFieldCandidates = {
+export const publicationFieldCandidates = {
   author: ['Auteur', 'Autrice'],
   coverImage: ['Couverture', 'Image', 'Visuel', 'Images', 'Cover image'],
   displayDate: ['Date affichée', 'Date', 'Publication'],
@@ -191,12 +190,7 @@ function isPublished(page, candidates) {
     return false;
   }
 
-  const status = readFirstText(page, candidates);
-  if (!status) {
-    return true;
-  }
-
-  return publishedStatusSlugs.has(slugify(status));
+  return isPublishedStatusValue(readPublicationStatus(page, candidates || defaultStatusCandidates));
 }
 
 async function resolveFiles(files, { mediaResolver, pageId, title, warnings }) {

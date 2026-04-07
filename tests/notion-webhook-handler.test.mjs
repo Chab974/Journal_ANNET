@@ -88,10 +88,11 @@ async function importWebhookHandler(label) {
   return (await import(moduleUrl.href)).default;
 }
 
-test('notionWebhook enregistre l’état durable et déclenche le workflow de réconciliation prod', async () => {
+test('notionWebhook enregistre l’état durable et déclenche le workflow de réconciliation prod', { concurrency: false }, async () => {
   const issueNumber = 17;
   let patchedIssueBody = '';
   const calls = [];
+  let dispatchBody = null;
 
   await withEnv(
     {
@@ -119,6 +120,24 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
           });
         }
 
+        if (url.endsWith('/pages/page-1') && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            id: 'page-1',
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'data_source_id',
+            },
+            properties: {
+              Statut: {
+                status: {
+                  name: 'Publication immédiate',
+                },
+                type: 'status',
+              },
+            },
+          });
+        }
+
         if (url.endsWith(`/issues/${issueNumber}`) && options.method === 'PATCH') {
           patchedIssueBody = JSON.parse(options.body).body;
           return jsonResponse({
@@ -128,6 +147,7 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
         }
 
         if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
+          dispatchBody = JSON.parse(options.body);
           return emptyResponse(204);
         }
 
@@ -152,16 +172,18 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
         await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
 
         assert.equal(response.statusCode, 202);
-        assert.equal(calls.length, 3);
+        assert.equal(calls.length, 4);
 
         const persistedState = parseProductionReconcileState(patchedIssueBody);
         assert.equal(persistedState.dirty, true);
         assert.equal(persistedState.last_event_at, '2026-04-08T08:00:00.000Z');
         assert.equal(persistedState.last_entity_id, 'page-1');
+        assert.equal(dispatchBody.inputs.run_mode, 'immediate');
 
         const payload = JSON.parse(response.body);
         assert.equal(payload.ok, true);
         assert.equal(payload.productionReconcile.issue_number, issueNumber);
+        assert.equal(payload.productionReconcile.run_mode, 'immediate');
         assert.equal(payload.productionReconcile.workflow.dispatched, true);
       } finally {
         global.fetch = originalFetch;
@@ -170,7 +192,7 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
   );
 });
 
-test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', async () => {
+test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', { concurrency: false }, async () => {
   const issueNumber = 21;
   const blockedStateBody = serializeProductionReconcileState({
     blocked_until: '2026-04-09T08:00:00.000Z',

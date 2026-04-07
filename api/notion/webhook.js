@@ -23,6 +23,7 @@ import {
 } from '../../scripts/lib/github-api.mjs';
 import { readRawRequestBody } from '../../scripts/lib/request-body.mjs';
 import { createNotionClient, retrievePage } from '../../scripts/lib/notion/client.mjs';
+import { isImmediatePublicationPage } from '../../scripts/lib/notion/publication-status.mjs';
 
 const allowedDataSourceIds = [
   process.env.NOTION_PUBLICATIONS_DATA_SOURCE_ID,
@@ -88,7 +89,7 @@ async function recordProductionReconcileState(metadata) {
   };
 }
 
-async function triggerProductionReconcile(metadata, state) {
+async function triggerProductionReconcile(metadata, state, { runMode = 'webhook' } = {}) {
   if (isProductionReconcileBlocked(state)) {
     return {
       blocked_until: state.blocked_until,
@@ -100,7 +101,10 @@ async function triggerProductionReconcile(metadata, state) {
 
   const workflowConfig = resolveProductionWorkflowDispatchConfig();
   const workflow = await dispatchProductionReconcileWorkflow(workflowConfig, {
-    inputs: metadata,
+    inputs: {
+      run_mode: runMode,
+      ...metadata,
+    },
   });
 
   return {
@@ -162,12 +166,24 @@ export default async function notionWebhook(request, response) {
   });
 
   const notion = createNotionClient();
+  let resolvedPagePromise = null;
+  const resolveEventPage = async () => {
+    if (!payload?.type?.startsWith('page.') || payload?.type === 'page.deleted') {
+      return null;
+    }
+
+    if (!resolvedPagePromise) {
+      resolvedPagePromise = retrievePage(notion, payload?.entity?.id).catch(() => null);
+    }
+
+    return resolvedPagePromise;
+  };
   const isRelevantEvent =
     isRelevantNotionEvent(payload, allowedDataSourceIds) ||
     (await isRelevantNotionEventWithResolver(
       payload,
       allowedDataSourceIds,
-      async (pageId) => retrievePage(notion, pageId),
+      async () => resolveEventPage(),
     ));
 
   if (!isRelevantEvent) {
@@ -187,11 +203,13 @@ export default async function notionWebhook(request, response) {
 
   try {
     const metadata = toDispatchMetadata(payload);
+    const eventPage = await resolveEventPage();
+    const runMode = isImmediatePublicationPage(eventPage) ? 'immediate' : 'webhook';
     console.info('Notion webhook enqueueing production reconcile', metadata);
     const reconcile = await recordProductionReconcileState(metadata);
 
     const [productionResult, githubPagesDemoResult] = await Promise.allSettled([
-      triggerProductionReconcile(metadata, reconcile.state),
+      triggerProductionReconcile(metadata, reconcile.state, { runMode }),
       triggerGitHubPagesDemo(metadata),
     ]);
     let githubPagesDemo = null;
@@ -238,6 +256,7 @@ export default async function notionWebhook(request, response) {
       production_blocked_until: reconcile.state.blocked_until,
       production_dirty: reconcile.state.dirty,
       production_failed: Boolean(production?.failed),
+      production_run_mode: runMode,
       production_workflow_dispatched: Boolean(production?.dispatched),
       github_pages_configured: Boolean(githubPagesDemo?.configured),
       github_pages_failed: Boolean(githubPagesDemo?.failed),
@@ -255,6 +274,7 @@ export default async function notionWebhook(request, response) {
         dirty: reconcile.state.dirty,
         issue_number: reconcile.issueNumber,
         last_event_at: reconcile.state.last_event_at,
+        run_mode: runMode,
         workflow: production,
       },
       queued: true,

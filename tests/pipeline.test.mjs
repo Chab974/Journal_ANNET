@@ -385,6 +385,49 @@ test('buildSnapshotsFromSources publie uniquement les contenus au statut select 
   );
 });
 
+test('buildSnapshotsFromSources publie aussi les contenus au statut select Publication immédiate', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [],
+    cantinePages: [],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [
+      {
+        id: 'publication-immediate-1',
+        last_edited_time: '2026-04-07T10:00:00.000Z',
+        properties: {
+          'Résumé': richTextProperty('Résumé publication-immediate-1'),
+          'Rubrique': selectProperty('Vie locale'),
+          'Statut': selectProperty('Publication immédiate'),
+          'Titre': titleProperty('Titre publication-immediate-1'),
+          'Type': selectProperty('info'),
+        },
+        url: 'https://notion.so/publication-immediate-1',
+      },
+    ],
+    sectionPages: [],
+    sectionItemPages: [],
+  });
+
+  assert.deepEqual(
+    snapshots.publications.map((publication) => publication.id),
+    ['publication-immediate-1'],
+  );
+});
+
 test('buildSnapshotsFromSources accepte une clé de section texte pour Section items', async () => {
   const titleProperty = (value) => ({
     title: [{ plain_text: value }],
