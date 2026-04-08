@@ -377,6 +377,113 @@ test('notionWebhook traite un page.deleted via l’index local quand Notion ne p
   );
 });
 
+test('notionWebhook traite une page existante via l’index local quand la lecture Notion échoue', { concurrency: false }, async () => {
+  const issueNumber = 24;
+  let patchedIssueBody = '';
+  let pageReadAttempts = 0;
+  const calls = [];
+  let dispatchBody = null;
+
+  await withTrackedPageIndex(
+    {
+      generated_at: '2026-04-08T18:05:00.000Z',
+      page_sources: {
+        'page-existing': 'publications',
+      },
+      schema_version: 1,
+    },
+    async () => {
+      await withEnv(
+        {
+          CONTENT_RECONCILE_STATE_ISSUE_NUMBER: String(issueNumber),
+          GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
+          GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
+          GITHUB_REPOSITORY_NAME: 'Journal_ANNET',
+          GITHUB_REPOSITORY_OWNER: 'Chab974',
+          GITHUB_WEBHOOK_TOKEN: 'gh_secret',
+          NOTION_PUBLICATIONS_DATA_SOURCE_ID: 'ds-publications',
+          NOTION_TOKEN: 'secret_notion',
+          NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+        },
+        async () => {
+          const notionWebhook = await importWebhookHandler(`tracked-page-fallback-${Date.now()}`);
+          const originalFetch = global.fetch;
+
+          global.fetch = async (url, options = {}) => {
+            calls.push({ method: options.method || 'GET', url });
+
+            if (url.endsWith(`/issues/${issueNumber}`) && (options.method || 'GET') === 'GET') {
+              return jsonResponse({
+                body: '',
+                number: issueNumber,
+              });
+            }
+
+            if (url.endsWith('/pages/page-existing') && (options.method || 'GET') === 'GET') {
+              pageReadAttempts += 1;
+              return {
+                headers: { get: () => 'application/json; charset=utf-8' },
+                json: async () => ({ code: 'object_not_found' }),
+                ok: false,
+                status: 404,
+                text: async () => JSON.stringify({ code: 'object_not_found' }),
+              };
+            }
+
+            if (url.endsWith(`/issues/${issueNumber}`) && options.method === 'PATCH') {
+              patchedIssueBody = JSON.parse(options.body).body;
+              return jsonResponse({
+                body: patchedIssueBody,
+                number: issueNumber,
+              });
+            }
+
+            if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
+              dispatchBody = JSON.parse(options.body);
+              return emptyResponse(204);
+            }
+
+            throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+          };
+
+          try {
+            const rawBody = JSON.stringify({
+              data: {
+                parent: {
+                  id: 'workspace-1',
+                  type: 'workspace',
+                },
+              },
+              entity: { id: 'page-existing', type: 'page' },
+              id: 'event-existing-fallback',
+              timestamp: '2026-04-08T18:07:00.000Z',
+              type: 'page.properties_updated',
+            });
+
+            const response = createResponse();
+            await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+            assert.equal(response.statusCode, 202);
+            assert.equal(pageReadAttempts, 3);
+
+            const persistedState = parseProductionReconcileState(patchedIssueBody);
+            assert.equal(persistedState.dirty, true);
+            assert.equal(persistedState.last_event_type, 'page.properties_updated');
+            assert.equal(dispatchBody.inputs.run_mode, 'webhook');
+
+            const payload = JSON.parse(response.body);
+            assert.equal(payload.ok, true);
+            assert.equal(payload.productionReconcile.issue_number, issueNumber);
+            assert.equal(payload.productionReconcile.workflow.dispatched, true);
+          } finally {
+            global.fetch = originalFetch;
+          }
+        },
+      );
+    },
+  );
+});
+
 test('notionWebhook réessaie la lecture d’une page créée avant de la classer hors périmètre', { concurrency: false }, async () => {
   const issueNumber = 25;
   let patchedIssueBody = '';
@@ -467,6 +574,102 @@ test('notionWebhook réessaie la lecture d’une page créée avant de la classe
           entity: { id: 'page-created', type: 'page' },
           id: 'event-created-retry',
           timestamp: '2026-04-08T18:15:00.000Z',
+          type: 'page.created',
+        });
+
+        const response = createResponse();
+        await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+        assert.equal(response.statusCode, 202);
+        assert.equal(pageReadAttempts, 3);
+
+        const persistedState = parseProductionReconcileState(patchedIssueBody);
+        assert.equal(persistedState.dirty, true);
+        assert.equal(persistedState.last_event_type, 'page.created');
+        assert.equal(dispatchBody.inputs.run_mode, 'webhook');
+
+        const payload = JSON.parse(response.body);
+        assert.equal(payload.ok, true);
+        assert.equal(payload.productionReconcile.issue_number, issueNumber);
+        assert.equal(payload.productionReconcile.workflow.dispatched, true);
+      } finally {
+        global.fetch = originalFetch;
+      }
+    },
+  );
+});
+
+test('notionWebhook réconcilie un page.created même si la page reste irrésolvable après retry', { concurrency: false }, async () => {
+  const issueNumber = 26;
+  let patchedIssueBody = '';
+  let pageReadAttempts = 0;
+  const calls = [];
+  let dispatchBody = null;
+
+  await withEnv(
+    {
+      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: String(issueNumber),
+      GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
+      GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
+      GITHUB_REPOSITORY_NAME: 'Journal_ANNET',
+      GITHUB_REPOSITORY_OWNER: 'Chab974',
+      GITHUB_WEBHOOK_TOKEN: 'gh_secret',
+      NOTION_PUBLICATIONS_DATA_SOURCE_ID: 'ds-publications',
+      NOTION_TOKEN: 'secret_notion',
+      NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+    },
+    async () => {
+      const notionWebhook = await importWebhookHandler(`page-created-fail-open-${Date.now()}`);
+      const originalFetch = global.fetch;
+
+      global.fetch = async (url, options = {}) => {
+        calls.push({ method: options.method || 'GET', url });
+
+        if (url.endsWith(`/issues/${issueNumber}`) && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            body: '',
+            number: issueNumber,
+          });
+        }
+
+        if (url.endsWith('/pages/page-created-unresolved') && (options.method || 'GET') === 'GET') {
+          pageReadAttempts += 1;
+          return {
+            headers: { get: () => 'application/json; charset=utf-8' },
+            json: async () => ({ code: 'object_not_found' }),
+            ok: false,
+            status: 404,
+            text: async () => JSON.stringify({ code: 'object_not_found' }),
+          };
+        }
+
+        if (url.endsWith(`/issues/${issueNumber}`) && options.method === 'PATCH') {
+          patchedIssueBody = JSON.parse(options.body).body;
+          return jsonResponse({
+            body: patchedIssueBody,
+            number: issueNumber,
+          });
+        }
+
+        if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
+          dispatchBody = JSON.parse(options.body);
+          return emptyResponse(204);
+        }
+
+        throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+      };
+
+      try {
+        const rawBody = JSON.stringify({
+          data: {
+            parent: {
+              id: 'workspace-1',
+              type: 'workspace',
+            },
+          },
+          entity: { id: 'page-created-unresolved', type: 'page' },
+          id: 'event-created-fail-open',
+          timestamp: '2026-04-08T18:20:00.000Z',
           type: 'page.created',
         });
 

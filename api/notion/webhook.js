@@ -224,8 +224,8 @@ export default async function notionWebhook(request, response) {
 
     return resolvedPagePromise;
   };
-  const resolveDeletedPageSource = async () => {
-    if (payload?.type !== 'page.deleted') {
+  const resolveTrackedPageSource = async () => {
+    if (!payload?.type?.startsWith('page.')) {
       return '';
     }
 
@@ -235,33 +235,36 @@ export default async function notionWebhook(request, response) {
 
     return getTrackedPageSource(await trackedPageIndexPromise, payload?.entity?.id);
   };
-  const deletedPageSource = await resolveDeletedPageSource();
+  const trackedPageSource = await resolveTrackedPageSource();
+  const allowUnresolvedCreatedPage = payload?.type === 'page.created';
 
   console.info('Notion webhook event received', {
     event_action: getNotionEventActionLabel(payload?.type),
     attempt_number: payload?.attempt_number ?? null,
     entity_id: payload?.entity?.id ?? null,
     event_type: payload?.type ?? null,
-    known_deleted_page_source: deletedPageSource || null,
+    tracked_page_source: trackedPageSource || null,
+    unresolved_page_created_fallback: allowUnresolvedCreatedPage,
     parent_data_source_id: payload?.data?.parent?.data_source_id ?? null,
     parent_id: payload?.data?.parent?.id ?? null,
     parent_type: payload?.data?.parent?.type ?? null,
   });
   const isRelevantEvent =
-    Boolean(deletedPageSource) ||
+    Boolean(trackedPageSource) ||
     isRelevantNotionEvent(payload, allowedDataSourceIds) ||
     (await isRelevantNotionEventWithResolver(
       payload,
       allowedDataSourceIds,
       async () => resolveEventPage(),
-    ));
+    )) ||
+    allowUnresolvedCreatedPage;
 
   if (!isRelevantEvent) {
     console.info('Notion webhook ignored', {
       event_action: getNotionEventActionLabel(payload?.type),
       entity_id: payload?.entity?.id ?? null,
       event_type: payload?.type ?? null,
-      known_deleted_page_source: deletedPageSource || null,
+      tracked_page_source: trackedPageSource || null,
       reason: 'event_out_of_scope',
     });
     sendJson(response, 202, {
