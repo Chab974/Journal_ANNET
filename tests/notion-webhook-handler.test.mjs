@@ -357,3 +357,79 @@ test('notionWebhook utilise les variables de dépôt fournies par Vercel quand l
     },
   );
 });
+
+test('notionWebhook répond 202 même si l’état durable GitHub ne peut pas être enregistré', { concurrency: false }, async () => {
+  const calls = [];
+  let dispatchBody = null;
+
+  await withEnv(
+    {
+      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: undefined,
+      GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
+      GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
+      GITHUB_REPOSITORY_NAME: 'Journal_ANNET',
+      GITHUB_REPOSITORY_OWNER: 'Chab974',
+      GITHUB_WEBHOOK_TOKEN: 'gh_secret',
+      NOTION_PUBLICATIONS_DATA_SOURCE_ID: 'ds-publications',
+      NOTION_TOKEN: 'secret_notion',
+      NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+    },
+    async () => {
+      const notionWebhook = await importWebhookHandler(`degraded-state-${Date.now()}`);
+      const originalFetch = global.fetch;
+
+      global.fetch = async (url, options = {}) => {
+        calls.push({ method: options.method || 'GET', url });
+
+        if (url.endsWith('/pages/page-4') && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            id: 'page-4',
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'data_source_id',
+            },
+            properties: {},
+          });
+        }
+
+        if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
+          dispatchBody = JSON.parse(options.body);
+          return emptyResponse(204);
+        }
+
+        throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+      };
+
+      try {
+        const rawBody = JSON.stringify({
+          data: {
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'workspace',
+            },
+          },
+          entity: { id: 'page-4', type: 'page' },
+          id: 'event-4',
+          timestamp: '2026-04-08T09:30:00.000Z',
+          type: 'page.properties_updated',
+        });
+
+        const response = createResponse();
+        await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+        assert.equal(response.statusCode, 202);
+        assert.equal(calls.length, 2);
+        assert.equal(dispatchBody.inputs.run_mode, 'webhook');
+
+        const payload = JSON.parse(response.body);
+        assert.equal(payload.ok, true);
+        assert.equal(payload.productionReconcile.state_persisted, false);
+        assert.match(payload.productionReconcile.state_error, /CONTENT_RECONCILE_STATE_ISSUE_NUMBER invalide/);
+        assert.equal(payload.productionReconcile.workflow.dispatched, true);
+        assert.equal(payload.productionReconcile.workflow.degraded, true);
+      } finally {
+        global.fetch = originalFetch;
+      }
+    },
+  );
+});

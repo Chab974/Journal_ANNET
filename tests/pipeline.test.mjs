@@ -428,6 +428,96 @@ test('buildSnapshotsFromSources publie aussi les contenus au statut select Publi
   );
 });
 
+test('buildSnapshotsFromSources résout les publications liées via le helper texte pour agenda et cantine', async () => {
+  const titleProperty = (value) => ({
+    title: [{ plain_text: value }],
+    type: 'title',
+  });
+  const richTextProperty = (value) => ({
+    rich_text: [{ plain_text: value }],
+    type: 'rich_text',
+  });
+  const selectProperty = (value) => ({
+    select: { name: value },
+    type: 'select',
+  });
+  const statusProperty = (value) => ({
+    status: { name: value },
+    type: 'status',
+  });
+
+  const snapshots = await buildSnapshotsFromSources({
+    agendaPages: [
+      {
+        id: 'agenda-helper-1',
+        last_edited_time: '2026-04-07T10:00:00.000Z',
+        properties: {
+          'Date de début': {
+            date: { end: null, start: '2026-04-15T18:00:00.000Z' },
+            type: 'date',
+          },
+          'Publication liée (helper)': richTextProperty('Réunion du village'),
+          'Statut': statusProperty('Publié'),
+          'Titre': titleProperty('Réunion publique'),
+        },
+        url: 'https://notion.so/agenda-helper-1',
+      },
+    ],
+    cantinePages: [
+      {
+        id: 'cantine-helper-1',
+        properties: {
+          'Jour': selectProperty('Lundi'),
+          'Nom': titleProperty('Paëlla végétarienne'),
+          'Publication liée (helper)': richTextProperty('Cantine des familles'),
+          'Statut': statusProperty('Publié'),
+        },
+        url: 'https://notion.so/cantine-helper-1',
+      },
+    ],
+    fetchBlocks: async () => [],
+    mediaResolver: async () => '',
+    publicationPages: [
+      {
+        id: 'publication-cantine-helper-1',
+        last_edited_time: '2026-04-07T10:00:00.000Z',
+        properties: {
+          'Résumé': richTextProperty('Le menu de la semaine.'),
+          'Rubrique': selectProperty('Scolaire'),
+          'Statut': statusProperty('Publié'),
+          'Titre': titleProperty('Cantine des familles'),
+          'Type': selectProperty('cantine'),
+        },
+        url: 'https://notion.so/publication-cantine-helper-1',
+      },
+      {
+        id: 'publication-event-helper-1',
+        last_edited_time: '2026-04-07T10:00:00.000Z',
+        properties: {
+          'Résumé': richTextProperty('Temps d’échange avec les habitants.'),
+          'Rubrique': selectProperty('Vie locale'),
+          'Statut': statusProperty('Publié'),
+          'Titre': titleProperty('Réunion du village'),
+          'Type': selectProperty('evenement'),
+        },
+        url: 'https://notion.so/publication-event-helper-1',
+      },
+    ],
+    sectionPages: [],
+    sectionItemPages: [],
+  });
+
+  assert.equal(snapshots.cantine.length, 1);
+  assert.equal(snapshots.cantine[0].publication_id, 'publication-cantine-helper-1');
+  assert.equal(
+    snapshots.publications.find((publication) => publication.id === 'publication-cantine-helper-1').cantine_jours.length,
+    1,
+  );
+  assert.equal(snapshots.agenda.length, 1);
+  assert.equal(snapshots.agenda[0].post_id, 'publication-event-helper-1');
+  assert.ok(!snapshots.warnings.some((warning) => warning.includes('publication liée absente ou non publiée')));
+});
+
 test('buildSnapshotsFromSources accepte une clé de section texte pour Section items', async () => {
   const titleProperty = (value) => ({
     title: [{ plain_text: value }],

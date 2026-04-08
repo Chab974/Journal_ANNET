@@ -6,6 +6,7 @@ import {
   ensureArray,
   formatLongDate,
   formatTimeRange,
+  normalizeKey,
   slugify,
   splitListText,
   toUtcStamp,
@@ -80,6 +81,14 @@ const agendaFieldCandidates = {
   title: ['Titre', 'Nom', 'Name'],
 };
 
+const publicationRelationHelperCandidates = [
+  'Publication liée (helper)',
+  'Publication liee (helper)',
+  'Publication liée helper',
+  'Publication liee helper',
+  'Publication helper',
+];
+
 const cantineFieldCandidates = {
   badges: ['Badges', 'Labels'],
   day: ['Jour', 'Day'],
@@ -130,6 +139,8 @@ const sectionItemFieldCandidates = {
   variant: ['Variant'],
 };
 
+const ambiguousPublicationLookup = Symbol('ambiguousPublicationLookup');
+
 function readFirstText(page, candidates) {
   const property = findProperty(page, candidates);
   return propertyToPlainText(property).trim();
@@ -157,6 +168,97 @@ function readDateValue(page, candidates) {
 
 function readRelationId(page, candidates) {
   return propertyToRelationIds(findProperty(page, candidates))[0] ?? '';
+}
+
+function addPublicationLookupKey(mapping, rawKey, publicationId) {
+  const key = normalizeKey(rawKey);
+  if (!key) {
+    return;
+  }
+
+  const current = mapping.get(key);
+  if (current == null) {
+    mapping.set(key, publicationId);
+    return;
+  }
+
+  if (current !== publicationId) {
+    mapping.set(key, ambiguousPublicationLookup);
+  }
+}
+
+function buildPublishedPublicationLookup(publicationPages) {
+  const titleCounts = new Map();
+  const byId = new Map();
+  const byKey = new Map();
+
+  for (const page of ensureArray(publicationPages)) {
+    const title = readTitle(page, publicationFieldCandidates.title);
+    if (!title) {
+      continue;
+    }
+
+    titleCounts.set(title, (titleCounts.get(title) ?? 0) + 1);
+  }
+
+  for (const page of ensureArray(publicationPages)) {
+    const publicationId = page?.id ?? '';
+    if (!publicationId) {
+      continue;
+    }
+
+    const title = readTitle(page, publicationFieldCandidates.title);
+    const slug = readFirstText(page, publicationFieldCandidates.slug) || slugify(title) || publicationId;
+    const hasDuplicateTitle = title && (titleCounts.get(title) ?? 0) > 1;
+    const helperLabel = hasDuplicateTitle && title && slug
+      ? `${title} [${slug}]`
+      : title || slug || publicationId;
+
+    byId.set(publicationId, page);
+    addPublicationLookupKey(byKey, publicationId, publicationId);
+    addPublicationLookupKey(byKey, title, publicationId);
+    addPublicationLookupKey(byKey, slug, publicationId);
+    addPublicationLookupKey(byKey, helperLabel, publicationId);
+  }
+
+  return {
+    byId,
+    byKey,
+  };
+}
+
+function resolvePublishedPublicationId(page, relationCandidates, helperCandidates, publicationLookup) {
+  const relationId = readRelationId(page, relationCandidates);
+  if (relationId && publicationLookup.byId.has(relationId)) {
+    return { publicationId: relationId };
+  }
+
+  const helperValue = readFirstText(page, helperCandidates) || readFirstText(page, relationCandidates);
+  const helperKey = normalizeKey(helperValue);
+  if (!helperKey) {
+    return { publicationId: '' };
+  }
+
+  const matchedPublicationId = publicationLookup.byKey.get(helperKey);
+  if (matchedPublicationId === ambiguousPublicationLookup) {
+    return {
+      ambiguous: true,
+      helperValue,
+      publicationId: '',
+    };
+  }
+
+  if (!matchedPublicationId) {
+    return {
+      helperValue,
+      publicationId: '',
+    };
+  }
+
+  return {
+    helperValue,
+    publicationId: matchedPublicationId,
+  };
 }
 
 function normalizeSectionItemGroup(value) {
@@ -223,7 +325,7 @@ async function resolveFiles(files, { mediaResolver, pageId, title, warnings }) {
   return resolved;
 }
 
-export function buildCantineSnapshot(cantinePages, { publishedPublicationIds, warnings }) {
+export function buildCantineSnapshot(cantinePages, { publicationLookup, warnings }) {
   const groups = new Map();
 
   for (const page of ensureArray(cantinePages)) {
@@ -231,9 +333,22 @@ export function buildCantineSnapshot(cantinePages, { publishedPublicationIds, wa
       continue;
     }
 
-    const publicationId = readRelationId(page, cantineFieldCandidates.publicationRelation);
-    if (!publicationId || !publishedPublicationIds.has(publicationId)) {
-      warnings.push(`Entrée cantine ${page.id} ignorée: publication liée absente ou non publiée.`);
+    const relatedPublication = resolvePublishedPublicationId(
+      page,
+      cantineFieldCandidates.publicationRelation,
+      publicationRelationHelperCandidates,
+      publicationLookup,
+    );
+    const publicationId = relatedPublication.publicationId;
+
+    if (!publicationId) {
+      if (relatedPublication.helperValue) {
+        warnings.push(
+          `Entrée cantine ${page.id} ignorée: publication liée "${relatedPublication.helperValue}" ${relatedPublication.ambiguous ? 'ambiguë' : 'introuvable'} ou non publiée.`,
+        );
+      } else {
+        warnings.push(`Entrée cantine ${page.id} ignorée: publication liée absente ou non publiée.`);
+      }
       continue;
     }
 
@@ -885,7 +1000,7 @@ async function buildPublicationSnapshot(page, context) {
   };
 }
 
-function buildAgendaSnapshots(agendaPages, { publicationsByPageId, warnings }) {
+function buildAgendaSnapshots(agendaPages, { publicationLookup, publicationsByPageId, warnings }) {
   const agenda = [];
   const excludedAgendaRubriques = new Set(['Coup de cœur littéraire']);
   const excludedAgendaTypes = new Set(['coup_de_coeur']);
@@ -895,10 +1010,22 @@ function buildAgendaSnapshots(agendaPages, { publicationsByPageId, warnings }) {
       continue;
     }
 
-    const linkedPublicationId = readRelationId(page, agendaFieldCandidates.publicationRelation);
+    const relatedPublication = resolvePublishedPublicationId(
+      page,
+      agendaFieldCandidates.publicationRelation,
+      publicationRelationHelperCandidates,
+      publicationLookup,
+    );
+    const linkedPublicationId = relatedPublication.publicationId;
     const publication = publicationsByPageId.get(linkedPublicationId);
     if (!publication) {
-      warnings.push(`Agenda ${page.id} ignoré: publication liée absente ou non publiée.`);
+      if (relatedPublication.helperValue) {
+        warnings.push(
+          `Agenda ${page.id} ignoré: publication liée "${relatedPublication.helperValue}" ${relatedPublication.ambiguous ? 'ambiguë' : 'introuvable'} ou non publiée.`,
+        );
+      } else {
+        warnings.push(`Agenda ${page.id} ignoré: publication liée absente ou non publiée.`);
+      }
       continue;
     }
 
@@ -1096,8 +1223,8 @@ export async function buildSnapshotsFromSources({
   const publishedPublicationPages = ensureArray(publicationPages).filter((page) =>
     isPublished(page, publicationFieldCandidates.status),
   );
-  const publishedPublicationIds = new Set(publishedPublicationPages.map((page) => page.id));
-  const cantine = buildCantineSnapshot(cantinePages, { publishedPublicationIds, warnings });
+  const publicationLookup = buildPublishedPublicationLookup(publishedPublicationPages);
+  const cantine = buildCantineSnapshot(cantinePages, { publicationLookup, warnings });
   const cantineGroupsByPublicationId = new Map(cantine.map((group) => [group.publication_id, group]));
 
   const builtPublications = [];
@@ -1123,7 +1250,7 @@ export async function buildSnapshotsFromSources({
     })
     .map(({ sort_date, warnings: publicationWarnings, ...publication }) => publication);
   const publicationsByPageId = new Map(sortedPublications.map((publication) => [publication.notion_page_id, publication]));
-  const agenda = buildAgendaSnapshots(agendaPages, { publicationsByPageId, warnings });
+  const agenda = buildAgendaSnapshots(agendaPages, { publicationLookup, publicationsByPageId, warnings });
   const publications = enrichPublicationsWithAgenda(sortedPublications, agenda);
   const siteSections = await buildSiteSections(sectionPages, sectionItemPages, {
     fetchBlocks,
