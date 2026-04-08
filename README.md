@@ -157,10 +157,15 @@ SITE_TIME_ZONE=Europe/Paris
 Valeurs usuelles :
 
 ```bash
-CONTENT_RECONCILE_DEBOUNCE_MINUTES=15
+CONTENT_RECONCILE_DEBOUNCE_MINUTES=1
 GITHUB_PRODUCTION_WORKFLOW_FILE=reconcile-prod-deploy.yml
 GITHUB_PRODUCTION_WORKFLOW_REF=main
 ```
+
+Recommandation actuelle :
+
+- `CONTENT_RECONCILE_DEBOUNCE_MINUTES=1` pour garder un délai court entre une modification Notion et la réconciliation
+- augmenter cette valeur seulement si tu veux volontairement regrouper plusieurs éditions rapprochées avant publication
 
 ### Étape 4 - Variables optionnelles pour la démo GitHub Pages
 
@@ -244,6 +249,18 @@ npm run generate:notion-imports
 
 Puis importe [`notion-imports/sections-site-items.csv`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/notion-imports/sections-site-items.csv) dans la base `Section items`.
 La colonne `Section` peut être soit une vraie relation vers `Sections site`, soit une clé texte comme `home-hero`, `home-editorial`, `home-rubriques`, `home-diffusion` ou `footer`.
+
+### Étape 4 - Contrôler la mise en avant sur l’accueil
+
+Pour la grille d’actualités de la page d’accueil :
+
+- un article publié normal s’insère dans la colonne de droite
+- un article prend la grande carte de gauche seulement si la propriété Notion `Featured`, `Mis en avant`, `À la une` ou `A la une` est cochée
+
+S’il n’y a aucun article marqué `featured` :
+
+- la grande carte de gauche affiche un bloc éditorial de secours
+- les dernières publications restent dans la colonne de droite
 
 ## 7. Générer les snapshots
 
@@ -418,6 +435,10 @@ Ajouter aussi dans les variables de dépôt GitHub Actions :
 - `CONTENT_RECONCILE_STATE_ISSUE_NUMBER`
 - `CONTENT_RECONCILE_DEBOUNCE_MINUTES`
 
+Valeur recommandée :
+
+- `CONTENT_RECONCILE_DEBOUNCE_MINUTES=1`
+
 ### Étape 3 - Laisser le workflow déployer la démo
 
 Le workflow [`deploy-demo-pages.yml`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.github/workflows/deploy-demo-pages.yml) :
@@ -513,18 +534,20 @@ Si le contenu change dans Notion :
 3. le webhook filtre les événements utiles
 4. le webhook marque la prod comme `dirty` dans une issue GitHub technique
 5. le webhook déclenche le workflow [`reconcile-prod-deploy.yml`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.github/workflows/reconcile-prod-deploy.yml) sauf si Vercel reste bloqué par quota
-6. le workflow resynchronise Notion, calcule un hash des snapshots publics et n’appelle Vercel que si l’état public final a vraiment changé
-7. la démo GitHub Pages ne se déclenche pas automatiquement par défaut
+6. le workflow attend la fenêtre de coalescence `CONTENT_RECONCILE_DEBOUNCE_MINUTES` quand il vient d’un webhook Notion, puis resynchronise Notion
+7. le workflow calcule un hash des snapshots publics et n’appelle Vercel que si l’état public final a vraiment changé
+8. la démo GitHub Pages ne se déclenche pas automatiquement par défaut
 
 Résultat :
 
 - la prod Vercel converge vers le dernier état public utile
 - la démo GitHub Pages se lance uniquement manuellement si tu en as besoin
 - les brouillons et rafales d’événements inutiles n’entraînent pas de déploiement si les snapshots publics restent identiques
+- la réconciliation part uniquement après un webhook Notion ou un lancement manuel
 
 ### Déclencher une mise à jour manuelle immédiate
 
-Si tu veux forcer une mise à jour rapide du site sans attendre la fenêtre de `15` minutes :
+Si tu veux forcer une mise à jour rapide du site sans attendre la fenêtre de `1` minute :
 
 1. ouvrir `Actions`
 2. lancer le workflow `Reconcile Journal ANNET production deploy`
