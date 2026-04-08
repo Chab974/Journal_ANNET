@@ -237,15 +237,17 @@ function buildHomeData({
   const homePage = siteSections['home-page'] || {};
   const portalPage = siteSections['portal-page'] || {};
   const publicationTypeLabels = createPublicationTypeLabelMap(portalPage);
-  const featuredPublication = publications.find((entry) => entry.featured) || publications[0] || null;
+  const featuredPublication = publications.find((entry) => entry.featured) || null;
   const featuredPublicationId = featuredPublication?.id || null;
+  const secondaryPublications = featuredPublicationId
+    ? publications.filter((entry) => entry.id !== featuredPublicationId)
+    : publications;
 
   return {
     cantineEntry: buildCantineSummary(cantine[0]),
     featuredPublication: featuredPublication ? decoratePublication(featuredPublication, publicationTypeLabels) : null,
     quickLinks: buildQuickLinks(publications, homePage),
-    secondaryPublications: publications
-      .filter((entry) => entry.id !== featuredPublicationId)
+    secondaryPublications: secondaryPublications
       .slice(0, 3)
       .map((entry) => decoratePublication(entry, publicationTypeLabels)),
     upcomingEvents: buildUpcomingEvents(agenda, referenceDate),

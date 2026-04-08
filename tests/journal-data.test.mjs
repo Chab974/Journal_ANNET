@@ -89,3 +89,20 @@ test('buildHomeData fournit des fallbacks quand les données sont absentes', () 
   assert.equal(home.quickLinks.length, 6);
   assert.equal(home.quickLinks.find((item) => item.rubrique === 'Vie associative').hasContent, false);
 });
+
+test("buildHomeData n'utilise plus automatiquement le premier article comme mise en avant", () => {
+  const home = buildHomeData({
+    publications: [
+      { id: 'post-1', rubrique: 'Vie locale', slug: 'troisieme-article', titre: '3 eme article' },
+      { id: 'post-2', rubrique: 'Vie locale', slug: 'deuxieme-article', titre: '2e article' },
+      { id: 'post-3', rubrique: 'Information', slug: 'premier-article', titre: 'Création d 1er article' },
+    ],
+    referenceDate: new Date('2026-04-06T00:00:00Z'),
+  });
+
+  assert.equal(home.featuredPublication, null);
+  assert.deepEqual(
+    home.secondaryPublications.map((item) => item.titre),
+    ['3 eme article', '2e article', 'Création d 1er article'],
+  );
+});

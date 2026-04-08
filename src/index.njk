@@ -562,9 +562,10 @@ permalink: index.html
                 </div>
             </div>
 
-            {% if featuredPublication %}
+            {% if featuredPublication or secondaryPublications.length %}
             <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
                 <article class="paper-card p-6 md:p-8">
+                    {% if featuredPublication %}
                     <div class="flex flex-wrap gap-3 mb-4">
                         <span class="category-chip text-vintage-red">{{ featuredPublication.typeLabel }}</span>
                         <span class="category-chip text-vintage-blue">{{ featuredPublication.rubrique }}</span>
@@ -581,6 +582,14 @@ permalink: index.html
                         <a href="{{ featuredPublication.href }}" class="inline-flex items-center rounded-full bg-vintage-red px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200/70">{{ homePage.readArticleLabel or "Lire l'article" }}</a>
                         <a href="{{ featuredPublication.rubriqueHref }}" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">{{ homePage.viewRubriqueLabel or 'Voir la rubrique' }}</a>
                     </div>
+                    {% else %}
+                    <p class="text-xs uppercase tracking-[0.2em] font-bold text-vintage-red mb-3">{{ homePage.featuredLabel or 'À la une' }}</p>
+                    <h3 class="text-3xl md:text-4xl font-heading font-black uppercase tracking-tight">{{ homePage.featuredFallbackTitle or 'Sélection éditoriale' }}</h3>
+                    <p class="mt-4 text-base md:text-lg leading-relaxed text-[color:var(--muted)]">{{ homePage.featuredFallbackDescription or "Les dernières publications s'affichent dans la colonne de droite. Un article peut être mis en avant ici lorsqu'une information mérite une place prioritaire." }}</p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <a href="portail.html" class="inline-flex items-center rounded-full border border-ink/15 bg-white px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">{{ homePage.viewAllLabel or 'Voir toutes les actualités' }}</a>
+                    </div>
+                    {% endif %}
                 </article>
 
                 <div class="space-y-4">
