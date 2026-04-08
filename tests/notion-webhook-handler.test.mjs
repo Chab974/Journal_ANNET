@@ -358,8 +358,9 @@ test('notionWebhook utilise les variables de dépôt fournies par Vercel quand l
   );
 });
 
-test('notionWebhook répond 502 et ne déclenche aucun workflow si l’état durable GitHub ne peut pas être enregistré', { concurrency: false }, async () => {
+test('notionWebhook répond 202 même si l’état durable GitHub ne peut pas être enregistré', { concurrency: false }, async () => {
   const calls = [];
+  let dispatchBody = null;
 
   await withEnv(
     {
@@ -391,6 +392,11 @@ test('notionWebhook répond 502 et ne déclenche aucun workflow si l’état dur
           });
         }
 
+        if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
+          dispatchBody = JSON.parse(options.body);
+          return emptyResponse(204);
+        }
+
         throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
       };
 
@@ -411,12 +417,16 @@ test('notionWebhook répond 502 et ne déclenche aucun workflow si l’état dur
         const response = createResponse();
         await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
 
-        assert.equal(response.statusCode, 502);
-        assert.equal(calls.length, 1);
+        assert.equal(response.statusCode, 202);
+        assert.equal(calls.length, 2);
+        assert.equal(dispatchBody.inputs.run_mode, 'webhook');
 
         const payload = JSON.parse(response.body);
-        assert.equal(payload.ok, false);
-        assert.match(payload.error, /CONTENT_RECONCILE_STATE_ISSUE_NUMBER invalide/);
+        assert.equal(payload.ok, true);
+        assert.equal(payload.productionReconcile.state_persisted, false);
+        assert.match(payload.productionReconcile.state_error, /CONTENT_RECONCILE_STATE_ISSUE_NUMBER invalide/);
+        assert.equal(payload.productionReconcile.workflow.dispatched, true);
+        assert.equal(payload.productionReconcile.workflow.degraded, true);
       } finally {
         global.fetch = originalFetch;
       }
