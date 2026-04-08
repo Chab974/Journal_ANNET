@@ -8,6 +8,17 @@ function splitRepositorySlug(value) {
   };
 }
 
+function firstNonEmpty(...values) {
+  for (const value of values) {
+    const normalized = String(value ?? '').trim();
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  return null;
+}
+
 function toJsonBody(body) {
   if (body === undefined || body === null) {
     return undefined;
@@ -26,13 +37,26 @@ export function parsePositiveInteger(value, label) {
 }
 
 export function resolveGitHubRepositoryConfig(env = process.env, { tokenRequired = true } = {}) {
-  const repository = splitRepositorySlug(env.GITHUB_REPOSITORY);
-  const owner = env.GITHUB_REPOSITORY_OWNER || repository.owner;
-  const repositoryName = env.GITHUB_REPOSITORY_NAME || repository.repositoryName;
+  const repository = splitRepositorySlug(
+    firstNonEmpty(
+      env.GITHUB_REPOSITORY,
+      env.VERCEL_GIT_REPO_OWNER && env.VERCEL_GIT_REPO_SLUG
+        ? `${env.VERCEL_GIT_REPO_OWNER}/${env.VERCEL_GIT_REPO_SLUG}`
+        : null,
+    ),
+  );
+  const owner = firstNonEmpty(env.GITHUB_REPOSITORY_OWNER, env.VERCEL_GIT_REPO_OWNER, repository.owner);
+  const repositoryName = firstNonEmpty(
+    env.GITHUB_REPOSITORY_NAME,
+    env.VERCEL_GIT_REPO_SLUG,
+    repository.repositoryName,
+  );
   const token = env.GITHUB_API_TOKEN || env.GITHUB_WEBHOOK_TOKEN || env.GITHUB_TOKEN || null;
 
   if (!owner || !repositoryName) {
-    throw new Error('Variables GitHub manquantes: GITHUB_REPOSITORY_OWNER et GITHUB_REPOSITORY_NAME.');
+    throw new Error(
+      'Variables GitHub manquantes: définir GITHUB_REPOSITORY_OWNER et GITHUB_REPOSITORY_NAME, ou GITHUB_REPOSITORY, ou laisser Vercel fournir VERCEL_GIT_REPO_OWNER et VERCEL_GIT_REPO_SLUG.',
+    );
   }
 
   if (tokenRequired && !token) {

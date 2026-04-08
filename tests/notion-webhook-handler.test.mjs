@@ -268,3 +268,92 @@ test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', {
     },
   );
 });
+
+test('notionWebhook utilise les variables de dépôt fournies par Vercel quand les variables GitHub explicites sont absentes', { concurrency: false }, async () => {
+  const issueNumber = 31;
+  const calls = [];
+  let dispatchUrl = null;
+
+  await withEnv(
+    {
+      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: String(issueNumber),
+      GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
+      GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
+      GITHUB_REPOSITORY_NAME: undefined,
+      GITHUB_REPOSITORY_OWNER: undefined,
+      GITHUB_WEBHOOK_TOKEN: 'gh_secret',
+      NOTION_PUBLICATIONS_DATA_SOURCE_ID: 'ds-publications',
+      NOTION_TOKEN: 'secret_notion',
+      NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+      VERCEL_GIT_REPO_OWNER: 'Chab974',
+      VERCEL_GIT_REPO_SLUG: 'Journal_ANNET',
+    },
+    async () => {
+      const notionWebhook = await importWebhookHandler(`vercel-fallback-${Date.now()}`);
+      const originalFetch = global.fetch;
+
+      global.fetch = async (url, options = {}) => {
+        calls.push({ method: options.method || 'GET', url });
+
+        if (url.endsWith(`/issues/${issueNumber}`) && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            body: '',
+            number: issueNumber,
+          });
+        }
+
+        if (url.endsWith('/pages/page-3') && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            id: 'page-3',
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'data_source_id',
+            },
+            properties: {},
+          });
+        }
+
+        if (url.endsWith(`/issues/${issueNumber}`) && options.method === 'PATCH') {
+          return jsonResponse({
+            body: JSON.parse(options.body).body,
+            number: issueNumber,
+          });
+        }
+
+        if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
+          dispatchUrl = url;
+          return emptyResponse(204);
+        }
+
+        throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+      };
+
+      try {
+        const rawBody = JSON.stringify({
+          data: {
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'workspace',
+            },
+          },
+          entity: { id: 'page-3', type: 'page' },
+          id: 'event-3',
+          timestamp: '2026-04-08T09:00:00.000Z',
+          type: 'page.properties_updated',
+        });
+
+        const response = createResponse();
+        await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+        assert.equal(response.statusCode, 202);
+        assert.equal(
+          dispatchUrl,
+          'https://api.github.com/repos/Chab974/Journal_ANNET/actions/workflows/reconcile-prod-deploy.yml/dispatches',
+        );
+        assert.equal(calls.length, 4);
+      } finally {
+        global.fetch = originalFetch;
+      }
+    },
+  );
+});
