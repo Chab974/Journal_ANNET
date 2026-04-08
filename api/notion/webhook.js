@@ -113,23 +113,6 @@ async function triggerProductionReconcile(metadata, state, { runMode = 'webhook'
   };
 }
 
-async function triggerProductionReconcileWithoutState(metadata, { runMode = 'webhook' } = {}) {
-  const workflowConfig = resolveProductionWorkflowDispatchConfig();
-  const workflow = await dispatchProductionReconcileWorkflow(workflowConfig, {
-    inputs: {
-      run_mode: runMode,
-      ...metadata,
-    },
-  });
-
-  return {
-    ...workflow,
-    configured: true,
-    degraded: true,
-    reason: 'state_unavailable',
-  };
-}
-
 export default async function notionWebhook(request, response) {
   if (request.method !== 'POST') {
     sendJson(response, 405, { error: 'Method not allowed' });
@@ -223,25 +206,10 @@ export default async function notionWebhook(request, response) {
     const eventPage = await resolveEventPage();
     const runMode = isImmediatePublicationPage(eventPage) ? 'immediate' : 'webhook';
     console.info('Notion webhook enqueueing production reconcile', metadata);
-    let reconcile = null;
-    let reconcileError = null;
-
-    try {
-      reconcile = await recordProductionReconcileState(metadata);
-    } catch (error) {
-      reconcileError = error;
-      console.warn('Notion webhook production reconcile state persistence failed', {
-        entity_id: payload?.entity?.id ?? null,
-        error: error.message,
-        event_action: metadata.event_action,
-        event_type: payload?.type ?? null,
-      });
-    }
+    const reconcile = await recordProductionReconcileState(metadata);
 
     const [productionResult, githubPagesDemoResult] = await Promise.allSettled([
-      reconcile?.state
-        ? triggerProductionReconcile(metadata, reconcile.state, { runMode })
-        : triggerProductionReconcileWithoutState(metadata, { runMode }),
+      triggerProductionReconcile(metadata, reconcile.state, { runMode }),
       triggerGitHubPagesDemo(metadata),
     ]);
     let githubPagesDemo = null;
@@ -285,12 +253,12 @@ export default async function notionWebhook(request, response) {
     console.info('Notion webhook reconcile queued', {
       event_action: metadata.event_action,
       event_type: payload?.type ?? null,
-      production_blocked_until: reconcile?.state?.blocked_until ?? null,
-      production_dirty: reconcile?.state?.dirty ?? null,
+      production_blocked_until: reconcile.state.blocked_until,
+      production_dirty: reconcile.state.dirty,
       production_failed: Boolean(production?.failed),
       production_run_mode: runMode,
       production_workflow_dispatched: Boolean(production?.dispatched),
-      production_state_persisted: Boolean(reconcile),
+      production_state_persisted: true,
       github_pages_configured: Boolean(githubPagesDemo?.configured),
       github_pages_failed: Boolean(githubPagesDemo?.failed),
     });
@@ -303,13 +271,13 @@ export default async function notionWebhook(request, response) {
       event_type: payload.type,
       ok: true,
       productionReconcile: {
-        blocked_until: reconcile?.state?.blocked_until ?? null,
-        dirty: reconcile?.state?.dirty ?? null,
-        issue_number: reconcile?.issueNumber ?? null,
-        last_event_at: reconcile?.state?.last_event_at ?? null,
+        blocked_until: reconcile.state.blocked_until,
+        dirty: reconcile.state.dirty,
+        issue_number: reconcile.issueNumber,
+        last_event_at: reconcile.state.last_event_at,
         run_mode: runMode,
-        state_error: reconcileError?.message ?? null,
-        state_persisted: Boolean(reconcile),
+        state_error: null,
+        state_persisted: true,
         workflow: production,
       },
       queued: true,
