@@ -15,6 +15,10 @@ on:
         description: "Notion event type"
         required: false
         type: string
+      event_action:
+        description: "Notion event action label"
+        required: false
+        type: string
       event_id:
         description: "Notion event id"
         required: false
