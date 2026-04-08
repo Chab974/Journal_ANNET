@@ -37,6 +37,33 @@ const allowedDataSourceIds = [
   process.env.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID,
 ].filter(Boolean);
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function retrievePageWithRetry(notion, pageId, {
+  attemptCount = 3,
+  delayMs = 350,
+} = {}) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= attemptCount; attempt += 1) {
+    try {
+      return await retrievePage(notion, pageId);
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === attemptCount) {
+        break;
+      }
+
+      await sleep(delayMs * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
 function sendJson(response, statusCode, body) {
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -185,7 +212,14 @@ export default async function notionWebhook(request, response) {
     }
 
     if (!resolvedPagePromise) {
-      resolvedPagePromise = retrievePage(notion, payload?.entity?.id).catch(() => null);
+      resolvedPagePromise = retrievePageWithRetry(notion, payload?.entity?.id).catch((error) => {
+        console.warn('Notion webhook page resolution failed', {
+          entity_id: payload?.entity?.id ?? null,
+          error: error.message,
+          event_type: payload?.type ?? null,
+        });
+        return null;
+      });
     }
 
     return resolvedPagePromise;
