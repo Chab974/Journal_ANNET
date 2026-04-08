@@ -1,4 +1,9 @@
 {
   "buildCommand": "npm run build:vercel",
+  "functions": {
+    "api/notion/webhook.js": {
+      "includeFiles": "data/notion-page-index.json"
+    }
+  },
   "outputDirectory": "_site"
 }

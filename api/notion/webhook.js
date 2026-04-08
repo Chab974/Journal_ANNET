@@ -21,6 +21,10 @@ import {
   dispatchGitHubWorkflow,
   resolveGitHubRepositoryConfig,
 } from '../../scripts/lib/github-api.mjs';
+import {
+  getTrackedPageSource,
+  readTrackedPageIndex,
+} from '../../scripts/lib/notion/page-index.mjs';
 import { readRawRequestBody } from '../../scripts/lib/request-body.mjs';
 import { createNotionClient, retrievePage } from '../../scripts/lib/notion/client.mjs';
 import { isImmediatePublicationPage } from '../../scripts/lib/notion/publication-status.mjs';
@@ -172,18 +176,9 @@ export default async function notionWebhook(request, response) {
     return;
   }
 
-  console.info('Notion webhook event received', {
-    event_action: getNotionEventActionLabel(payload?.type),
-    attempt_number: payload?.attempt_number ?? null,
-    entity_id: payload?.entity?.id ?? null,
-    event_type: payload?.type ?? null,
-    parent_data_source_id: payload?.data?.parent?.data_source_id ?? null,
-    parent_id: payload?.data?.parent?.id ?? null,
-    parent_type: payload?.data?.parent?.type ?? null,
-  });
-
   const notion = createNotionClient();
   let resolvedPagePromise = null;
+  let trackedPageIndexPromise = null;
   const resolveEventPage = async () => {
     if (!payload?.type?.startsWith('page.') || payload?.type === 'page.deleted') {
       return null;
@@ -195,7 +190,31 @@ export default async function notionWebhook(request, response) {
 
     return resolvedPagePromise;
   };
+  const resolveDeletedPageSource = async () => {
+    if (payload?.type !== 'page.deleted') {
+      return '';
+    }
+
+    if (!trackedPageIndexPromise) {
+      trackedPageIndexPromise = readTrackedPageIndex();
+    }
+
+    return getTrackedPageSource(await trackedPageIndexPromise, payload?.entity?.id);
+  };
+  const deletedPageSource = await resolveDeletedPageSource();
+
+  console.info('Notion webhook event received', {
+    event_action: getNotionEventActionLabel(payload?.type),
+    attempt_number: payload?.attempt_number ?? null,
+    entity_id: payload?.entity?.id ?? null,
+    event_type: payload?.type ?? null,
+    known_deleted_page_source: deletedPageSource || null,
+    parent_data_source_id: payload?.data?.parent?.data_source_id ?? null,
+    parent_id: payload?.data?.parent?.id ?? null,
+    parent_type: payload?.data?.parent?.type ?? null,
+  });
   const isRelevantEvent =
+    Boolean(deletedPageSource) ||
     isRelevantNotionEvent(payload, allowedDataSourceIds) ||
     (await isRelevantNotionEventWithResolver(
       payload,
@@ -208,6 +227,7 @@ export default async function notionWebhook(request, response) {
       event_action: getNotionEventActionLabel(payload?.type),
       entity_id: payload?.entity?.id ?? null,
       event_type: payload?.type ?? null,
+      known_deleted_page_source: deletedPageSource || null,
       reason: 'event_out_of_scope',
     });
     sendJson(response, 202, {
