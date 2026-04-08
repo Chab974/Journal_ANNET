@@ -154,7 +154,7 @@ permalink: portail.html
             justify-content: center;
             min-height: 44px;
             padding: 0.7rem 1rem;
-            border: 1px solid rgba(22, 49, 74, 0.08);
+            border: 1px solid var(--cantine-outline);
             border-radius: 999px;
             background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(249,246,242,0.95));
             font-size: 0.74rem;
@@ -640,38 +640,175 @@ permalink: portail.html
             text-transform: uppercase;
             color: var(--muted);
         }
+        .portal-cantine-board {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-top: 1.75rem;
+        }
         .portal-cantine-day {
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255,255,255,0.98);
+            --cantine-accent: var(--vintage-blue);
+            --cantine-accent-soft: rgba(40, 148, 227, 0.12);
+            --cantine-outline: rgba(40, 148, 227, 0.18);
+            --cantine-rail: linear-gradient(180deg, #59b4e6, #3c79de);
+            position: relative;
+            display: grid;
+            grid-template-columns: 7.2rem minmax(0, 1fr);
+            overflow: hidden;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.99), rgba(248,250,252,0.98));
+            box-shadow: 0 18px 40px rgba(22, 49, 74, 0.08);
+        }
+        .portal-cantine-rail {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+            padding: 1.5rem 0.9rem;
+            background: var(--cantine-rail);
+            box-shadow: inset -1px 0 0 rgba(255,255,255,0.22);
+        }
+        .portal-cantine-rail-label {
+            color: rgba(255,255,255,0.98);
+            font-family: 'Sora', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+        .portal-cantine-sheet {
+            position: relative;
+            padding: 1.35rem 1.4rem 1.3rem;
+            background:
+                radial-gradient(circle at top right, var(--cantine-accent-soft), transparent 32%),
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+        }
+        .portal-cantine-sheet::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.28), transparent 16%);
+            pointer-events: none;
+        }
+        .portal-cantine-list {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
         }
         .portal-cantine-item {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
+            position: relative;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
             gap: 1rem;
-            padding: 0.95rem 0;
-            border-bottom: 1px solid rgba(31, 31, 28, 0.08);
+            align-items: center;
+            padding: 0.1rem 0;
         }
-        .portal-cantine-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+        .portal-cantine-item + .portal-cantine-item {
+            padding-top: 1rem;
+            border-top: 1px solid rgba(22, 49, 74, 0.08);
         }
-        .portal-favorite-button {
+        .portal-cantine-item-main {
+            min-width: 0;
+        }
+        .portal-cantine-item-top {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem 0.7rem;
+            align-items: center;
+        }
+        .portal-cantine-item-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(1.02rem, 2vw, 1.25rem);
+            font-weight: 800;
+            line-height: 1.25;
+            color: var(--ink);
+        }
+        .portal-cantine-item-description {
+            margin-top: 0.38rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: #76859a;
+        }
+        .portal-cantine-item-description-icon {
+            color: var(--cantine-accent);
+            opacity: 0.75;
+        }
+        .portal-cantine-note {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.95rem;
+            min-height: 9.5rem;
+            padding: 1.15rem 1.2rem;
+            border: 2px dashed var(--cantine-outline);
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at top center, rgba(255,255,255,0.95), rgba(255,255,255,0.92)),
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,250,252,0.98));
+            color: #70819a;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7);
+        }
+        .portal-cantine-note::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--cantine-accent-soft), transparent 38%);
+            pointer-events: none;
+        }
+        .portal-cantine-note-icon,
+        .portal-cantine-note-copy {
+            position: relative;
+        }
+        .portal-cantine-note-icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 2.5rem;
-            height: 2.5rem;
-            border: 1px solid var(--line);
+            width: 3rem;
+            height: 3rem;
+            border: 1px solid rgba(22, 49, 74, 0.1);
             border-radius: 999px;
-            background: rgba(255,255,255,0.92);
-            font-size: 1rem;
+            background: rgba(255,255,255,0.9);
+            color: var(--cantine-accent);
+            font-size: 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 10px 18px rgba(22, 49, 74, 0.08);
+        }
+        .portal-cantine-note-copy {
+            font-size: 1.05rem;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+        .portal-favorite-button {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+            color: #c5d2dd;
+            font-size: 1.35rem;
+            box-shadow: 0 10px 20px rgba(22, 49, 74, 0.08);
+            transition: transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .portal-favorite-button:hover {
+            transform: translateY(-1px);
+            color: #a5b7c7;
         }
         .portal-favorite-button[aria-pressed="true"] {
-            background: #ffe7ee;
+            background: linear-gradient(180deg, #fff2f6, #ffe7ee);
             color: #bb526b;
             border-color: rgba(187, 82, 107, 0.18);
+            box-shadow: 0 12px 24px rgba(187, 82, 107, 0.18);
         }
         .portal-badge {
             display: inline-flex;
@@ -692,6 +829,36 @@ permalink: portail.html
         .portal-badge--msc { background: #e8f5f8; color: #3c6d79; }
         .portal-badge--ce2,
         .portal-badge--certifié { background: #fff1e7; color: #92531f; }
+        @media (max-width: 767px) {
+            .portal-cantine-day {
+                grid-template-columns: 1fr;
+            }
+            .portal-cantine-rail {
+                justify-content: flex-start;
+                padding: 1rem 1.2rem;
+            }
+            .portal-cantine-rail-label {
+                font-size: 0.95rem;
+                letter-spacing: 0.22em;
+                writing-mode: horizontal-tb;
+                transform: none;
+            }
+            .portal-cantine-sheet {
+                padding: 1.1rem 1.1rem 1.05rem;
+            }
+            .portal-cantine-item {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .portal-favorite-button {
+                width: 2.8rem;
+                height: 2.8rem;
+                justify-self: start;
+            }
+            .portal-cantine-note {
+                align-items: flex-start;
+                min-height: 0;
+            }
+        }
         .portal-link {
             display: inline-flex;
             align-items: center;
@@ -1123,6 +1290,68 @@ permalink: portail.html
             `;
         }
 
+        function slugifyToken(value = '') {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        function getCantineDayTheme(dayLabel = '') {
+            const daySlug = slugifyToken(dayLabel);
+            const themes = {
+                lundi: {
+                    accent: '#3f82e4',
+                    outline: 'rgba(63, 130, 228, 0.18)',
+                    rail: 'linear-gradient(180deg, #54b4dd, #4377e0)',
+                    soft: 'rgba(63, 130, 228, 0.12)',
+                },
+                mardi: {
+                    accent: '#78c64d',
+                    outline: 'rgba(120, 198, 77, 0.2)',
+                    rail: 'linear-gradient(180deg, #a9df55, #66b950)',
+                    soft: 'rgba(120, 198, 77, 0.12)',
+                },
+                mercredi: {
+                    accent: '#f3b93f',
+                    outline: 'rgba(243, 185, 63, 0.24)',
+                    rail: 'linear-gradient(180deg, #ffcc47, #f4b132)',
+                    soft: 'rgba(243, 185, 63, 0.14)',
+                },
+                jeudi: {
+                    accent: '#ef7d45',
+                    outline: 'rgba(239, 125, 69, 0.22)',
+                    rail: 'linear-gradient(180deg, #f39149, #ec714d)',
+                    soft: 'rgba(239, 125, 69, 0.14)',
+                },
+                vendredi: {
+                    accent: '#d74e86',
+                    outline: 'rgba(215, 78, 134, 0.22)',
+                    rail: 'linear-gradient(180deg, #df6786, #c93f83)',
+                    soft: 'rgba(215, 78, 134, 0.14)',
+                },
+            };
+
+            return themes[daySlug] || {
+                accent: '#7d90a6',
+                outline: 'rgba(125, 144, 166, 0.18)',
+                rail: 'linear-gradient(180deg, #8ea4bb, #6d8299)',
+                soft: 'rgba(125, 144, 166, 0.14)',
+            };
+        }
+
+        function getCantineThemeStyle(dayLabel = '') {
+            const theme = getCantineDayTheme(dayLabel);
+            return [
+                `--cantine-accent:${theme.accent}`,
+                `--cantine-accent-soft:${theme.soft}`,
+                `--cantine-outline:${theme.outline}`,
+                `--cantine-rail:${theme.rail}`,
+            ].join(';');
+        }
+
         function getCantineItemKey(postId, dayIndex, itemIndex) {
             return `${postId || 'post'}-${dayIndex}-${itemIndex}`;
         }
@@ -1162,28 +1391,36 @@ permalink: portail.html
         function renderCantineDays(post) {
             const days = post.cantine_jours || [];
             return `
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-6">
+                <div class="portal-cantine-board">
                     ${days.map((day, dayIndex) => `
-                        <div class="portal-cantine-day p-4">
-                            <div class="flex items-center justify-between gap-4 border-b border-ink/10 pb-2 mb-3">
-                                <h4 class="font-heading font-black uppercase tracking-widest text-lg">${escapeHtml(day.day || '')}</h4>
-                                <span class="text-xs uppercase tracking-widest font-bold">${escapeHtml(day.isSpecial ? (portalCantineCopy.noteLabel || 'Note') : (portalCantineCopy.serviceLabel || 'Service'))}</span>
+                        <section class="portal-cantine-day" style="${escapeHtml(getCantineThemeStyle(day.day || ''))}">
+                            <div class="portal-cantine-rail">
+                                <span class="portal-cantine-rail-label">${escapeHtml(day.day || '')}</span>
                             </div>
+                            <div class="portal-cantine-sheet">
                             ${day.isSpecial ? `
-                                <p class="text-sm leading-relaxed italic">${escapeHtml(day.message || portalCantineCopy.emptyMessage || 'Aucune information cantine communiquée.')}</p>
+                                <div class="portal-cantine-note">
+                                    <span class="portal-cantine-note-icon" aria-hidden="true">i</span>
+                                    <p class="portal-cantine-note-copy">${escapeHtml(day.message || portalCantineCopy.emptyMessage || 'Aucune information cantine communiquée.')}</p>
+                                </div>
                             ` : `
-                                <ul class="space-y-1">
+                                <ul class="portal-cantine-list">
                                     ${(day.items || []).map((item, itemIndex) => {
                                         const itemKey = getCantineItemKey(post.id, dayIndex, itemIndex);
                                         const isFavorite = portalState.favoriteItems.has(itemKey);
                                         return `
                                         <li class="portal-cantine-item">
-                                            <div class="flex-1 pr-3">
-                                                <div class="flex flex-wrap gap-2 items-center mb-1">
-                                                    <span class="font-bold">${escapeHtml(item.name || '')}</span>
+                                            <div class="portal-cantine-item-main">
+                                                <div class="portal-cantine-item-top">
+                                                    <span class="portal-cantine-item-title">${escapeHtml(item.name || '')}</span>
                                                     ${(item.badges || []).map((badge) => renderBadge(badge)).join('')}
                                                 </div>
-                                                ${item.description ? `<p class="text-sm text-gray-700 flex items-center gap-2"><span aria-hidden="true">🍴</span><span>${escapeHtml(item.description)}</span></p>` : ''}
+                                                ${item.description ? `
+                                                    <p class="portal-cantine-item-description">
+                                                        <span class="portal-cantine-item-description-icon" aria-hidden="true">🍴</span>
+                                                        <span>${escapeHtml(item.description)}</span>
+                                                    </p>
+                                                ` : ''}
                                             </div>
                                             <button
                                                 type="button"
@@ -1198,7 +1435,8 @@ permalink: portail.html
                                     }).join('')}
                                 </ul>
                             `}
-                        </div>
+                            </div>
+                        </section>
                     `).join('')}
                 </div>
             `;

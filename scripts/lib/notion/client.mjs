@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+
 import { Client } from '@notionhq/client';
 
 const notionApiBaseUrl = 'https://api.notion.com/v1';
@@ -48,11 +51,86 @@ export async function queryDataSourcePages(notion, dataSourceId, filterPropertie
   );
 }
 
+export async function retrieveDataSource(notion, dataSourceId) {
+  return retrieveDataSourceViaHttp({
+    auth: notion.__journalAnnetAuth,
+    dataSourceId,
+  });
+}
+
 export async function retrievePage(notion, pageId) {
   return retrievePageViaHttp({
     auth: notion.__journalAnnetAuth,
     pageId,
   });
+}
+
+export async function createPageInDataSource(
+  notion,
+  {
+    children = [],
+    cover,
+    dataSourceId,
+    icon,
+    properties = {},
+  },
+) {
+  return createPageInDataSourceViaHttp({
+    auth: notion.__journalAnnetAuth,
+    children,
+    cover,
+    dataSourceId,
+    icon,
+    properties,
+  });
+}
+
+export async function uploadFileToNotion(
+  notion,
+  {
+    contentType,
+    filePath,
+    filename = path.basename(filePath),
+  },
+) {
+  if (!filePath) {
+    throw new Error('filePath manquant pour uploader un fichier dans Notion.');
+  }
+
+  if (!filename) {
+    throw new Error('filename manquant pour uploader un fichier dans Notion.');
+  }
+
+  if (!contentType) {
+    throw new Error('contentType manquant pour uploader un fichier dans Notion.');
+  }
+
+  const fileData = await readFile(filePath);
+  const upload = await notion.fileUploads.create({
+    content_type: contentType,
+    filename,
+    mode: 'single_part',
+  });
+
+  const uploaded = await notion.fileUploads.send({
+    file: {
+      data: new Blob([fileData], { type: contentType }),
+      filename,
+    },
+    file_upload_id: upload.id,
+  });
+
+  const completed = (upload.number_of_parts?.total ?? 1) > 1
+    ? await notion.fileUploads.complete({
+        file_upload_id: upload.id,
+      })
+    : uploaded;
+
+  return {
+    completed,
+    sent: uploaded,
+    upload,
+  };
 }
 
 async function queryDataSourcePagesViaHttp({
@@ -96,6 +174,33 @@ async function queryDataSourcePagesViaHttp({
   return response.json();
 }
 
+async function retrieveDataSourceViaHttp({ auth, dataSourceId }) {
+  if (!auth) {
+    throw new Error('NOTION_TOKEN manquant pour récupérer une data source Notion.');
+  }
+
+  if (!dataSourceId) {
+    throw new Error('dataSourceId manquant pour récupérer une data source Notion.');
+  }
+
+  const response = await fetch(`${notionApiBaseUrl}/data_sources/${encodeURIComponent(dataSourceId)}`, {
+    headers: {
+      Authorization: `Bearer ${auth}`,
+      'Notion-Version': notionDataSourcesVersion,
+    },
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      `Échec de récupération Notion data source ${dataSourceId} (${response.status}): ${details}`,
+    );
+  }
+
+  return response.json();
+}
+
 async function retrievePageViaHttp({ auth, pageId }) {
   if (!auth) {
     throw new Error('NOTION_TOKEN manquant pour récupérer une page Notion.');
@@ -116,6 +221,51 @@ async function retrievePageViaHttp({ auth, pageId }) {
   if (!response.ok) {
     const details = await response.text();
     throw new Error(`Échec de récupération Notion page ${pageId} (${response.status}): ${details}`);
+  }
+
+  return response.json();
+}
+
+async function createPageInDataSourceViaHttp({
+  auth,
+  children = [],
+  cover,
+  dataSourceId,
+  icon,
+  properties = {},
+}) {
+  if (!auth) {
+    throw new Error('NOTION_TOKEN manquant pour créer une page Notion.');
+  }
+
+  if (!dataSourceId) {
+    throw new Error('dataSourceId manquant pour créer une page Notion.');
+  }
+
+  const response = await fetch(`${notionApiBaseUrl}/pages`, {
+    body: JSON.stringify({
+      children,
+      cover,
+      icon,
+      parent: {
+        data_source_id: dataSourceId,
+        type: 'data_source_id',
+      },
+      properties,
+    }),
+    headers: {
+      Authorization: `Bearer ${auth}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': notionDataSourcesVersion,
+    },
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      `Échec de création de page Notion dans ${dataSourceId} (${response.status}): ${details}`,
+    );
   }
 
   return response.json();

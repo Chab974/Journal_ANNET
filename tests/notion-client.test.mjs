@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createNotionClient, queryDataSourcePages, retrievePage } from '../scripts/lib/notion/client.mjs';
+import {
+  createNotionClient,
+  createPageInDataSource,
+  queryDataSourcePages,
+  retrieveDataSource,
+  retrievePage,
+} from '../scripts/lib/notion/client.mjs';
 
 test('queryDataSourcePages utilise le fallback HTTP data_sources avec pagination', async () => {
   const notion = createNotionClient('secret_test');
@@ -89,6 +95,103 @@ test('retrievePage utilise l’API HTTP pages avec la version data source', asyn
     assert.equal(calls[0].method, 'GET');
     assert.equal(calls[0].headers.Authorization, 'Bearer secret_test');
     assert.equal(calls[0].headers['Notion-Version'], '2025-09-03');
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('retrieveDataSource utilise l’API HTTP data_sources avec la version data source', async () => {
+  const notion = createNotionClient('secret_test');
+  const originalFetch = global.fetch;
+  const calls = [];
+
+  global.fetch = async (url, options) => {
+    calls.push({
+      headers: options?.headers,
+      method: options?.method,
+      url,
+    });
+
+    return {
+      ok: true,
+      json: async () => ({
+        id: 'ds-publications',
+        properties: {
+          Titre: { title: {}, type: 'title' },
+        },
+      }),
+    };
+  };
+
+  try {
+    const dataSource = await retrieveDataSource(notion, 'ds-publications');
+
+    assert.equal(dataSource.id, 'ds-publications');
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, 'https://api.notion.com/v1/data_sources/ds-publications');
+    assert.equal(calls[0].method, 'GET');
+    assert.equal(calls[0].headers.Authorization, 'Bearer secret_test');
+    assert.equal(calls[0].headers['Notion-Version'], '2025-09-03');
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('createPageInDataSource poste sur /pages avec un parent data_source_id', async () => {
+  const notion = createNotionClient('secret_test');
+  const originalFetch = global.fetch;
+  const calls = [];
+
+  global.fetch = async (url, options) => {
+    calls.push({
+      body: options?.body,
+      headers: options?.headers,
+      method: options?.method,
+      url,
+    });
+
+    return {
+      ok: true,
+      json: async () => ({
+        id: 'page-created',
+        url: 'https://notion.so/page-created',
+      }),
+    };
+  };
+
+  try {
+    const page = await createPageInDataSource(notion, {
+      children: [
+        {
+          object: 'block',
+          paragraph: {
+            rich_text: [{ text: { content: 'Bonjour' }, type: 'text' }],
+          },
+          type: 'paragraph',
+        },
+      ],
+      dataSourceId: 'ds-publications',
+      properties: {
+        Titre: {
+          title: [{ text: { content: 'Test' }, type: 'text' }],
+        },
+      },
+    });
+
+    assert.equal(page.id, 'page-created');
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, 'https://api.notion.com/v1/pages');
+    assert.equal(calls[0].method, 'POST');
+    assert.equal(calls[0].headers.Authorization, 'Bearer secret_test');
+    assert.equal(calls[0].headers['Notion-Version'], '2025-09-03');
+
+    const payload = JSON.parse(calls[0].body);
+    assert.deepEqual(payload.parent, {
+      data_source_id: 'ds-publications',
+      type: 'data_source_id',
+    });
+    assert.equal(payload.children.length, 1);
+    assert.equal(payload.properties.Titre.title[0].text.content, 'Test');
   } finally {
     global.fetch = originalFetch;
   }

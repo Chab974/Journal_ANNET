@@ -43,6 +43,9 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /portal-article-main/);
   assert.match(portalHtml, /portal-meta-stack/);
   assert.match(portalHtml, /portal-inline-facts/);
+  assert.match(portalHtml, /portal-cantine-board/);
+  assert.match(portalHtml, /portal-cantine-rail-label/);
+  assert.match(portalHtml, /portal-cantine-note/);
   assert.match(portalHtml, /aria-label="Repères liés à cette publication"/);
   assert.doesNotMatch(portalHtml, /const portalIntroConfig = \{/);
   assert.doesNotMatch(portalHtml, /max-w-\[96rem\]/);

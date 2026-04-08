@@ -151,14 +151,32 @@ SITE_TIME_ZONE=Europe/Paris
 
 - `NOTION_WEBHOOK_VERIFICATION_TOKEN`
 - `VERCEL_DEPLOY_HOOK_URL`
+- `CONTENT_RECONCILE_STATE_ISSUE_NUMBER`
+- `GITHUB_PRODUCTION_WORKFLOW_FILE`
+
+Valeurs usuelles :
+
+```bash
+CONTENT_RECONCILE_DEBOUNCE_MINUTES=15
+GITHUB_PRODUCTION_WORKFLOW_FILE=reconcile-prod-deploy.yml
+GITHUB_PRODUCTION_WORKFLOW_REF=main
+```
 
 ### Étape 4 - Variables optionnelles pour la démo GitHub Pages
 
-Si tu veux que le webhook Notion relance aussi la démo GitHub Pages, ajoute :
+Pour que le webhook Notion puisse mettre à jour l’issue de réconciliation et dispatcher les workflows GitHub, ajoute :
 
 - `GITHUB_WEBHOOK_TOKEN`
+
+Ajoute aussi l’identifiant du dépôt si l’environnement ne le fournit pas déjà :
+
 - `GITHUB_REPOSITORY_OWNER`
 - `GITHUB_REPOSITORY_NAME`
+
+Sur Vercel, ces deux variables peuvent rester absentes si le projet expose déjà `VERCEL_GIT_REPO_OWNER` et `VERCEL_GIT_REPO_SLUG`.
+
+Si tu veux aussi que le webhook relance la démo GitHub Pages, ajoute en plus :
+
 - `GITHUB_WORKFLOW_FILE`
 - `GITHUB_WORKFLOW_REF`
 
@@ -252,6 +270,46 @@ Cette commande :
 npm run validate:snapshots
 ```
 
+## Import OCR vers Notion
+
+Le dépôt contient maintenant un script CLI pour créer un brouillon dans la base `Publications` à partir :
+
+- d’un texte OCR exporté localement
+- de l’image source locale
+- d’une URL source optionnelle, par exemple un partage Gemini
+
+Commande :
+
+```bash
+npm run import:publication -- \
+  --ocr-file "transcription/import React, { useState, useRef, useEffect } from 'react';/transcription-image.md" \
+  --image-path "/chemin/vers/image.png" \
+  --source-url "https://gemini.google.com/share/61da73bbcfd4" \
+  --title "Titre du brouillon"
+```
+
+Effet :
+
+- upload réel de l’image dans Notion
+- création d’une page dans `NOTION_PUBLICATIONS_DATA_SOURCE_ID`
+- remplissage des propriétés compatibles détectées dans le schéma (`Titre`, `Type`, `Statut`, `Rubrique`, `Résumé`, `Contenu texte`, image, etc.)
+- ajout de blocs dans la page : image, lien source, texte OCR
+
+Mode aperçu sans appel Notion :
+
+```bash
+npm run import:publication -- \
+  --ocr-file "transcription/import React, { useState, useRef, useEffect } from 'react';/transcription-image.md" \
+  --title "Test import" \
+  --dry-run
+```
+
+Note importante :
+
+- le script ne “scrape” pas directement la page `gemini.google.com/share`, car ce n’est pas une API stable
+- l’URL Gemini est conservée comme provenance dans la page Notion
+- pour un flux robuste, il faut fournir le texte OCR exporté et l’image locale
+
 ## 8. Construire le site
 
 ### Build simple à partir des snapshots déjà présents
@@ -316,10 +374,21 @@ Ajouter au minimum :
 - `SITE_TIME_ZONE`
 - `NOTION_WEBHOOK_VERIFICATION_TOKEN`
 - `VERCEL_DEPLOY_HOOK_URL`
+- `CONTENT_RECONCILE_STATE_ISSUE_NUMBER`
+- `GITHUB_PRODUCTION_WORKFLOW_FILE`
+- `GITHUB_PRODUCTION_WORKFLOW_REF`
+- `GITHUB_WEBHOOK_TOKEN`
+
+Ajoute aussi `GITHUB_REPOSITORY_OWNER` et `GITHUB_REPOSITORY_NAME` si Vercel ne fournit pas automatiquement `VERCEL_GIT_REPO_OWNER` et `VERCEL_GIT_REPO_SLUG`.
 
 Ajoute aussi `NOTION_SITE_SECTIONS_DATA_SOURCE_ID` si tu conserves la base legacy `Sections site`.
 
-Si tu veux aussi que le webhook Notion relance GitHub Pages, ajoute en plus les variables GitHub optionnelles dans Vercel.
+Le token `GITHUB_WEBHOOK_TOKEN` doit pouvoir :
+
+- écrire dans les `issues`
+- dispatcher des `actions`
+
+Si tu veux aussi que le webhook Notion relance GitHub Pages, ajoute en plus les variables GitHub Pages optionnelles dans Vercel.
 
 ## 10. Configurer GitHub Pages démo
 
@@ -340,8 +409,14 @@ Ajouter :
 - `NOTION_AGENDA_DATA_SOURCE_ID`
 - `NOTION_MENU_ITEMS_DATA_SOURCE_ID`
 - `NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID`
+- `VERCEL_DEPLOY_HOOK_URL`
 
 Ajoute aussi `NOTION_SITE_SECTIONS_DATA_SOURCE_ID` si le workflow GitHub Pages doit encore lire la base legacy `Sections site`.
+
+Ajouter aussi dans les variables de dépôt GitHub Actions :
+
+- `CONTENT_RECONCILE_STATE_ISSUE_NUMBER`
+- `CONTENT_RECONCILE_DEBOUNCE_MINUTES`
 
 ### Étape 3 - Laisser le workflow déployer la démo
 
@@ -436,13 +511,30 @@ Si le contenu change dans Notion :
 1. Notion appelle `api/notion/webhook`
 2. le webhook vérifie la signature
 3. le webhook filtre les événements utiles
-4. le webhook déclenche le déploiement Vercel
-5. la démo GitHub Pages ne se déclenche pas automatiquement par défaut
+4. le webhook marque la prod comme `dirty` dans une issue GitHub technique
+5. le webhook déclenche le workflow [`reconcile-prod-deploy.yml`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/.github/workflows/reconcile-prod-deploy.yml) sauf si Vercel reste bloqué par quota
+6. le workflow resynchronise Notion, calcule un hash des snapshots publics et n’appelle Vercel que si l’état public final a vraiment changé
+7. la démo GitHub Pages ne se déclenche pas automatiquement par défaut
 
 Résultat :
 
-- la prod Vercel reste à jour
+- la prod Vercel converge vers le dernier état public utile
 - la démo GitHub Pages se lance uniquement manuellement si tu en as besoin
+- les brouillons et rafales d’événements inutiles n’entraînent pas de déploiement si les snapshots publics restent identiques
+
+### Déclencher une mise à jour manuelle immédiate
+
+Si tu veux forcer une mise à jour rapide du site sans attendre la fenêtre de `15` minutes :
+
+1. ouvrir `Actions`
+2. lancer le workflow `Reconcile Journal ANNET production deploy`
+3. garder `run_mode=immediate`
+
+Effet :
+
+- la réconciliation démarre tout de suite
+- la protection sur `blocked_until` reste active si Vercel est encore limité
+- le deploy Vercel reste évité si le hash public final n’a pas changé
 
 ## 14. Ce qui se passe après un push Git
 
@@ -528,9 +620,22 @@ Vérifier :
 
 Vérifier :
 
-- `VERCEL_DEPLOY_HOOK_URL`
-- les éventuelles variables GitHub optionnelles
-- les permissions du token GitHub si la démo doit aussi être relancée
+- `CONTENT_RECONCILE_STATE_ISSUE_NUMBER`
+- `GITHUB_WEBHOOK_TOKEN`
+- `GITHUB_REPOSITORY_OWNER` et `GITHUB_REPOSITORY_NAME`, ou le fallback Vercel `VERCEL_GIT_REPO_OWNER` et `VERCEL_GIT_REPO_SLUG`
+- les permissions du token GitHub pour `issues:write` et `actions:write`
+
+### Vercel refuse le deploy hook avec `429`
+
+La réconciliation prod garde `dirty=true`, stocke `blocked_until` dans l’issue technique, puis attend le reset du quota avant une nouvelle tentative.
+
+Vérifier dans le message retourné par Vercel :
+
+- `api-deploy-hook-trigger` pour un plafond observé de `60` déclenchements sur une fenêtre courte
+- `api-deployments-free-per-day` pour un plafond observé de `100` déploiements sur `24` heures
+- la date exacte de `retryAt` renvoyée par l’API du webhook quand elle est disponible
+
+Après le reset du quota, le workflow planifié reprend automatiquement.
 
 ### La prod Vercel se met à jour mais pas la démo GitHub Pages
 
