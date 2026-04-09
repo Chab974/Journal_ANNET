@@ -260,7 +260,6 @@ function buildNavigation(siteNav = {}, { isDemo = false } = {}) {
     ['actualites', 'Actualités'],
     ['lecture', 'Coup de cœur'],
     ['agenda', 'Agenda'],
-    ['veille', 'Veille'],
     ['about', 'À propos'],
   ]);
   const labels = new Map(
@@ -269,7 +268,7 @@ function buildNavigation(siteNav = {}, { isDemo = false } = {}) {
       .map((item) => [item.key, item.label || defaults.get(item.key) || item.key]),
   );
 
-  const items = [
+  return [
     { href: 'index.html', key: 'home', label: labels.get('home') || defaults.get('home') },
     { href: 'portail.html', key: 'actualites', label: labels.get('actualites') || defaults.get('actualites') },
     {
@@ -281,16 +280,6 @@ function buildNavigation(siteNav = {}, { isDemo = false } = {}) {
     { href: 'agenda.html', key: 'agenda', label: labels.get('agenda') || defaults.get('agenda') },
     { href: 'a-propos.html', key: 'about', label: labels.get('about') || defaults.get('about') },
   ];
-
-  if (!isDemo) {
-    items.splice(4, 0, {
-      href: 'veille.html',
-      key: 'veille',
-      label: labels.get('veille') || defaults.get('veille'),
-    });
-  }
-
-  return items;
 }
 
 async function loadJournalData() {
