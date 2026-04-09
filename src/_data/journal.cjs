@@ -254,12 +254,13 @@ function buildHomeData({
   };
 }
 
-function buildNavigation(siteNav = {}) {
+function buildNavigation(siteNav = {}, { isDemo = false } = {}) {
   const defaults = new Map([
     ['home', 'Accueil'],
     ['actualites', 'Actualités'],
     ['lecture', 'Coup de cœur'],
     ['agenda', 'Agenda'],
+    ['veille', 'Veille'],
     ['about', 'À propos'],
   ]);
   const labels = new Map(
@@ -268,7 +269,7 @@ function buildNavigation(siteNav = {}) {
       .map((item) => [item.key, item.label || defaults.get(item.key) || item.key]),
   );
 
-  return [
+  const items = [
     { href: 'index.html', key: 'home', label: labels.get('home') || defaults.get('home') },
     { href: 'portail.html', key: 'actualites', label: labels.get('actualites') || defaults.get('actualites') },
     {
@@ -280,6 +281,16 @@ function buildNavigation(siteNav = {}) {
     { href: 'agenda.html', key: 'agenda', label: labels.get('agenda') || defaults.get('agenda') },
     { href: 'a-propos.html', key: 'about', label: labels.get('about') || defaults.get('about') },
   ];
+
+  if (!isDemo) {
+    items.splice(4, 0, {
+      href: 'veille.html',
+      key: 'veille',
+      label: labels.get('veille') || defaults.get('veille'),
+    });
+  }
+
+  return items;
 }
 
 async function loadJournalData() {
@@ -320,7 +331,9 @@ async function loadJournalData() {
     site: {
       deployTarget,
       isDemo: deployTarget === 'github-pages-demo',
-      navigation: buildNavigation(siteNav),
+      navigation: buildNavigation(siteNav, {
+        isDemo: deployTarget === 'github-pages-demo',
+      }),
       pathPrefix,
     },
     siteSections,
@@ -331,6 +344,7 @@ module.exports = loadJournalData;
 module.exports.__private__ = {
   buildCantineSummary,
   buildHomeData,
+  buildNavigation,
   buildPortalUrl,
   buildQuickLinks,
   buildUpcomingEvents,

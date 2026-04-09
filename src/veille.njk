@@ -1,0 +1,923 @@
+---
+---
+{% set activePage = 'veille' %}
+{% set navSection = journal.siteSections['site-nav'] %}
+{% set footerSection = journal.siteSections['footer'] %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="{{ journal.site.pathPrefix }}">
+    <title>Veille - {{ navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne" }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        body: ['Manrope', 'sans-serif'],
+                        heading: ['Sora', 'sans-serif'],
+                    },
+                    colors: {
+                        ink: '#16314a',
+                        'vintage-red': '#f6a318',
+                        'vintage-green': '#7fbf25',
+                        'vintage-blue': '#2894e3'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --paper: #f7faf7;
+            --paper-strong: #ffffff;
+            --ink: #16314a;
+            --muted: #536679;
+            --vintage-red: #f6a318;
+            --vintage-green: #7fbf25;
+            --vintage-blue: #2894e3;
+            --vintage-indigo: #5165d6;
+            --line: #d9e5ec;
+            --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
+        }
+        body {
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(246,163,24,0.10), transparent 22%),
+                radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
+                linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
+        }
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: -3rem;
+            z-index: 80;
+            padding: 0.7rem 1rem;
+            border-radius: 999px;
+            background: var(--ink);
+            color: #fff;
+            font-weight: 700;
+        }
+        .skip-link:focus {
+            top: 1rem;
+        }
+        .glass-nav {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,252,252,0.92)),
+                linear-gradient(90deg, rgba(246,163,24,0.10), rgba(127,191,37,0.08), rgba(40,148,227,0.10));
+            backdrop-filter: blur(14px);
+            box-shadow: 0 10px 24px rgba(22, 49, 74, 0.07);
+        }
+        .nav-link {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
+            --nav-soft: rgba(22, 49, 74, 0.05);
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0.72rem 1rem;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.08);
+            opacity: 1;
+            color: var(--muted);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0.85rem;
+            right: 0.85rem;
+            bottom: 0.46rem;
+            height: 3px;
+            border-radius: 999px;
+            background: var(--nav-gradient);
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.25s ease;
+        }
+        .nav-link--home {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-red), #ffbf52);
+            --nav-soft: rgba(246, 163, 24, 0.14);
+        }
+        .nav-link--actualites {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
+            --nav-soft: rgba(40, 148, 227, 0.14);
+        }
+        .nav-link--lecture {
+            --nav-gradient: linear-gradient(135deg, #7c3f2c, #b66b4c);
+            --nav-soft: rgba(124, 63, 44, 0.14);
+        }
+        .nav-link--agenda {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-green), #5ea51a);
+            --nav-soft: rgba(127, 191, 37, 0.16);
+        }
+        .nav-link--about {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
+            --nav-soft: rgba(246, 163, 24, 0.12);
+        }
+        .nav-link:hover,
+        .nav-link.is-active { opacity: 1; }
+        .nav-link:hover::after,
+        .nav-link.is-active::after { transform: scaleX(1); }
+        .nav-link:hover {
+            color: var(--ink);
+            background: var(--nav-soft);
+            transform: translateY(-1px);
+            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.08), 0 10px 18px rgba(22, 49, 74, 0.08);
+        }
+        .nav-link.is-active {
+            color: #fff;
+            background: var(--nav-gradient);
+            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
+        }
+        .nav-link.is-active::after {
+            background: rgba(255, 255, 255, 0.78);
+        }
+        .nav-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0.7rem 1rem;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(249,246,242,0.95));
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink);
+            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.06);
+        }
+        .nav-toggle[aria-expanded="true"] {
+            color: #fff;
+            border-color: transparent;
+            background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
+            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
+        }
+        .mobile-nav-panel {
+            padding: 0.75rem 0 1rem;
+            border-top: 1px solid var(--line);
+        }
+        .mobile-nav-link {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.55rem;
+            padding: 0.95rem 1rem;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.94);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--ink);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .mobile-nav-link::before {
+            content: '';
+            flex: 0 0 auto;
+            width: 0.72rem;
+            height: 0.72rem;
+            border-radius: 999px;
+            background: var(--nav-gradient);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+        }
+        .mobile-nav-link--home {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-red), #ffbf52);
+        }
+        .mobile-nav-link--actualites {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
+        }
+        .mobile-nav-link--lecture {
+            --nav-gradient: linear-gradient(135deg, #7c3f2c, #b66b4c);
+        }
+        .mobile-nav-link--agenda {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-green), #5ea51a);
+        }
+        .mobile-nav-link--about {
+            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
+        }
+        .mobile-nav-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 18px rgba(22, 49, 74, 0.08);
+        }
+        .mobile-nav-link.is-active {
+            color: #fff;
+            border-color: transparent;
+            background: var(--nav-gradient);
+            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
+        }
+        .mobile-nav-link.is-active::before {
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: none;
+        }
+        .section-shell {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,0.94);
+            box-shadow: var(--shadow-card);
+            padding: 1.4rem;
+        }
+        .section-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 14%);
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .section-shell {
+                padding: 1.75rem;
+            }
+        }
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: var(--vintage-blue);
+        }
+        .veille-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        @media (min-width: 900px) {
+            .veille-toolbar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+        .veille-search-form {
+            display: flex;
+            flex: 1 1 auto;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .veille-search-field {
+            flex: 1 1 18rem;
+            min-height: 54px;
+            border-radius: 16px;
+            border: 1px solid rgba(22, 49, 74, 0.12);
+            background: #fff;
+            padding: 0 1rem;
+            font-size: 0.98rem;
+            color: var(--ink);
+            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.04);
+        }
+        .veille-search-field:focus {
+            outline: none;
+            border-color: rgba(40, 148, 227, 0.45);
+            box-shadow: 0 0 0 4px rgba(40, 148, 227, 0.12);
+        }
+        .veille-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 54px;
+            padding: 0 1.25rem;
+            border-radius: 16px;
+            border: 0;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            cursor: pointer;
+        }
+        .veille-button:hover {
+            transform: translateY(-1px);
+        }
+        .veille-button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+        .veille-button--primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
+            box-shadow: 0 16px 26px rgba(40, 148, 227, 0.24);
+        }
+        .veille-button--secondary {
+            color: var(--ink);
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            background: rgba(245, 249, 251, 0.92);
+        }
+        .veille-meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            align-self: flex-start;
+            min-height: 46px;
+            padding: 0.75rem 1rem;
+            border-radius: 999px;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            background: rgba(247, 250, 247, 0.88);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .veille-status-box {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.95rem 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(40, 148, 227, 0.14);
+            background: rgba(235, 245, 251, 0.92);
+            color: var(--ink);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+        .veille-status-box.is-visible {
+            display: block;
+        }
+        .veille-status-box--error {
+            border-color: rgba(209, 84, 84, 0.16);
+            background: rgba(252, 240, 240, 0.94);
+        }
+        .veille-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 1200px) {
+            .veille-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        .veille-source {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .veille-source-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--line);
+        }
+        .veille-source-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .veille-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.1rem;
+            min-height: 2.1rem;
+            padding: 0 0.65rem;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+        .veille-source--mairie .veille-count {
+            color: #1363ac;
+            background: rgba(40, 148, 227, 0.14);
+        }
+        .veille-source--prefecture .veille-count {
+            color: #4b57a8;
+            background: rgba(81, 101, 214, 0.14);
+        }
+        .veille-feedback {
+            display: grid;
+            gap: 0.8rem;
+        }
+        .veille-error-box,
+        .veille-empty-box {
+            border-radius: 18px;
+            border: 1px solid rgba(22, 49, 74, 0.1);
+            padding: 1rem 1.1rem;
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+        .veille-error-box {
+            background: rgba(252, 243, 235, 0.92);
+            border-color: rgba(240, 143, 59, 0.22);
+        }
+        .veille-empty-box {
+            background: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            color: var(--muted);
+        }
+        .veille-link-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-top: 0.6rem;
+            color: var(--ink);
+            text-decoration: underline;
+            text-underline-offset: 0.2rem;
+            font-weight: 700;
+        }
+        .veille-cards {
+            display: grid;
+            gap: 1rem;
+        }
+        .veille-card {
+            display: block;
+            border-radius: 22px;
+            border: 1px solid rgba(22, 49, 74, 0.08);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: var(--shadow-card);
+            padding: 1.25rem;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .veille-card:hover {
+            transform: translateY(-1px);
+        }
+        .veille-source--mairie .veille-card:hover {
+            border-color: rgba(40, 148, 227, 0.28);
+        }
+        .veille-source--prefecture .veille-card:hover {
+            border-color: rgba(81, 101, 214, 0.28);
+        }
+        .veille-card-headline {
+            margin-bottom: 0.65rem;
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.4;
+            color: var(--ink);
+        }
+        .veille-card-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .veille-card-excerpt {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.93rem;
+            line-height: 1.6;
+        }
+        .veille-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .veille-source--mairie .veille-card-footer {
+            color: #1363ac;
+        }
+        .veille-source--prefecture .veille-card-footer {
+            color: #4b57a8;
+        }
+        .veille-loading-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .veille-skeleton {
+            overflow: hidden;
+            position: relative;
+            border-radius: 22px;
+            border: 1px solid rgba(22, 49, 74, 0.05);
+            background: rgba(255, 255, 255, 0.92);
+            padding: 1.2rem;
+        }
+        .veille-skeleton::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
+            transform: translateX(-100%);
+            animation: veille-shimmer 1.4s infinite;
+        }
+        .veille-skeleton-line {
+            height: 0.9rem;
+            border-radius: 999px;
+            background: rgba(217, 229, 236, 0.82);
+        }
+        .veille-skeleton-line + .veille-skeleton-line {
+            margin-top: 0.7rem;
+        }
+        @keyframes veille-shimmer {
+            to {
+                transform: translateX(100%);
+            }
+        }
+        .veille-helper-list {
+            display: grid;
+            gap: 0.65rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body class="font-body antialiased">
+    <a href="#main-content" class="skip-link">Aller au contenu</a>
+
+    {% include "site-nav.njk" %}
+
+    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+        <section class="section-shell">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div class="max-w-3xl">
+                    <p class="section-kicker mb-3">Surveillance multicanal</p>
+                    <h1 class="text-4xl md:text-5xl font-heading font-black uppercase tracking-tight mb-3">Veille Annet-sur-Marne</h1>
+                    <p class="text-base md:text-lg leading-relaxed text-[color:var(--muted)]">
+                        Cette page interroge directement les sources officielles côté Vercel pour suivre la mairie et la préfecture, sans dépendre de proxys publics dans le navigateur.
+                    </p>
+                    <div class="veille-helper-list">
+                        <div>Source 1 : flux RSS du site de la mairie.</div>
+                        <div>Source 2 : recherche du site de la préfecture de Seine-et-Marne.</div>
+                    </div>
+                </div>
+                <div id="veille-last-updated" class="veille-meta-pill">
+                    <span aria-hidden="true">🕒</span>
+                    <span>Dernière mise à jour : --</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-shell mt-6">
+            <div class="veille-toolbar">
+                <form id="veille-search-form" class="veille-search-form" action="veille.html" method="get">
+                    <input
+                        id="veille-search-input"
+                        class="veille-search-field"
+                        type="text"
+                        name="q"
+                        autocomplete="off"
+                        placeholder="Mot-clé : travaux, environnement, école, circulation..."
+                    >
+                    <button id="veille-search-submit" class="veille-button veille-button--primary" type="submit">Chercher</button>
+                </form>
+                <button id="veille-refresh-button" class="veille-button veille-button--secondary" type="button">Rafraîchir</button>
+            </div>
+            <div id="veille-status" class="veille-status-box" aria-live="polite"></div>
+            <noscript>
+                <div class="veille-status-box veille-status-box--error is-visible" style="display:block;">
+                    Cette page nécessite JavaScript pour charger la veille en temps réel.
+                </div>
+            </noscript>
+        </section>
+
+        <section class="veille-grid mt-6">
+            <div class="section-shell veille-source veille-source--mairie">
+                <div class="veille-source-header">
+                    <h2 class="veille-source-title">
+                        <span aria-hidden="true">🏛️</span>
+                        <span>Mairie d'Annet-sur-Marne</span>
+                    </h2>
+                    <span id="veille-mairie-count" class="veille-count">0</span>
+                </div>
+                <div id="veille-mairie-feedback" class="veille-feedback"></div>
+                <div id="veille-mairie-results" class="veille-cards"></div>
+            </div>
+
+            <div class="section-shell veille-source veille-source--prefecture">
+                <div class="veille-source-header">
+                    <h2 class="veille-source-title">
+                        <span aria-hidden="true">🏛</span>
+                        <span>Préfecture de Seine-et-Marne</span>
+                    </h2>
+                    <span id="veille-prefecture-count" class="veille-count">0</span>
+                </div>
+                <div id="veille-prefecture-feedback" class="veille-feedback"></div>
+                <div id="veille-prefecture-results" class="veille-cards"></div>
+            </div>
+        </section>
+    </main>
+
+    {% include "site-footer.njk" %}
+
+    <script>
+        const veilleSearchForm = document.getElementById('veille-search-form');
+        const veilleSearchInput = document.getElementById('veille-search-input');
+        const veilleSearchSubmit = document.getElementById('veille-search-submit');
+        const veilleRefreshButton = document.getElementById('veille-refresh-button');
+        const veilleStatus = document.getElementById('veille-status');
+        const veilleLastUpdated = document.getElementById('veille-last-updated');
+        const veilleMairieFeedback = document.getElementById('veille-mairie-feedback');
+        const veilleMairieResults = document.getElementById('veille-mairie-results');
+        const veilleMairieCount = document.getElementById('veille-mairie-count');
+        const veillePrefectureFeedback = document.getElementById('veille-prefecture-feedback');
+        const veillePrefectureResults = document.getElementById('veille-prefecture-results');
+        const veillePrefectureCount = document.getElementById('veille-prefecture-count');
+        const initialSearchParams = new URLSearchParams(window.location.search);
+
+        const veilleState = {
+            currentQuery: initialSearchParams.get('q') || '',
+            globalError: '',
+            lastUpdated: '',
+            loading: false,
+            mairie: { items: [], error: null },
+            prefecture: { items: [], error: null },
+            requestId: 0,
+            searchTerm: initialSearchParams.get('q') || '',
+        };
+
+        veilleSearchInput.value = veilleState.searchTerm;
+
+        function escapeHtml(value = '') {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function normalizeText(value = '') {
+            return String(value || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function formatDate(value = '') {
+            if (!value) {
+                return 'Date inconnue';
+            }
+
+            const parsedDate = new Date(value);
+            if (Number.isNaN(parsedDate.getTime())) {
+                return value;
+            }
+
+            return new Intl.DateTimeFormat('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+            }).format(parsedDate);
+        }
+
+        function formatLastUpdated(value = '') {
+            if (!value) {
+                return 'Dernière mise à jour : --';
+            }
+
+            const parsedDate = new Date(value);
+            if (Number.isNaN(parsedDate.getTime())) {
+                return `Dernière mise à jour : ${value}`;
+            }
+
+            return `Dernière mise à jour : ${new Intl.DateTimeFormat('fr-FR', {
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                month: 'long',
+            }).format(parsedDate)}`;
+        }
+
+        function buildPrefectureSearchUrl(query = '') {
+            const baseSearch = 'annet sur marne';
+            const normalizedQuery = normalizeText(query);
+            const searchText = normalizedQuery ? `${baseSearch} ${normalizedQuery}` : baseSearch;
+            const encodedSearch = encodeURIComponent(searchText).replace(/%20/g, '+');
+            return `https://www.seine-et-marne.gouv.fr/contenu/recherche/(searchtext)/${encodedSearch}/(change)/1222017655?SearchText=${encodedSearch}`;
+        }
+
+        function buildApiUrl(query = '') {
+            const apiUrl = new URL('api/veille/annetsurmarne', window.location.href);
+            if (normalizeText(query)) {
+                apiUrl.searchParams.set('q', normalizeText(query));
+            }
+            return apiUrl;
+        }
+
+        function updateUrl() {
+            const nextUrl = new URL(window.location.href);
+            const query = normalizeText(veilleState.currentQuery);
+
+            if (query) {
+                nextUrl.searchParams.set('q', query);
+            } else {
+                nextUrl.searchParams.delete('q');
+            }
+
+            window.history.replaceState({}, '', nextUrl);
+        }
+
+        function renderSkeletons(container) {
+            container.innerHTML = `
+                <div class="veille-loading-grid">
+                    <div class="veille-skeleton">
+                        <div class="veille-skeleton-line" style="width:78%;"></div>
+                        <div class="veille-skeleton-line" style="width:38%;"></div>
+                        <div class="veille-skeleton-line" style="width:92%;"></div>
+                    </div>
+                    <div class="veille-skeleton">
+                        <div class="veille-skeleton-line" style="width:64%;"></div>
+                        <div class="veille-skeleton-line" style="width:32%;"></div>
+                        <div class="veille-skeleton-line" style="width:88%;"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFeedback(container, sourceKey, errorMessage) {
+            const query = normalizeText(veilleState.currentQuery);
+            if (!errorMessage) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const extraLink = sourceKey === 'prefecture'
+                ? `<a class="veille-link-inline" href="${escapeHtml(buildPrefectureSearchUrl(query))}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">↗</span><span>Ouvrir la recherche sur gouv.fr</span></a>`
+                : '';
+
+            container.innerHTML = `
+                <div class="veille-error-box">
+                    <strong>${sourceKey === 'prefecture' ? 'Info Préfecture' : 'Info Mairie'}</strong>
+                    <div class="mt-2">${escapeHtml(errorMessage)}</div>
+                    ${extraLink}
+                </div>
+            `;
+        }
+
+        function renderEmpty(container, message) {
+            container.innerHTML = `<div class="veille-empty-box">${escapeHtml(message)}</div>`;
+        }
+
+        function renderCards(container, sourceClassName, items, footerLabel) {
+            container.innerHTML = items.map((item) => `
+                <a class="veille-card" href="${escapeHtml(item.link || '#')}" target="_blank" rel="noopener noreferrer">
+                    <h3 class="veille-card-headline">${escapeHtml(item.title || 'Sans titre')}</h3>
+                    <div class="veille-card-meta">
+                        <span aria-hidden="true">🗓️</span>
+                        <span>${escapeHtml(formatDate(item.pubDate || ''))}</span>
+                    </div>
+                    ${item.excerpt ? `<p class="veille-card-excerpt">${escapeHtml(item.excerpt)}</p>` : ''}
+                    <div class="veille-card-footer ${sourceClassName}">
+                        <span>${escapeHtml(footerLabel)}</span>
+                        <span aria-hidden="true">↗</span>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        function renderSourceSection({ countNode, emptyLabel, feedbackNode, footerLabel, resultsNode, sourceKey, sourceState }) {
+            countNode.textContent = String(sourceState.items.length || 0);
+            renderFeedback(feedbackNode, sourceKey, sourceState.error);
+
+            if (veilleState.loading) {
+                renderSkeletons(resultsNode);
+                return;
+            }
+
+            if (!sourceState.items.length) {
+                renderEmpty(resultsNode, emptyLabel);
+                return;
+            }
+
+            renderCards(resultsNode, sourceKey === 'prefecture' ? 'veille-card-footer--prefecture' : 'veille-card-footer--mairie', sourceState.items, footerLabel);
+        }
+
+        function renderStatus() {
+            const hasAnyError = Boolean(veilleState.globalError || veilleState.mairie.error || veilleState.prefecture.error);
+
+            if (veilleState.loading) {
+                veilleStatus.className = 'veille-status-box is-visible';
+                veilleStatus.textContent = 'Actualisation de la veille en cours...';
+                return;
+            }
+
+            if (veilleState.globalError) {
+                veilleStatus.className = 'veille-status-box veille-status-box--error is-visible';
+                veilleStatus.textContent = veilleState.globalError;
+                return;
+            }
+
+            if (hasAnyError) {
+                veilleStatus.className = 'veille-status-box is-visible';
+                veilleStatus.textContent = 'Certaines sources ont répondu partiellement. Les résultats disponibles restent affichés.';
+                return;
+            }
+
+            veilleStatus.className = 'veille-status-box';
+            veilleStatus.textContent = '';
+        }
+
+        function renderLastUpdated() {
+            veilleLastUpdated.innerHTML = `
+                <span aria-hidden="true">🕒</span>
+                <span>${escapeHtml(formatLastUpdated(veilleState.lastUpdated))}</span>
+            `;
+        }
+
+        function toggleControls() {
+            veilleSearchSubmit.disabled = veilleState.loading;
+            veilleRefreshButton.disabled = veilleState.loading;
+            veilleSearchInput.disabled = veilleState.loading;
+        }
+
+        function renderVeille() {
+            toggleControls();
+            renderLastUpdated();
+            renderStatus();
+            renderSourceSection({
+                countNode: veilleMairieCount,
+                emptyLabel: "Aucun résultat de la mairie pour cette recherche.",
+                feedbackNode: veilleMairieFeedback,
+                footerLabel: "Voir l'article",
+                resultsNode: veilleMairieResults,
+                sourceKey: 'mairie',
+                sourceState: veilleState.mairie,
+            });
+            renderSourceSection({
+                countNode: veillePrefectureCount,
+                emptyLabel: "Aucun résultat exploitable trouvé côté préfecture.",
+                feedbackNode: veillePrefectureFeedback,
+                footerLabel: 'Consulter sur gouv.fr',
+                resultsNode: veillePrefectureResults,
+                sourceKey: 'prefecture',
+                sourceState: veilleState.prefecture,
+            });
+        }
+
+        async function loadVeille(query = veilleState.currentQuery) {
+            const requestId = ++veilleState.requestId;
+            veilleState.loading = true;
+            veilleState.globalError = '';
+            renderVeille();
+
+            try {
+                const response = await fetch(buildApiUrl(query), {
+                    headers: {
+                        accept: 'application/json',
+                    },
+                });
+
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Impossible de charger la veille.');
+                }
+
+                if (requestId !== veilleState.requestId) {
+                    return;
+                }
+
+                veilleState.currentQuery = normalizeText(payload.query || query);
+                veilleState.searchTerm = veilleState.currentQuery;
+                veilleState.lastUpdated = payload.lastUpdated || new Date().toISOString();
+                veilleState.mairie = payload.mairie || { items: [], error: null };
+                veilleState.prefecture = payload.prefecture || { items: [], error: null };
+                veilleSearchInput.value = veilleState.searchTerm;
+                updateUrl();
+            } catch (error) {
+                if (requestId !== veilleState.requestId) {
+                    return;
+                }
+
+                veilleState.globalError = error.message || "La veille n'a pas pu être actualisée.";
+            } finally {
+                if (requestId === veilleState.requestId) {
+                    veilleState.loading = false;
+                    renderVeille();
+                }
+            }
+        }
+
+        veilleSearchForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            veilleState.searchTerm = veilleSearchInput.value || '';
+            veilleState.currentQuery = normalizeText(veilleState.searchTerm);
+            loadVeille(veilleState.currentQuery);
+        });
+
+        veilleSearchInput.addEventListener('input', (event) => {
+            veilleState.searchTerm = event.target.value || '';
+        });
+
+        veilleRefreshButton.addEventListener('click', () => {
+            loadVeille(veilleState.currentQuery);
+        });
+
+        renderVeille();
+        loadVeille(veilleState.currentQuery);
+    </script>
+</body>
+</html>

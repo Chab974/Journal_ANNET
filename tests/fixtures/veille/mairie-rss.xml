@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Mairie d'Annet-sur-Marne</title>
+    <item>
+      <title><![CDATA[Conseil municipal du printemps]]></title>
+      <link>https://www.annetsurmarne.com/conseil-municipal-printemps/</link>
+      <pubDate>Tue, 07 Apr 2026 08:00:00 +0200</pubDate>
+      <description><![CDATA[<p>Ordre du jour et délibérations prévues à la salle du conseil.</p>]]></description>
+    </item>
+    <item>
+      <title><![CDATA[Travaux rue du Général de Gaulle]]></title>
+      <link>https://www.annetsurmarne.com/travaux-rue-general-de-gaulle/</link>
+      <pubDate>Wed, 08 Apr 2026 06:30:00 +0200</pubDate>
+      <content:encoded><![CDATA[
+        <p>Des travaux de voirie débutent la semaine prochaine avec une circulation adaptée.</p>
+      ]]></content:encoded>
+    </item>
+  </channel>
+</rss>

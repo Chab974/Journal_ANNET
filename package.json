@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run validate:snapshots && eleventy",
+    "build": "npm run validate:snapshots && node scripts/clean-site-output.mjs && eleventy",
     "build:site": "npm run sync:notion && npm run build",
     "build:pages-demo": "npm run build:site",
     "build:vercel": "npm run build:site",

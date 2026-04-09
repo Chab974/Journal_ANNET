@@ -13,11 +13,12 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
     cwd: fromRepo(),
   });
 
-  const [indexHtml, portalHtml, agendaHtml, aboutHtml] = await Promise.all([
+  const [indexHtml, portalHtml, agendaHtml, aboutHtml, veilleHtml] = await Promise.all([
     readFile(fromRepo('_site', 'index.html'), 'utf8'),
     readFile(fromRepo('_site', 'portail.html'), 'utf8'),
     readFile(fromRepo('_site', 'agenda.html'), 'utf8'),
     readFile(fromRepo('_site', 'a-propos.html'), 'utf8'),
+    readFile(fromRepo('_site', 'veille.html'), 'utf8'),
   ]);
   const agendaDataMatch = agendaHtml.match(/<script id="agenda-events-data" type="application\/json">([\s\S]*?)<\/script>/);
   assert.ok(agendaDataMatch, 'Le snapshot agenda embarqué doit être présent dans agenda.html');
@@ -63,11 +64,14 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(aboutHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
   assert.match(aboutHtml, /about-copy-data/);
   assert.doesNotMatch(aboutHtml, /const pillarsData = \[/);
+  assert.match(veilleHtml, /Veille Annet-sur-Marne/);
+  assert.match(veilleHtml, /api\/veille\/annetsurmarne/);
+  assert.match(veilleHtml, />Veille</);
   assert.doesNotMatch(portalHtml, /fetch\('\.\/data\/citizen-posts\.json'/);
   assert.doesNotMatch(agendaHtml, /fetch\('\.\/data\/calendar-events\.json'/);
 });
 
-test('le build GitHub Pages injecte un base href compatible sous-répertoire', async () => {
+test('le build GitHub Pages injecte un base href compatible sous-répertoire et exclut la page veille', async () => {
   await execFileAsync('npm', ['run', 'build'], {
     cwd: fromRepo(),
     env: {
@@ -88,4 +92,6 @@ test('le build GitHub Pages injecte un base href compatible sous-répertoire', a
   assert.match(portalHtml, /<base href="\/Journal_ANNET\/">/);
   assert.match(agendaHtml, /<base href="\/Journal_ANNET\/">/);
   assert.match(aboutHtml, /<base href="\/Journal_ANNET\/">/);
+  assert.doesNotMatch(indexHtml, />Veille</);
+  await assert.rejects(() => readFile(fromRepo('_site', 'veille.html'), 'utf8'));
 });

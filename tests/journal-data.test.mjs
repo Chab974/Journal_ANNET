@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import loadJournalData from '../src/_data/journal.cjs';
 
-const { buildHomeData } = loadJournalData.__private__;
+const { buildHomeData, buildNavigation } = loadJournalData.__private__;
 
 test('buildHomeData privilégie la publication featured et les prochains événements', () => {
   const home = buildHomeData({
@@ -105,4 +105,12 @@ test("buildHomeData n'utilise plus automatiquement le premier article comme mise
     home.secondaryPublications.map((item) => item.titre),
     ['3 eme article', '2e article', 'Création d 1er article'],
   );
+});
+
+test('buildNavigation ajoute la rubrique veille seulement hors démo GitHub Pages', () => {
+  const productionNav = buildNavigation({}, { isDemo: false });
+  const demoNav = buildNavigation({}, { isDemo: true });
+
+  assert.equal(productionNav.some((item) => item.key === 'veille'), true);
+  assert.equal(demoNav.some((item) => item.key === 'veille'), false);
 });
