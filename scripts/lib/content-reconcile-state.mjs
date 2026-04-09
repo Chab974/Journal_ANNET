@@ -19,6 +19,11 @@ function normalizeHash(value) {
   return normalized || null;
 }
 
+function normalizeEventId(value) {
+  const normalized = String(value ?? '').trim();
+  return normalized || null;
+}
+
 function compareIsoTimestamp(left, right) {
   const leftValue = left ? Date.parse(left) : Number.NEGATIVE_INFINITY;
   const rightValue = right ? Date.parse(right) : Number.NEGATIVE_INFINITY;
@@ -42,6 +47,7 @@ export function createDefaultProductionReconcileState() {
   return {
     blocked_until: null,
     dirty: false,
+    last_event_id: null,
     last_attempt_at: null,
     last_entity_id: null,
     last_error_code: null,
@@ -63,6 +69,7 @@ export function normalizeProductionReconcileState(value = {}) {
     ...defaults,
     blocked_until: toIsoTimestamp(value.blocked_until),
     dirty: Boolean(value.dirty),
+    last_event_id: normalizeEventId(value.last_event_id),
     last_attempt_at: toIsoTimestamp(value.last_attempt_at),
     last_entity_id: value.last_entity_id ? String(value.last_entity_id) : null,
     last_error_code: value.last_error_code ? String(value.last_error_code) : null,
@@ -123,10 +130,23 @@ export function isProductionReconcileBlocked(state, now = Date.now()) {
   return normalized.blocked_until ? Date.parse(normalized.blocked_until) > now : false;
 }
 
+export function isDuplicateProductionReconcileEvent(state, event) {
+  const normalized = normalizeProductionReconcileState(state);
+  const eventId = normalizeEventId(event?.event_id);
+
+  return Boolean(eventId && normalized.last_event_id && eventId === normalized.last_event_id);
+}
+
 export function mergeProductionReconcileEvent(state, event, now = new Date()) {
   const normalized = normalizeProductionReconcileState(state);
+  const eventId = normalizeEventId(event?.event_id);
   const nowIso = toIsoTimestamp(now) || new Date().toISOString();
   const eventTimestamp = toIsoTimestamp(event?.event_timestamp) || nowIso;
+
+  if (eventId && normalized.last_event_id && eventId === normalized.last_event_id) {
+    return normalized;
+  }
+
   const next = {
     ...normalized,
     dirty: true,
@@ -134,6 +154,7 @@ export function mergeProductionReconcileEvent(state, event, now = new Date()) {
   };
 
   if (!normalized.last_event_at || compareIsoTimestamp(eventTimestamp, normalized.last_event_at) >= 0) {
+    next.last_event_id = eventId || normalized.last_event_id;
     next.last_entity_id = event?.entity_id ? String(event.entity_id) : normalized.last_entity_id;
     next.last_event_action = event?.event_action ? String(event.event_action) : normalized.last_event_action;
     next.last_event_at = eventTimestamp;

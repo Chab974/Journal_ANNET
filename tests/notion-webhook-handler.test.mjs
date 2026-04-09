@@ -208,7 +208,7 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
 test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', { concurrency: false }, async () => {
   const issueNumber = 21;
   const blockedStateBody = serializeProductionReconcileState({
-    blocked_until: '2026-04-09T08:00:00.000Z',
+    blocked_until: '2099-04-09T08:00:00.000Z',
     dirty: true,
     last_event_at: '2026-04-08T08:00:00.000Z',
     pending_since: '2026-04-08T08:00:00.000Z',
@@ -275,6 +275,100 @@ test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', {
         assert.equal(payload.productionReconcile.workflow.dispatched, false);
         assert.equal(payload.productionReconcile.workflow.reason, 'blocked_until');
         assert.equal(payload.productionReconcile.workflow.skipped, true);
+      } finally {
+        global.fetch = originalFetch;
+      }
+    },
+  );
+});
+
+test('notionWebhook ignore un event_id déjà traité sans redispatcher la prod', { concurrency: false }, async () => {
+  const issueNumber = 22;
+  const existingStateBody = serializeProductionReconcileState({
+    blocked_until: null,
+    dirty: false,
+    last_event_action: 'modification',
+    last_event_at: '2026-04-08T08:00:00.000Z',
+    last_event_id: 'event-duplicate',
+    last_event_type: 'page.properties_updated',
+    pending_since: null,
+  });
+  const calls = [];
+
+  await withEnv(
+    {
+      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: String(issueNumber),
+      GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
+      GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
+      GITHUB_REPOSITORY_NAME: 'Journal_ANNET',
+      GITHUB_REPOSITORY_OWNER: 'Chab974',
+      GITHUB_WEBHOOK_TOKEN: 'gh_secret',
+      NOTION_PUBLICATIONS_DATA_SOURCE_ID: 'ds-publications',
+      NOTION_TOKEN: 'secret_notion',
+      NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+    },
+    async () => {
+      const notionWebhook = await importWebhookHandler(`duplicate-${Date.now()}`);
+      const originalFetch = global.fetch;
+
+      global.fetch = async (url, options = {}) => {
+        calls.push({ method: options.method || 'GET', url });
+
+        if (url.endsWith(`/issues/${issueNumber}`) && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            body: existingStateBody,
+            number: issueNumber,
+          });
+        }
+
+        if (url.endsWith('/pages/page-duplicate') && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            id: 'page-duplicate',
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'data_source_id',
+            },
+            properties: {
+              Statut: {
+                status: {
+                  name: 'Publication immédiate',
+                },
+                type: 'status',
+              },
+            },
+          });
+        }
+
+        throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+      };
+
+      try {
+        const rawBody = JSON.stringify({
+          data: {
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'workspace',
+            },
+          },
+          entity: { id: 'page-duplicate', type: 'page' },
+          id: 'event-duplicate',
+          timestamp: '2026-04-08T08:00:00.000Z',
+          type: 'page.properties_updated',
+        });
+
+        const response = createResponse();
+        await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+        assert.equal(response.statusCode, 202);
+        assert.equal(calls.length, 2);
+
+        const payload = JSON.parse(response.body);
+        assert.equal(payload.ignored, true);
+        assert.equal(payload.queued, false);
+        assert.equal(payload.productionReconcile.duplicate_event_id, true);
+        assert.equal(payload.productionReconcile.run_mode, 'immediate');
+        assert.equal(payload.productionReconcile.workflow.dispatched, false);
+        assert.equal(payload.productionReconcile.workflow.reason, 'duplicate_event_id');
       } finally {
         global.fetch = originalFetch;
       }

@@ -47,7 +47,10 @@ if (isProductionReconcileBlocked(initialState)) {
   process.exit(0);
 }
 
-if (String(process.env.RECONCILE_TRIGGER_SOURCE || '') === 'webhook') {
+const triggerSource = String(process.env.RECONCILE_TRIGGER_SOURCE || 'manual').trim() || 'manual';
+console.log(`Réconciliation prod: déclenchement ${triggerSource}.`);
+
+if (triggerSource === 'webhook') {
   const debounceMinutes = resolveDebounceMinutes();
   if (debounceMinutes > 0) {
     console.log(`Réconciliation prod: attente de ${debounceMinutes} minute(s) avant tentative.`);

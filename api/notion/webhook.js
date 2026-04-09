@@ -8,6 +8,7 @@ import {
 } from '../../scripts/lib/notion/webhook.mjs';
 import {
   isProductionReconcileBlocked,
+  isDuplicateProductionReconcileEvent,
   mergeProductionReconcileEvent,
 } from '../../scripts/lib/content-reconcile-state.mjs';
 import {
@@ -108,6 +109,15 @@ async function triggerGitHubPagesDemo(metadata) {
 async function recordProductionReconcileState(metadata) {
   const stateConfig = resolveProductionReconcileStateConfig();
   const { state } = await loadProductionReconcileState(stateConfig);
+
+  if (isDuplicateProductionReconcileEvent(state, metadata)) {
+    return {
+      duplicate: true,
+      issueNumber: stateConfig.issueNumber,
+      state,
+    };
+  }
+
   const nextState = mergeProductionReconcileEvent(state, metadata);
 
   await saveProductionReconcileState(stateConfig, {
@@ -115,6 +125,7 @@ async function recordProductionReconcileState(metadata) {
   });
 
   return {
+    duplicate: false,
     issueNumber: stateConfig.issueNumber,
     state: nextState,
   };
@@ -279,7 +290,7 @@ export default async function notionWebhook(request, response) {
     const metadata = toDispatchMetadata(payload);
     const eventPage = await resolveEventPage();
     const runMode = isImmediatePublicationPage(eventPage) ? 'immediate' : 'webhook';
-    console.info('Notion webhook enqueueing production reconcile', metadata);
+    console.info('Notion webhook evaluating production reconcile', metadata);
     let reconcile = null;
     let reconcileError = null;
 
@@ -293,6 +304,46 @@ export default async function notionWebhook(request, response) {
         event_action: metadata.event_action,
         event_type: payload?.type ?? null,
       });
+    }
+
+    if (reconcile?.duplicate) {
+      console.info('Notion webhook duplicate event ignored', {
+        entity_id: payload?.entity?.id ?? null,
+        event_id: metadata.event_id || null,
+        event_type: payload?.type ?? null,
+        issue_number: reconcile.issueNumber,
+      });
+
+      sendJson(response, 202, {
+        deploy: {
+          githubPagesDemo: {
+            dispatched: false,
+            reason: 'duplicate_event_id',
+            skipped: true,
+          },
+        },
+        event: metadata,
+        event_type: payload.type,
+        ignored: true,
+        ok: true,
+        productionReconcile: {
+          blocked_until: reconcile.state?.blocked_until ?? null,
+          dirty: reconcile.state?.dirty ?? null,
+          duplicate_event_id: true,
+          issue_number: reconcile.issueNumber,
+          last_event_at: reconcile.state?.last_event_at ?? null,
+          run_mode: runMode,
+          state_error: reconcileError?.message ?? null,
+          state_persisted: false,
+          workflow: {
+            dispatched: false,
+            reason: 'duplicate_event_id',
+            skipped: true,
+          },
+        },
+        queued: false,
+      });
+      return;
     }
 
     const [productionResult, githubPagesDemoResult] = await Promise.allSettled([

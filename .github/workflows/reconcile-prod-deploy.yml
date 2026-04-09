@@ -70,7 +70,7 @@ jobs:
           NOTION_SITE_SECTIONS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTIONS_DATA_SOURCE_ID }}
           NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID: ${{ secrets.NOTION_SITE_SECTION_ITEMS_DATA_SOURCE_ID }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          RECONCILE_TRIGGER_SOURCE: ${{ github.event.inputs.run_mode == 'webhook' && 'webhook' || 'manual' }}
+          RECONCILE_TRIGGER_SOURCE: ${{ github.event.inputs.run_mode == 'webhook' && 'webhook' || github.event.inputs.run_mode == 'immediate' && 'immediate' || 'manual' }}
           SITE_TIME_ZONE: Europe/Paris
           VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
         run: node scripts/reconcile-production.mjs

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   createDefaultProductionReconcileState,
+  isDuplicateProductionReconcileEvent,
   mergeProductionReconcileEvent,
   parseProductionReconcileState,
   serializeProductionReconcileState,
@@ -12,6 +13,7 @@ test('serializeProductionReconcileState et parseProductionReconcileState font un
   const state = {
     ...createDefaultProductionReconcileState(),
     dirty: true,
+    last_event_id: 'event-0',
     last_event_at: '2026-04-08T08:00:00.000Z',
     last_public_hash_sent: 'hash-1',
     pending_since: '2026-04-08T08:00:00.000Z',
@@ -27,6 +29,7 @@ test('mergeProductionReconcileEvent conserve le dernier événement connu', () =
   const current = {
     ...createDefaultProductionReconcileState(),
     dirty: true,
+    last_event_id: 'event-1',
     last_entity_id: 'page-1',
     last_event_action: 'modification',
     last_event_at: '2026-04-08T08:00:00.000Z',
@@ -37,14 +40,39 @@ test('mergeProductionReconcileEvent conserve le dernier événement connu', () =
   const merged = mergeProductionReconcileEvent(current, {
     entity_id: 'page-9',
     event_action: 'suppression',
+    event_id: 'event-2',
     event_timestamp: '2026-04-08T08:05:00.000Z',
     event_type: 'page.deleted',
   });
 
   assert.equal(merged.dirty, true);
   assert.equal(merged.pending_since, '2026-04-08T08:00:00.000Z');
+  assert.equal(merged.last_event_id, 'event-2');
   assert.equal(merged.last_entity_id, 'page-9');
   assert.equal(merged.last_event_action, 'suppression');
   assert.equal(merged.last_event_at, '2026-04-08T08:05:00.000Z');
   assert.equal(merged.last_event_type, 'page.deleted');
+});
+
+test('isDuplicateProductionReconcileEvent détecte un event_id déjà traité', () => {
+  const current = {
+    ...createDefaultProductionReconcileState(),
+    last_event_id: 'event-7',
+    last_event_at: '2026-04-08T08:00:00.000Z',
+  };
+
+  assert.equal(
+    isDuplicateProductionReconcileEvent(current, {
+      event_id: 'event-7',
+      event_timestamp: '2026-04-08T08:05:00.000Z',
+    }),
+    true,
+  );
+  assert.equal(
+    isDuplicateProductionReconcileEvent(current, {
+      event_id: 'event-8',
+      event_timestamp: '2026-04-08T08:05:00.000Z',
+    }),
+    false,
+  );
 });
