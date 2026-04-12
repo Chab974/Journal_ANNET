@@ -13,6 +13,8 @@ Les trois URLs publiques internes restent inchangées :
 - `portail.html`
 - `agenda.html`
 
+Ces routes sont générées par Eleventy depuis [`src/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src) puis déployées depuis [`_site/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/_site). Les anciens fichiers HTML versionnés à la racine ont été supprimés pour éviter toute ambiguïté : pour vérifier le rendu localement, ouvre les fichiers générés dans [`_site/`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/_site) après `npm run build`.
+
 ## 1. Architecture générale
 
 Le pipeline complet est le suivant :
@@ -42,6 +44,12 @@ En clair :
 - [`src/index.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/index.njk)
 - [`src/portail.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/portail.njk)
 - [`src/agenda.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/agenda.njk)
+- [`src/a-propos.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/a-propos.njk)
+- [`src/_includes/site-shell-head.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/_includes/site-shell-head.njk)
+- [`src/_includes/site-shared-styles.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/_includes/site-shared-styles.njk)
+- [`src/_includes/site-shell-open.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/_includes/site-shell-open.njk)
+- [`src/_includes/site-shell-close.njk`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/_includes/site-shell-close.njk)
+- [`assets/scripts/journal-shared-client.js`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/assets/scripts/journal-shared-client.js)
 - [`eleventy.config.js`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/eleventy.config.js)
 - [`src/_data/journal.cjs`](/Users/chab/Documents/AI-SANDBOX/GITHUB/Journal_ANNET/src/_data/journal.cjs)
 
@@ -111,6 +119,8 @@ Résultat attendu :
 - `_site/index.html`
 - `_site/portail.html`
 - `_site/agenda.html`
+
+Les fichiers `index.html`, `portail.html` et `agenda.html` n'existent plus à la racine du dépôt : `_site/` est l'unique sortie HTML à inspecter ou publier.
 
 ### Étape 3 - Lancer les tests
 

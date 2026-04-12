@@ -13,6 +13,12 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
     cwd: fromRepo(),
   });
 
+  await Promise.all([
+    assert.rejects(readFile(fromRepo('index.html'), 'utf8'), { code: 'ENOENT' }),
+    assert.rejects(readFile(fromRepo('portail.html'), 'utf8'), { code: 'ENOENT' }),
+    assert.rejects(readFile(fromRepo('agenda.html'), 'utf8'), { code: 'ENOENT' }),
+  ]);
+
   const [indexHtml, portalHtml, agendaHtml, aboutHtml] = await Promise.all([
     readFile(fromRepo('_site', 'index.html'), 'utf8'),
     readFile(fromRepo('_site', 'portail.html'), 'utf8'),
@@ -34,6 +40,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.doesNotMatch(indexHtml, /Stratégie de Diffusion/);
   assert.match(portalHtml, /portal-posts-data/);
   assert.match(portalHtml, /portal-copy-data/);
+  assert.match(portalHtml, /<script src="assets\/scripts\/journal-shared-client\.js"><\/script>/);
   assert.match(portalHtml, /initialSearchParams\.get\('q'\)/);
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
   assert.match(portalHtml, /Résumé rapide/);
@@ -48,15 +55,20 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /portal-cantine-note/);
   assert.match(portalHtml, /aria-label="Repères liés à cette publication"/);
   assert.doesNotMatch(portalHtml, /const portalIntroConfig = \{/);
+  assert.doesNotMatch(portalHtml, /function normalizeEditorialText\(/);
+  assert.doesNotMatch(portalHtml, /function buildReadableExcerpt\(/);
   assert.doesNotMatch(portalHtml, /max-w-\[96rem\]/);
   assert.match(agendaHtml, /agenda-events-data/);
   assert.match(agendaHtml, /agenda-copy-data/);
+  assert.match(agendaHtml, /<script src="assets\/scripts\/journal-shared-client\.js"><\/script>/);
   assert.match(agendaHtml, /Vue calendrier/);
   assert.match(agendaHtml, /Prochainement/);
   assert.match(agendaHtml, /Passés récemment/);
   assert.match(agendaHtml, /Résumé rapide/);
   assert.match(agendaHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
   assert.doesNotMatch(agendaHtml, /const weekDayLabels = \['Lun', 'Mar', 'Mer'/);
+  assert.doesNotMatch(agendaHtml, /function normalizeEditorialText\(/);
+  assert.doesNotMatch(agendaHtml, /function buildReadableExcerpt\(/);
   assert.ok(!embeddedAgenda.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);

@@ -5,287 +5,17 @@ permalink: portail.html
 {% set navSection = journal.siteSections['site-nav'] %}
 {% set portalPage = journal.siteSections['portal-page'] %}
 {% set footerSection = journal.siteSections['footer'] %}
-<!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="{{ journal.site.pathPrefix }}">
-    <title>{{ portalPage.pageTitle or portalPage.title or 'Actualités' }} - {{ navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne" }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+{% set pageTitle = (portalPage.pageTitle or portalPage.title or 'Actualités') + ' - ' + (navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne") %}
+{% set tailwindSafelist = [
+    'border-vintage-red', 'text-vintage-red',
+    'border-vintage-green', 'text-vintage-green',
+    'border-vintage-blue', 'text-vintage-blue'
+] %}
+{% include "site-shell-head.njk" %}
     <script id="portal-posts-data" type="application/json">{{ journal.publications | inlineJson | safe }}</script>
     <script id="portal-copy-data" type="application/json">{{ portalPage | inlineJson | safe }}</script>
-    <script>
-        tailwind.config = {
-            safelist: [
-                'border-vintage-red', 'text-vintage-red',
-                'border-vintage-green', 'text-vintage-green',
-                'border-vintage-blue', 'text-vintage-blue'
-            ],
-            theme: {
-                extend: {
-                    fontFamily: {
-                        body: ['Manrope', 'sans-serif'],
-                        heading: ['Sora', 'sans-serif'],
-                    },
-                    colors: {
-                        'ink': '#16314a',
-                        'vintage-red': '#f6a318',
-                        'vintage-green': '#7fbf25',
-                        'vintage-blue': '#2894e3'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        :root {
-            --paper: #f7faf7;
-            --paper-strong: #ffffff;
-            --ink: #16314a;
-            --muted: #536679;
-            --vintage-red: #f6a318;
-            --vintage-green: #7fbf25;
-            --vintage-blue: #2894e3;
-            --line: #d9e5ec;
-            --shadow-soft: 0 18px 48px rgba(31, 31, 28, 0.06);
-            --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
-        }
-        body {
-            color: var(--ink);
-            background:
-                radial-gradient(circle at top left, rgba(246,163,24,0.10), transparent 22%),
-                radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
-                linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
-        }
-        .skip-link {
-            position: absolute;
-            left: 1rem;
-            top: -3rem;
-            z-index: 80;
-            padding: 0.7rem 1rem;
-            border-radius: 999px;
-            background: var(--ink);
-            color: #fff;
-            font-weight: 700;
-        }
-        .skip-link:focus {
-            top: 1rem;
-        }
-        .glass-nav {
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,252,252,0.92)),
-                linear-gradient(90deg, rgba(246,163,24,0.10), rgba(127,191,37,0.08), rgba(40,148,227,0.10));
-            backdrop-filter: blur(14px);
-            box-shadow: 0 10px 24px rgba(22, 49, 74, 0.07);
-        }
-        .nav-link {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            --nav-soft: rgba(22, 49, 74, 0.05);
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 42px;
-            padding: 0.72rem 1rem;
-            border: 1px solid transparent;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.78);
-            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.08);
-            opacity: 1;
-            color: var(--muted);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            left: 0.85rem;
-            right: 0.85rem;
-            bottom: 0.46rem;
-            height: 3px;
-            border-radius: 999px;
-            background: var(--nav-gradient);
-            transform: scaleX(0);
-            transform-origin: center;
-            transition: transform 0.25s ease;
-        }
-        .nav-link--home {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), #ffbf52);
-            --nav-soft: rgba(246, 163, 24, 0.14);
-        }
-        .nav-link--actualites {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
-            --nav-soft: rgba(40, 148, 227, 0.14);
-        }
-        .nav-link--lecture {
-            --nav-gradient: linear-gradient(135deg, #7c3f2c, #b66b4c);
-            --nav-soft: rgba(124, 63, 44, 0.14);
-        }
-        .nav-link--agenda {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-green), #5ea51a);
-            --nav-soft: rgba(127, 191, 37, 0.16);
-        }
-        .nav-link--about {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            --nav-soft: rgba(246, 163, 24, 0.12);
-        }
-        .nav-link:hover,
-        .nav-link.is-active { opacity: 1; }
-        .nav-link:hover::after,
-        .nav-link.is-active::after { transform: scaleX(1); }
-        .nav-link:hover {
-            color: var(--ink);
-            background: var(--nav-soft);
-            transform: translateY(-1px);
-            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.08), 0 10px 18px rgba(22, 49, 74, 0.08);
-        }
-        .nav-link.is-active {
-            color: #fff;
-            background: var(--nav-gradient);
-            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
-        }
-        .nav-link.is-active::after {
-            background: rgba(255, 255, 255, 0.78);
-        }
-        .nav-toggle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            padding: 0.7rem 1rem;
-            border: 1px solid var(--cantine-outline);
-            border-radius: 999px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(249,246,242,0.95));
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--ink);
-            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.06);
-        }
-        .nav-toggle[aria-expanded="true"] {
-            color: #fff;
-            border-color: transparent;
-            background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
-        }
-        .mobile-nav-panel {
-            padding: 0.75rem 0 1rem;
-            border-top: 1px solid var(--line);
-        }
-        .mobile-nav-link {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-top: 0.55rem;
-            padding: 0.95rem 1rem;
-            border: 1px solid rgba(22, 49, 74, 0.08);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.94);
-            font-family: 'Sora', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--ink);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-        }
-        .mobile-nav-link::before {
-            content: '';
-            flex: 0 0 auto;
-            width: 0.72rem;
-            height: 0.72rem;
-            border-radius: 999px;
-            background: var(--nav-gradient);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-        }
-        .mobile-nav-link--home {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), #ffbf52);
-        }
-        .mobile-nav-link--actualites {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
-        }
-        .mobile-nav-link--lecture {
-            --nav-gradient: linear-gradient(135deg, #7c3f2c, #b66b4c);
-        }
-        .mobile-nav-link--agenda {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-green), #5ea51a);
-        }
-        .mobile-nav-link--about {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-        }
-        .mobile-nav-link:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 18px rgba(22, 49, 74, 0.08);
-        }
-        .mobile-nav-link.is-active {
-            color: #fff;
-            border-color: transparent;
-            background: var(--nav-gradient);
-            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
-        }
-        .mobile-nav-link.is-active::before {
-            background: rgba(255, 255, 255, 0.88);
-            box-shadow: none;
-        }
-        .section-shell {
-            position: relative;
-            overflow: hidden;
-            padding: 1.4rem;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.94);
-            box-shadow: var(--shadow-card);
-        }
-        .section-shell::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 14%);
-            pointer-events: none;
-        }
-        @media (min-width: 768px) {
-            .section-shell {
-                padding: 1.75rem;
-            }
-        }
-        .section-header {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 0.9rem;
-            margin-bottom: 1.9rem;
-            padding-bottom: 1.25rem;
-            border-bottom: 1px solid var(--line);
-        }
-        .section-kicker {
-            font-size: 0.72rem;
-            letter-spacing: 0.24em;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: var(--vintage-blue);
-        }
-        .paper-card {
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255,255,255,0.96);
-            box-shadow: 0 10px 20px rgba(31, 31, 28, 0.05);
-        }
-        .category-chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.2rem 0.65rem;
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            background: rgba(255,255,255,0.92);
-            font-size: 0.7rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: var(--vintage-blue);
-        }
+{% include "site-shared-styles.njk" %}
         .portal-toolbar {
             display: grid;
             grid-template-columns: 1fr;
@@ -1028,12 +758,7 @@ permalink: portail.html
             }
         }
     </style>
-</head>
-<body class="font-body antialiased text-ink">
-    <a href="#main-content" class="skip-link">{{ navSection.skipLinkLabel or 'Aller au contenu' }}</a>
-    {% include "site-nav.njk" %}
-
-    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
+{% include "site-shell-open.njk" %}
         <section class="section-shell">
             <div class="p-1 md:p-2">
                 <div class="section-header">
@@ -1068,11 +793,19 @@ permalink: portail.html
                 </div>
             </div>
         </section>
-    </main>
+{% include "site-shell-close.njk" %}
 
-    {% include "site-footer.njk" %}
-
+    <script src="assets/scripts/journal-shared-client.js"></script>
     <script>
+        const {
+            buildGoogleCalendarUrl,
+            buildReadableExcerpt,
+            escapeHtml,
+            matchesSearchText,
+            normalizeEditorialText,
+            renderFilterButtons,
+            splitEditorialSegments
+        } = window.JournalAnnetShared;
         const portalPostsContainer = document.getElementById('portal-posts');
         const portalStatus = document.getElementById('portal-status');
         const portalSearchInput = document.getElementById('portal-search');
@@ -1127,89 +860,8 @@ permalink: portail.html
 
         portalSearchInput.value = portalState.searchTerm;
 
-        function escapeHtml(value = '') {
-            return String(value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
         function formatTemplate(template, replacements = {}) {
             return String(template || '').replace(/\{(\w+)\}/g, (_, key) => String(replacements[key] ?? ''));
-        }
-
-        function normalizeEditorialText(text) {
-            return String(text || '')
-                .replace(/\r\n?/g, '\n')
-                .replace(/\u00a0/g, ' ')
-                .replace(/[ \t]+/g, ' ')
-                .replace(/\n{3,}/g, '\n\n')
-                .trim();
-        }
-
-        function splitEditorialSegments(text) {
-            return normalizeEditorialText(text)
-                .split(/\n{2,}|\n+|\s[–—-]\s|\s•\s/g)
-                .map((segment) => segment.replace(/^[•\-–—\s]+/, '').trim())
-                .filter(Boolean);
-        }
-
-        function truncateEditorialText(text, maxLength = 240) {
-            const normalized = normalizeEditorialText(text);
-            if (!normalized || normalized.length <= maxLength) {
-                return normalized;
-            }
-
-            const slice = normalized.slice(0, maxLength);
-            const boundary = slice.lastIndexOf(' ');
-            return `${slice.slice(0, boundary > 120 ? boundary : maxLength).trim()}…`;
-        }
-
-        function isAdministrativeSegment(segment = '') {
-            return /^(date de (début|fin)|début|fin|horaire|heure|lieu|adresse)\s*:/i.test(segment);
-        }
-
-        function buildReadableExcerpt(text, title = '', maxLength = 240) {
-            const normalized = normalizeEditorialText(text);
-            if (!normalized) {
-                return '';
-            }
-
-            const lowerTitle = normalizeEditorialText(title).toLowerCase();
-            const segments = splitEditorialSegments(normalized)
-                .filter((segment) => segment.toLowerCase() !== lowerTitle);
-
-            if (segments.length >= 2) {
-                const preferredSegments = [
-                    ...segments.filter((segment) => !isAdministrativeSegment(segment)),
-                    ...segments.filter((segment) => isAdministrativeSegment(segment)),
-                ];
-                const selected = [];
-
-                for (const segment of preferredSegments) {
-                    if (selected.includes(segment)) {
-                        continue;
-                    }
-
-                    const candidate = [...selected, segment].join(' • ');
-                    if (candidate.length > maxLength && selected.length > 0) {
-                        break;
-                    }
-
-                    selected.push(segment);
-                    if (selected.length === 3) {
-                        break;
-                    }
-                }
-
-                if (selected.length > 0) {
-                    return selected.join(' • ');
-                }
-            }
-
-            return truncateEditorialText(normalized, maxLength);
         }
 
         function renderPlainTextBody(text) {
@@ -1367,25 +1019,23 @@ permalink: portail.html
         }
 
         function getGoogleCalendarUrl(post) {
-            const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-            const title = encodeURIComponent(post.titre || '');
-            const details = encodeURIComponent(post.contenu_texte || post.resume || '');
-            const location = encodeURIComponent(post.lieu || 'Annet-sur-Marne');
-            const start = post.date_debut_iso || '';
-            const end = post.date_fin_iso || start;
-            const dates = start ? `&dates=${start}/${end}` : '';
-            return `${baseUrl}&text=${title}&details=${details}&location=${location}${dates}`;
+            return buildGoogleCalendarUrl({
+                title: post.titre || '',
+                details: post.contenu_texte || post.resume || '',
+                location: post.lieu || 'Annet-sur-Marne',
+                start: post.date_debut_iso || '',
+                end: post.date_fin_iso || post.date_debut_iso || ''
+            });
         }
 
         function getGoogleCalendarUrlForEntry(post, entry) {
-            const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-            const title = encodeURIComponent(entry.title || post.titre || '');
-            const details = encodeURIComponent(entry.details || post.contenu_texte || post.resume || '');
-            const location = encodeURIComponent(entry.location || post.lieu || 'Annet-sur-Marne');
-            const start = entry.date_debut_iso || '';
-            const end = entry.date_fin_iso || start;
-            const dates = start ? `&dates=${start}/${end}` : '';
-            return `${baseUrl}&text=${title}&details=${details}&location=${location}${dates}`;
+            return buildGoogleCalendarUrl({
+                title: entry.title || post.titre || '',
+                details: entry.details || post.contenu_texte || post.resume || '',
+                location: entry.location || post.lieu || 'Annet-sur-Marne',
+                start: entry.date_debut_iso || '',
+                end: entry.date_fin_iso || entry.date_debut_iso || ''
+            });
         }
 
         function renderCantineDays(post) {
@@ -1500,7 +1150,10 @@ permalink: portail.html
                 </div>
             ` : '';
 
-            const leadExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, 260);
+            const leadExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
+                maxLength: 260,
+                minBoundary: 120
+            });
             const fullTextSource = post.contenu_texte || post.resume || '';
             const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
             const agendaCard = agendaEntries.length ? `
@@ -1607,11 +1260,12 @@ permalink: portail.html
             return renderArticleLayout(textBlock, [visualCard, locationCard, highlightsCard]);
         }
 
-        function getPortalSearchableText(post) {
-            const dayText = (post.cantine_jours || [])
-                .map((day) => [day.day, day.message, ...(day.items || []).flatMap((item) => [item.name, item.description, ...(item.badges || [])])].join(' '))
-                .join(' ');
-
+        function getPortalSearchableParts(post) {
+            const dayParts = (post.cantine_jours || []).flatMap((day) => [
+                day.day,
+                day.message,
+                ...(day.items || []).flatMap((item) => [item.name, item.description, item.badges || []])
+            ]);
             return [
                 post.rubrique,
                 post.titre,
@@ -1620,18 +1274,14 @@ permalink: portail.html
                 post.auteur,
                 post.edition,
                 post.contenu_texte,
-                dayText
-            ]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase();
+                dayParts
+            ];
         }
 
         function getFilteredPortalPosts() {
-            const normalizedTerm = portalState.searchTerm.trim().toLowerCase();
             return portalState.posts.filter((post) => {
                 const matchesFilter = portalState.activeFilter === 'all' || post.rubrique === portalState.activeFilter;
-                const matchesSearch = !normalizedTerm || getPortalSearchableText(post).includes(normalizedTerm);
+                const matchesSearch = matchesSearchText(getPortalSearchableParts(post), portalState.searchTerm);
                 return matchesFilter && matchesSearch;
             });
         }
@@ -1693,15 +1343,15 @@ permalink: portail.html
         }
 
         function renderPortalFilters() {
-            portalFiltersContainer.innerHTML = '';
-            getPortalFilterOptions().forEach((option) => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'portal-filter';
-                button.textContent = option.value === 'all' ? (portalCopy.allFilterLabel || option.label) : option.label;
-                button.setAttribute('aria-pressed', String(portalState.activeFilter === option.value));
-                button.onclick = () => applyPortalFilter(option.value, { scroll: false });
-                portalFiltersContainer.appendChild(button);
+            renderFilterButtons({
+                container: portalFiltersContainer,
+                options: getPortalFilterOptions().map((option) => ({
+                    value: option.value,
+                    label: option.value === 'all' ? (portalCopy.allFilterLabel || option.label) : option.label
+                })),
+                activeValue: portalState.activeFilter,
+                className: 'portal-filter',
+                onSelect: (filterValue) => applyPortalFilter(filterValue, { scroll: false })
             });
         }
 
@@ -1719,7 +1369,10 @@ permalink: portail.html
 
             portalPostsContainer.innerHTML = posts.map((post) => {
                 const config = portalTypeConfig[post.type] || portalTypeConfig.info;
-                const cardExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, 220);
+                const cardExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
+                    maxLength: 220,
+                    minBoundary: 120
+                });
                 const fullSummary = normalizeEditorialText(post.resume || post.contenu_texte || '');
                 const summaryIsTruncated = Boolean(fullSummary && cardExcerpt && fullSummary !== cardExcerpt);
                 return `

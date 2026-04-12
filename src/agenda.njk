@@ -5,262 +5,12 @@ permalink: agenda.html
 {% set navSection = journal.siteSections['site-nav'] %}
 {% set agendaPage = journal.siteSections['agenda-page'] %}
 {% set footerSection = journal.siteSections['footer'] %}
-<!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="{{ journal.site.pathPrefix }}">
-    <title>{{ agendaPage.pageTitle or agendaPage.title or 'Agenda' }} - {{ navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne" }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+{% set pageTitle = (agendaPage.pageTitle or agendaPage.title or 'Agenda') + ' - ' + (navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne") %}
+{% include "site-shell-head.njk" %}
     <script id="agenda-events-data" type="application/json">{{ journal.agenda | inlineJson | safe }}</script>
     <script id="agenda-copy-data" type="application/json">{{ agendaPage | inlineJson | safe }}</script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        body: ['Manrope', 'sans-serif'],
-                        heading: ['Sora', 'sans-serif'],
-                    },
-                    colors: {
-                        ink: '#16314a',
-                        'vintage-red': '#f6a318',
-                        'vintage-green': '#7fbf25',
-                        'vintage-blue': '#2894e3'
-                    }
-                }
-            }
-        };
-    </script>
     <style>
-        :root {
-            --paper: #f7faf7;
-            --paper-strong: #ffffff;
-            --ink: #16314a;
-            --muted: #536679;
-            --vintage-red: #f6a318;
-            --vintage-green: #7fbf25;
-            --vintage-blue: #2894e3;
-            --line: #d9e5ec;
-            --shadow-card: 0 12px 26px rgba(31, 31, 28, 0.06);
-        }
-        body {
-            color: var(--ink);
-            background:
-                radial-gradient(circle at top left, rgba(246,163,24,0.10), transparent 22%),
-                radial-gradient(circle at top right, rgba(40,148,227,0.10), transparent 18%),
-                linear-gradient(180deg, #fbfdfb 0%, #f2f8fb 100%);
-        }
-        .skip-link {
-            position: absolute;
-            left: 1rem;
-            top: -3rem;
-            z-index: 80;
-            padding: 0.7rem 1rem;
-            border-radius: 999px;
-            background: var(--ink);
-            color: #fff;
-            font-weight: 700;
-        }
-        .skip-link:focus {
-            top: 1rem;
-        }
-        .glass-nav {
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249,252,252,0.92)),
-                linear-gradient(90deg, rgba(246,163,24,0.10), rgba(127,191,37,0.08), rgba(40,148,227,0.10));
-            backdrop-filter: blur(14px);
-            box-shadow: 0 10px 24px rgba(22, 49, 74, 0.07);
-        }
-        .nav-link {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            --nav-soft: rgba(22, 49, 74, 0.05);
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 42px;
-            padding: 0.72rem 1rem;
-            border: 1px solid transparent;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.78);
-            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.08);
-            opacity: 1;
-            color: var(--muted);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            left: 0.85rem;
-            right: 0.85rem;
-            bottom: 0.46rem;
-            height: 3px;
-            border-radius: 999px;
-            background: var(--nav-gradient);
-            transform: scaleX(0);
-            transform-origin: center;
-            transition: transform 0.25s ease;
-        }
-        .nav-link--home {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), #ffbf52);
-            --nav-soft: rgba(246, 163, 24, 0.14);
-        }
-        .nav-link--actualites {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
-            --nav-soft: rgba(40, 148, 227, 0.14);
-        }
-        .nav-link--lecture {
-            --nav-gradient: linear-gradient(135deg, #7c3f2c, #b66b4c);
-            --nav-soft: rgba(124, 63, 44, 0.14);
-        }
-        .nav-link--agenda {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-green), #5ea51a);
-            --nav-soft: rgba(127, 191, 37, 0.16);
-        }
-        .nav-link--about {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            --nav-soft: rgba(246, 163, 24, 0.12);
-        }
-        .nav-link:hover,
-        .nav-link.is-active { opacity: 1; }
-        .nav-link:hover::after,
-        .nav-link.is-active::after { transform: scaleX(1); }
-        .nav-link:hover {
-            color: var(--ink);
-            background: var(--nav-soft);
-            transform: translateY(-1px);
-            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.08), 0 10px 18px rgba(22, 49, 74, 0.08);
-        }
-        .nav-link.is-active {
-            color: #fff;
-            background: var(--nav-gradient);
-            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
-        }
-        .nav-link.is-active::after {
-            background: rgba(255, 255, 255, 0.78);
-        }
-        .nav-toggle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            padding: 0.7rem 1rem;
-            border: 1px solid rgba(22, 49, 74, 0.08);
-            border-radius: 999px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(249,246,242,0.95));
-            font-size: 0.74rem;
-            font-weight: 800;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--ink);
-            box-shadow: inset 0 0 0 1px rgba(22, 49, 74, 0.06);
-        }
-        .nav-toggle[aria-expanded="true"] {
-            color: #fff;
-            border-color: transparent;
-            background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
-        }
-        .mobile-nav-panel {
-            padding: 0.75rem 0 1rem;
-            border-top: 1px solid var(--line);
-        }
-        .mobile-nav-link {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-top: 0.55rem;
-            padding: 0.95rem 1rem;
-            border: 1px solid rgba(22, 49, 74, 0.08);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.94);
-            font-family: 'Sora', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--ink);
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-        }
-        .mobile-nav-link::before {
-            content: '';
-            flex: 0 0 auto;
-            width: 0.72rem;
-            height: 0.72rem;
-            border-radius: 999px;
-            background: var(--nav-gradient);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-        }
-        .mobile-nav-link--home {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), #ffbf52);
-        }
-        .mobile-nav-link--actualites {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-blue), #1f78d1);
-        }
-        .mobile-nav-link--lecture {
-            --nav-gradient: linear-gradient(135deg, #7c3f2c, #b66b4c);
-        }
-        .mobile-nav-link--agenda {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-green), #5ea51a);
-        }
-        .mobile-nav-link--about {
-            --nav-gradient: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));
-        }
-        .mobile-nav-link:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 18px rgba(22, 49, 74, 0.08);
-        }
-        .mobile-nav-link.is-active {
-            color: #fff;
-            border-color: transparent;
-            background: var(--nav-gradient);
-            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
-        }
-        .mobile-nav-link.is-active::before {
-            background: rgba(255, 255, 255, 0.88);
-            box-shadow: none;
-        }
-        .section-shell {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255,255,255,0.94);
-            box-shadow: var(--shadow-card);
-            padding: 1.4rem;
-        }
-        .section-shell::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 14%);
-            pointer-events: none;
-        }
-        @media (min-width: 768px) {
-            .section-shell {
-                padding: 1.75rem;
-            }
-        }
-        .section-header {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            margin-bottom: 1.9rem;
-            padding-bottom: 1.25rem;
-            border-bottom: 1px solid var(--line);
-        }
-        .section-kicker {
-            font-size: 0.72rem;
-            letter-spacing: 0.24em;
-            text-transform: uppercase;
-            font-weight: 700;
-            color: var(--vintage-blue);
-        }
+{% include "site-shared-styles.njk" %}
         .agenda-search {
             width: 100%;
             padding: 0.9rem 1rem;
@@ -755,12 +505,7 @@ permalink: agenda.html
             text-align: center;
         }
     </style>
-</head>
-<body class="font-body antialiased text-ink">
-    <a href="#main-content" class="skip-link">{{ navSection.skipLinkLabel or 'Aller au contenu' }}</a>
-    {% include "site-nav.njk" %}
-
-    <main id="main-content" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12 space-y-10 md:space-y-12">
+{% include "site-shell-open.njk" %}
         <section class="section-shell">
             <div class="section-header">
                 <p class="section-kicker">{{ agendaPage.kicker or 'Calendrier commun' }}</p>
@@ -791,11 +536,18 @@ permalink: agenda.html
                 </div>
             </div>
         </section>
-    </main>
+{% include "site-shell-close.njk" %}
 
-    {% include "site-footer.njk" %}
-
+    <script src="assets/scripts/journal-shared-client.js"></script>
     <script>
+        const {
+            buildGoogleCalendarUrl,
+            buildReadableExcerpt,
+            escapeHtml,
+            matchesSearchText,
+            normalizeEditorialText,
+            renderFilterButtons
+        } = window.JournalAnnetShared;
         const agendaResults = document.getElementById('agenda-results');
         const agendaSearchInput = document.getElementById('agenda-search');
         const agendaFiltersContainer = document.getElementById('agenda-filters');
@@ -825,37 +577,12 @@ permalink: agenda.html
             calendarMonth: searchParams.get('month') || ''
         };
 
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#39;');
-        }
-
         function parseIsoDate(isoString) {
             const normalized = isoString?.replace(
                 /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
                 '$1-$2-$3T$4:$5:$6Z'
             );
             return normalized ? new Date(normalized) : new Date(NaN);
-        }
-
-        function normalizeEditorialText(text) {
-            return String(text || '')
-                .replace(/\r\n?/g, '\n')
-                .replace(/\u00a0/g, ' ')
-                .replace(/[ \t]+/g, ' ')
-                .replace(/\n{3,}/g, '\n\n')
-                .trim();
-        }
-
-        function splitEditorialSegments(text) {
-            return normalizeEditorialText(text)
-                .split(/\n{2,}|\n+|\s[–—-]\s|\s•\s/g)
-                .map((segment) => segment.replace(/^[•\-–—\s]+/, '').trim())
-                .filter(Boolean);
         }
 
         function isValidDate(date) {
@@ -872,71 +599,6 @@ permalink: agenda.html
 
         function getArticleUrl(eventItem) {
             return `portail.html?rubrique=${encodeURIComponent(eventItem.rubrique || '')}&slug=${encodeURIComponent(eventItem.post_slug || '')}`;
-        }
-
-        function isAdministrativeSegment(segment = '') {
-            return /^(date de (début|fin)|début|fin|horaire|heure|lieu|adresse)\s*:/i.test(segment);
-        }
-
-        function truncateEditorialText(text, maxLength = 220) {
-            const normalized = normalizeEditorialText(text);
-            if (!normalized || normalized.length <= maxLength) {
-                return normalized;
-            }
-
-            const slice = normalized.slice(0, maxLength);
-            const boundary = slice.lastIndexOf(' ');
-            return `${slice.slice(0, boundary > 100 ? boundary : maxLength).trim()}…`;
-        }
-
-        function buildReadableExcerpt(text, title = '', maxLength = 220) {
-            const normalized = normalizeEditorialText(text);
-            if (!normalized) {
-                return '';
-            }
-
-            const lowerTitle = normalizeEditorialText(title).toLowerCase();
-            const segments = splitEditorialSegments(normalized)
-                .filter((segment) => segment.toLowerCase() !== lowerTitle);
-
-            if (segments.length >= 2) {
-                const preferredSegments = [
-                    ...segments.filter((segment) => !isAdministrativeSegment(segment)),
-                    ...segments.filter((segment) => isAdministrativeSegment(segment)),
-                ];
-                const selected = [];
-
-                for (const segment of preferredSegments) {
-                    if (selected.includes(segment)) {
-                        continue;
-                    }
-
-                    const candidate = [...selected, segment].join(' • ');
-                    if (candidate.length > maxLength && selected.length > 0) {
-                        break;
-                    }
-
-                    selected.push(segment);
-                    if (selected.length === 3) {
-                        break;
-                    }
-                }
-
-                if (selected.length > 0) {
-                    return selected.join(' • ');
-                }
-            }
-
-            return truncateEditorialText(normalized, maxLength);
-        }
-
-        function toCalendarUrl(eventItem) {
-            const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-            const title = encodeURIComponent(eventItem.title || '');
-            const details = encodeURIComponent(eventItem.description || '');
-            const location = encodeURIComponent(eventItem.location || 'Annet-sur-Marne');
-            const dates = `${eventItem.start_iso || ''}/${eventItem.end_iso || eventItem.start_iso || ''}`;
-            return `${baseUrl}&text=${title}&details=${details}&location=${location}&dates=${dates}`;
         }
 
         function getMonthLabel(date) {
@@ -1006,17 +668,15 @@ permalink: agenda.html
         }
 
         function getFilteredEvents() {
-            const term = agendaState.searchTerm.trim().toLowerCase();
             return agendaState.events.filter((eventItem) => {
                 const matchesFilter = agendaState.activeFilter === 'all' || eventItem.rubrique === agendaState.activeFilter;
-                const haystack = [
+                const matchesSearch = matchesSearchText([
                     eventItem.title,
                     eventItem.rubrique,
                     eventItem.location,
                     eventItem.description,
                     eventItem.date_label
-                ].filter(Boolean).join(' ').toLowerCase();
-                const matchesSearch = !term || haystack.includes(term);
+                ], agendaState.searchTerm);
                 return matchesFilter && matchesSearch;
             });
         }
@@ -1124,7 +784,10 @@ permalink: agenda.html
             const dayParts = getDayParts(start);
             const articleUrl = getArticleUrl(eventItem);
             const fullDescription = normalizeEditorialText(eventItem.description || '');
-            const summary = buildReadableExcerpt(fullDescription, eventItem.title, 220);
+            const summary = buildReadableExcerpt(fullDescription, eventItem.title, {
+                maxLength: 220,
+                minBoundary: 100
+            });
             const isTruncatedSummary = Boolean(fullDescription && summary && fullDescription !== summary);
 
             return `
@@ -1159,7 +822,13 @@ permalink: agenda.html
                             </p>
                         ` : ''}
                         <div class="agenda-actions">
-                            <a class="agenda-link agenda-link--primary" href="${escapeHtml(toCalendarUrl(eventItem))}" target="_blank" rel="noopener noreferrer">
+                            <a class="agenda-link agenda-link--primary" href="${escapeHtml(buildGoogleCalendarUrl({
+                                title: eventItem.title,
+                                details: eventItem.description,
+                                location: eventItem.location || 'Annet-sur-Marne',
+                                start: eventItem.start_iso || '',
+                                end: eventItem.end_iso || eventItem.start_iso || ''
+                            }))}" target="_blank" rel="noopener noreferrer">
                                 <span aria-hidden="true">🗓️</span>
                                 <span>${escapeHtml(agendaCopy.addToCalendarLabel || "Ajouter à l'agenda")}</span>
                             </a>
@@ -1381,19 +1050,19 @@ permalink: agenda.html
         }
 
         function renderFilters() {
-            agendaFiltersContainer.innerHTML = '';
-            rubriqueOrder.forEach((rubrique) => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'agenda-filter';
-                button.textContent = rubrique === 'all' ? (agendaCopy.allFilterLabel || 'Toutes') : rubrique;
-                button.setAttribute('aria-pressed', String(agendaState.activeFilter === rubrique));
-                button.onclick = () => {
+            renderFilterButtons({
+                container: agendaFiltersContainer,
+                options: rubriqueOrder.map((rubrique) => ({
+                    value: rubrique,
+                    label: rubrique === 'all' ? (agendaCopy.allFilterLabel || 'Toutes') : rubrique
+                })),
+                activeValue: agendaState.activeFilter,
+                className: 'agenda-filter',
+                onSelect: (rubrique) => {
                     agendaState.activeFilter = rubrique;
                     updateUrl();
                     renderAgenda();
-                };
-                agendaFiltersContainer.appendChild(button);
+                }
             });
         }
 
