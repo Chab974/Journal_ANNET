@@ -44,7 +44,7 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /initialSearchParams\.get\('q'\)/);
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
   assert.match(portalHtml, /Résumé rapide/);
-  assert.match(portalHtml, /En bref/);
+  assert.doesNotMatch(portalHtml, /<div class="portal-lead-card">/);
   assert.match(portalHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
   assert.match(portalHtml, /grid-template-columns:\s*minmax\(0,\s*1\.7fr\)\s*minmax\(18rem,\s*22rem\)/);
   assert.match(portalHtml, /portal-article-main/);

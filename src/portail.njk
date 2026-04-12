@@ -225,25 +225,6 @@ permalink: portail.html
             text-transform: uppercase;
             color: var(--muted);
         }
-        .portal-lead-card {
-            padding: 1rem 1.05rem;
-            border: 1px solid rgba(22, 49, 74, 0.08);
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,248,251,0.94));
-        }
-        .portal-lead-label {
-            font-size: 0.68rem;
-            font-weight: 800;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--vintage-blue);
-        }
-        .portal-lead-text {
-            margin-top: 0.4rem;
-            font-size: 1.02rem;
-            line-height: 1.78;
-            color: var(--ink);
-        }
         .portal-inline-facts {
             display: grid;
             gap: 1rem;
@@ -1150,10 +1131,6 @@ permalink: portail.html
                 </div>
             ` : '';
 
-            const leadExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
-                maxLength: 260,
-                minBoundary: 120
-            });
             const fullTextSource = post.contenu_texte || post.resume || '';
             const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
             const agendaCard = agendaEntries.length ? `
@@ -1177,12 +1154,6 @@ permalink: portail.html
             ` : '';
             const textBlock = `
                 <div class="space-y-5">
-                    ${leadExcerpt ? `
-                        <div class="portal-lead-card">
-                            <p class="portal-lead-label">${escapeHtml(portalCopy.briefLabel || 'En bref')}</p>
-                            <p class="portal-lead-text">${escapeHtml(leadExcerpt)}</p>
-                        </div>
-                    ` : ''}
                     ${agendaCard ? `
                         <div class="portal-inline-facts">
                             ${agendaCard}
