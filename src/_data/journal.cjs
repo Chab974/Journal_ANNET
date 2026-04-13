@@ -113,6 +113,22 @@ function sortAgendaEntries(a = {}, b = {}) {
   return String(a.start_iso || '').localeCompare(String(b.start_iso || ''));
 }
 
+function isSameCalendarDay(left, right) {
+  if (!(left instanceof Date) || Number.isNaN(left.getTime())) {
+    return false;
+  }
+
+  if (!(right instanceof Date) || Number.isNaN(right.getTime())) {
+    return false;
+  }
+
+  return (
+    left.getFullYear() === right.getFullYear()
+    && left.getMonth() === right.getMonth()
+    && left.getDate() === right.getDate()
+  );
+}
+
 function interpolateTemplate(template, replacements = {}) {
   return String(template || '').replace(/\{(\w+)\}/g, (_, key) => String(replacements[key] ?? ''));
 }
@@ -211,14 +227,18 @@ function buildCantineSummary(entry) {
   };
 }
 
-function buildUpcomingEvents(agenda = [], referenceDate = new Date()) {
-  const sortedEvents = agenda
+function buildDecoratedAgendaEvents(agenda = []) {
+  return agenda
     .slice()
     .sort(sortAgendaEntries)
     .map((eventItem) => ({
       ...eventItem,
       articleHref: buildPortalUrl({ rubrique: eventItem.rubrique, slug: eventItem.post_slug }),
     }));
+}
+
+function buildUpcomingEvents(agenda = [], referenceDate = new Date()) {
+  const sortedEvents = buildDecoratedAgendaEvents(agenda);
 
   const upcoming = sortedEvents.filter((eventItem) => {
     const eventDate = parseIsoDate(eventItem.start_iso);
@@ -226,6 +246,26 @@ function buildUpcomingEvents(agenda = [], referenceDate = new Date()) {
   });
 
   return (upcoming.length ? upcoming : sortedEvents).slice(0, 3);
+}
+
+function buildHeroSpotlight(agenda = [], referenceDate = new Date()) {
+  const sortedEvents = buildDecoratedAgendaEvents(agenda);
+  const todayItems = sortedEvents.filter((eventItem) => {
+    const eventDate = parseIsoDate(eventItem.start_iso);
+    return eventDate && isSameCalendarDay(eventDate, referenceDate);
+  });
+
+  if (todayItems.length > 0) {
+    return {
+      items: todayItems.slice(0, 3),
+      mode: 'today',
+    };
+  }
+
+  return {
+    items: buildUpcomingEvents(agenda, referenceDate),
+    mode: 'upcoming',
+  };
 }
 
 function buildHomeData({
@@ -238,6 +278,7 @@ function buildHomeData({
   const homePage = siteSections['home-page'] || {};
   const portalPage = siteSections['portal-page'] || {};
   const publicationTypeLabels = createPublicationTypeLabelMap(portalPage);
+  const heroSpotlight = buildHeroSpotlight(agenda, referenceDate);
   const featuredPublications = publications.filter((entry) => entry.featured);
   const featuredPublication = featuredPublications[0] || null;
   const selectedPublicationKeys = new Set();
@@ -269,6 +310,8 @@ function buildHomeData({
   return {
     cantineEntry: buildCantineSummary(cantine[0]),
     featuredPublication: featuredPublication ? decoratePublication(featuredPublication, publicationTypeLabels) : null,
+    heroSpotlightItems: heroSpotlight.items,
+    heroSpotlightMode: heroSpotlight.mode,
     quickLinks: buildQuickLinks(publications, homePage),
     secondaryPublications: secondaryPublications
       .slice(0, 3)
@@ -355,6 +398,8 @@ async function loadJournalData() {
 module.exports = loadJournalData;
 module.exports.__private__ = {
   buildCantineSummary,
+  buildDecoratedAgendaEvents,
+  buildHeroSpotlight,
   buildHomeData,
   buildNavigation,
   buildPortalUrl,
@@ -364,6 +409,7 @@ module.exports.__private__ = {
   createPublicationTypeLabelMap,
   decoratePublication,
   interpolateTemplate,
+  isSameCalendarDay,
   parseIsoDate,
   sortAgendaEntries,
 };

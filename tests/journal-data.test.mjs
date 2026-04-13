@@ -67,6 +67,12 @@ test('buildHomeData met en avant jusqu’à trois publications featured et les p
     'Cantine de la semaine',
     'Forum des associations',
   ]);
+  assert.equal(home.heroSpotlightMode, 'upcoming');
+  assert.deepEqual(home.heroSpotlightItems.map((item) => item.title), [
+    'Concert de printemps',
+    'Forum des métiers',
+    'Brocante',
+  ]);
   assert.deepEqual(home.upcomingEvents.map((item) => item.title), [
     'Concert de printemps',
     'Forum des métiers',
@@ -89,6 +95,8 @@ test('buildHomeData fournit des fallbacks quand les données sont absentes', () 
   });
 
   assert.equal(home.featuredPublication, null);
+  assert.equal(home.heroSpotlightMode, 'upcoming');
+  assert.deepEqual(home.heroSpotlightItems, []);
   assert.deepEqual(home.secondaryPublications, []);
   assert.deepEqual(home.upcomingEvents, []);
   assert.equal(home.cantineEntry, null);
@@ -111,4 +119,52 @@ test("buildHomeData n'utilise plus automatiquement le premier article comme mise
     home.secondaryPublications.map((item) => item.titre),
     ['3 eme article', '2e article', 'Création d 1er article'],
   );
+});
+
+test("buildHomeData privilégie les actus du jour dans le hero et prépare un carrousel s'il y en a plusieurs", () => {
+  const home = buildHomeData({
+    agenda: [
+      {
+        date_label: 'Lundi 13 avril 2026',
+        description: 'Premier rendez-vous du jour',
+        location: 'Place de la mairie',
+        post_slug: 'actu-1',
+        rubrique: 'Vie locale',
+        start_iso: '20260413T070000Z',
+        time_label: '09h00 - 10h00',
+        title: 'Café citoyen',
+      },
+      {
+        date_label: 'Lundi 13 avril 2026',
+        description: 'Deuxième rendez-vous du jour',
+        location: 'Salle des fêtes',
+        post_slug: 'actu-2',
+        rubrique: 'Vie associative',
+        start_iso: '20260413T120000Z',
+        time_label: '14h00 - 16h00',
+        title: 'Atelier associatif',
+      },
+      {
+        date_label: 'Mardi 14 avril 2026',
+        description: 'Rendez-vous du lendemain',
+        location: 'Bibliothèque',
+        post_slug: 'actu-3',
+        rubrique: 'Coup de cœur littéraire',
+        start_iso: '20260414T080000Z',
+        time_label: '10h00 - 11h00',
+        title: 'Lecture publique',
+      },
+    ],
+    referenceDate: new Date('2026-04-13T08:00:00Z'),
+  });
+
+  assert.equal(home.heroSpotlightMode, 'today');
+  assert.deepEqual(home.heroSpotlightItems.map((item) => item.title), [
+    'Café citoyen',
+    'Atelier associatif',
+  ]);
+  assert.deepEqual(home.heroSpotlightItems.map((item) => item.articleHref), [
+    'portail.html?rubrique=Vie+locale&slug=actu-1#post-actu-1',
+    'portail.html?rubrique=Vie+associative&slug=actu-2#post-actu-2',
+  ]);
 });
