@@ -92,7 +92,8 @@ function buildPortalUrl({ rubrique, slug } = {}) {
   }
 
   const query = params.toString();
-  return query ? `portail.html?${query}` : 'portail.html';
+  const anchor = slug ? `#post-${slug}` : '';
+  return query ? `portail.html?${query}${anchor}` : `portail.html${anchor}`;
 }
 
 function parseIsoDate(value) {

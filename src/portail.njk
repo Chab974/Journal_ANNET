@@ -97,6 +97,7 @@ permalink: portail.html
         }
         .portal-card {
             position: relative;
+            scroll-margin-top: 7.5rem;
             border: 1px solid var(--line);
             border-radius: 18px;
             background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(249,246,242,0.98));
@@ -798,8 +799,10 @@ permalink: portail.html
         const portalCopy = JSON.parse(document.getElementById('portal-copy-data')?.textContent || '{}');
         const portalTitleSuffix = {{ (navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne") | inlineJson | safe }};
         const initialSearchParams = new URLSearchParams(window.location.search);
+        const initialHash = window.location.hash || '';
+        const initialHashTarget = initialHash.startsWith('#post-') ? decodeURIComponent(initialHash.slice('#post-'.length)) : '';
         const initialRubrique = initialSearchParams.get('rubrique');
-        const initialSlug = initialSearchParams.get('slug');
+        const initialSlug = initialSearchParams.get('slug') || initialHashTarget;
         const initialPostId = initialSearchParams.get('post');
         const initialQuery = initialSearchParams.get('q') || '';
         const portalIntroConfig = Object.fromEntries((portalCopy.introVariants || []).map((item) => [item.key, item]));
@@ -1017,6 +1020,18 @@ permalink: portail.html
                 start: entry.date_debut_iso || '',
                 end: entry.date_fin_iso || entry.date_debut_iso || ''
             });
+        }
+
+        function getPortalAnchorId(postOrSlug) {
+            if (!postOrSlug) {
+                return '';
+            }
+
+            if (typeof postOrSlug === 'string') {
+                return `post-${postOrSlug}`;
+            }
+
+            return `post-${postOrSlug.slug || postOrSlug.id || 'publication'}`;
         }
 
         function parsePortalIsoDate(value = '') {
@@ -1389,7 +1404,7 @@ permalink: portail.html
             portalPostsContainer.innerHTML = posts.map((post) => {
                 const config = portalTypeConfig[post.type] || portalTypeConfig.info;
                 return `
-                    <article class="portal-card p-6 md:p-8 ${config.theme}" data-post-id="${escapeHtml(post.id || '')}" data-post-slug="${escapeHtml(post.slug || '')}">
+                    <article id="${escapeHtml(getPortalAnchorId(post))}" class="portal-card p-6 md:p-8 ${config.theme}" data-post-id="${escapeHtml(post.id || '')}" data-post-slug="${escapeHtml(post.slug || '')}">
                         <div class="portal-stamp">${escapeHtml(config.stamp)}</div>
                         <div class="portal-card-header">
                             <div>
@@ -1439,6 +1454,7 @@ permalink: portail.html
             if (portalState.targetSlug || portalState.targetPostId) {
                 requestAnimationFrame(() => {
                     scrollToPortalPost();
+                    window.setTimeout(scrollToPortalPost, 180);
                 });
             }
         }
@@ -1467,8 +1483,10 @@ permalink: portail.html
 
             if (portalState.targetSlug) {
                 url.searchParams.set('slug', portalState.targetSlug);
+                url.hash = getPortalAnchorId(portalState.targetSlug);
             } else {
                 url.searchParams.delete('slug');
+                url.hash = '';
             }
 
             window.history.replaceState({}, '', url);
@@ -1493,7 +1511,9 @@ permalink: portail.html
             let targetCard = null;
 
             if (portalState.targetSlug) {
-                targetCard = portalPostsContainer.querySelector(`[data-post-slug="${CSS.escape(portalState.targetSlug)}"]`);
+                targetCard =
+                    document.getElementById(getPortalAnchorId(portalState.targetSlug)) ||
+                    portalPostsContainer.querySelector(`[data-post-slug="${CSS.escape(portalState.targetSlug)}"]`);
             }
 
             if (!targetCard && portalState.targetPostId) {
