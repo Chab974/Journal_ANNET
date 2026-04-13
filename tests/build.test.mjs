@@ -33,8 +33,8 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(indexHtml, /Cette semaine/);
   assert.match(indexHtml, /Cantine (?:&|&amp;) familles/);
   assert.match(indexHtml, /Coup de cœur/);
-  assert.match(indexHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
-  assert.match(indexHtml, /Rechercher un titre, une rubrique, un lieu, un auteur/);
+  assert.match(indexHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.match(indexHtml, /Rechercher un titre, une rubrique, un lieu/);
   assert.match(indexHtml, /action="portail\.html"/);
   assert.match(indexHtml, />Actualités</);
   assert.doesNotMatch(indexHtml, /Stratégie de Diffusion/);
@@ -45,8 +45,8 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(portalHtml, /<h1[^>]*>Actualités</);
   assert.match(portalHtml, /Résumé rapide/);
   assert.doesNotMatch(portalHtml, /<div class="portal-lead-card">/);
-  assert.match(portalHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
-  assert.match(portalHtml, /grid-template-columns:\s*minmax\(0,\s*1\.7fr\)\s*minmax\(18rem,\s*22rem\)/);
+  assert.match(portalHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.match(portalHtml, /grid-template-columns:\s*minmax\(0,\s*2\.35fr\)\s*minmax\(15rem,\s*18rem\)/);
   assert.match(portalHtml, /portal-article-main/);
   assert.match(portalHtml, /portal-meta-stack/);
   assert.match(portalHtml, /portal-inline-facts/);
@@ -65,14 +65,14 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
   assert.match(agendaHtml, /Prochainement/);
   assert.match(agendaHtml, /Passés récemment/);
   assert.match(agendaHtml, /Résumé rapide/);
-  assert.match(agendaHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.match(agendaHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
   assert.doesNotMatch(agendaHtml, /const weekDayLabels = \['Lun', 'Mar', 'Mer'/);
   assert.doesNotMatch(agendaHtml, /function normalizeEditorialText\(/);
   assert.doesNotMatch(agendaHtml, /function buildReadableExcerpt\(/);
   assert.ok(!embeddedAgenda.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);
-  assert.match(aboutHtml, /max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.match(aboutHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
   assert.match(aboutHtml, /about-copy-data/);
   assert.doesNotMatch(aboutHtml, /const pillarsData = \[/);
   assert.doesNotMatch(portalHtml, /fetch\('\.\/data\/citizen-posts\.json'/);

@@ -238,11 +238,33 @@ function buildHomeData({
   const homePage = siteSections['home-page'] || {};
   const portalPage = siteSections['portal-page'] || {};
   const publicationTypeLabels = createPublicationTypeLabelMap(portalPage);
-  const featuredPublication = publications.find((entry) => entry.featured) || null;
-  const featuredPublicationId = featuredPublication?.id || null;
-  const secondaryPublications = featuredPublicationId
-    ? publications.filter((entry) => entry.id !== featuredPublicationId)
+  const featuredPublications = publications.filter((entry) => entry.featured);
+  const featuredPublication = featuredPublications[0] || null;
+  const selectedPublicationKeys = new Set();
+  const getPublicationKey = (entry = {}) => entry.id || entry.slug || entry.titre || '';
+
+  if (featuredPublication) {
+    selectedPublicationKeys.add(getPublicationKey(featuredPublication));
+  }
+
+  const secondaryPublicationCandidates = featuredPublication
+    ? [
+        ...featuredPublications.slice(1),
+        ...publications.filter((entry) => !entry.featured),
+      ]
     : publications;
+  const secondaryPublicationLimit = featuredPublication ? 2 : 3;
+  const secondaryPublications = secondaryPublicationCandidates
+    .filter((entry) => {
+      const key = getPublicationKey(entry);
+      if (!key || selectedPublicationKeys.has(key)) {
+        return false;
+      }
+
+      selectedPublicationKeys.add(key);
+      return true;
+    })
+    .slice(0, secondaryPublicationLimit);
 
   return {
     cantineEntry: buildCantineSummary(cantine[0]),

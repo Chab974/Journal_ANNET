@@ -5,7 +5,7 @@ import loadJournalData from '../src/_data/journal.cjs';
 
 const { buildHomeData } = loadJournalData.__private__;
 
-test('buildHomeData privilégie la publication featured et les prochains événements', () => {
+test('buildHomeData met en avant jusqu’à trois publications featured et les prochains événements', () => {
   const home = buildHomeData({
     agenda: [
       {
@@ -54,13 +54,19 @@ test('buildHomeData privilégie la publication featured et les prochains événe
     publications: [
       { id: 'post-1', rubrique: 'Vie locale', slug: 'balade-patrimoine', titre: 'Balade patrimoine' },
       { featured: true, id: 'post-2', rubrique: 'Événements', slug: 'brocante-printemps', titre: 'Brocante de printemps' },
-      { id: 'post-3', rubrique: 'Scolaire', slug: 'cantine-semaine', titre: 'Cantine de la semaine' },
+      { featured: true, id: 'post-3', rubrique: 'Scolaire', slug: 'cantine-semaine', titre: 'Cantine de la semaine' },
+      { featured: true, id: 'post-4', rubrique: 'Vie associative', slug: 'forum-associations', titre: 'Forum des associations' },
+      { id: 'post-5', rubrique: 'Vie locale', slug: 'marche-local', titre: 'Marché local' },
     ],
     referenceDate: new Date('2026-04-06T00:00:00Z'),
   });
 
   assert.equal(home.featuredPublication.titre, 'Brocante de printemps');
-  assert.equal(home.featuredPublication.href, 'portail.html?rubrique=%C3%89v%C3%A9nements&slug=brocante-printemps');
+  assert.equal(home.featuredPublication.href, 'portail.html?rubrique=%C3%89v%C3%A9nements&slug=brocante-printemps#post-brocante-printemps');
+  assert.deepEqual(home.secondaryPublications.map((item) => item.titre), [
+    'Cantine de la semaine',
+    'Forum des associations',
+  ]);
   assert.deepEqual(home.upcomingEvents.map((item) => item.title), [
     'Concert de printemps',
     'Forum des métiers',
