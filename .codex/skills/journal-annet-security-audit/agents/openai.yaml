@@ -1,0 +1,4 @@
+interface:
+  display_name: "Journal ANNET Security Audit"
+  short_description: "Audit securite pour Journal_ANNET"
+  default_prompt: "Use $journal-annet-security-audit to audit Journal_ANNET and produce a prioritized French security report."

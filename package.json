@@ -4,20 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run validate:snapshots && eleventy",
+    "build": "npm run validate:lockfile && npm run build:styles && npm run validate:snapshots && eleventy",
+    "build:styles": "tailwindcss -c tailwind.config.cjs -i src/styles/tailwind.css -o assets/styles/tailwind.css --minify",
     "build:site": "npm run sync:notion && npm run build",
     "build:pages-demo": "npm run build:site",
     "build:vercel": "npm run build:site",
-    "dev": "eleventy --serve",
+    "dev": "npm run build:styles && eleventy --serve",
     "generate:notion-imports": "node scripts/generate-notion-imports.mjs",
     "import:publication": "node scripts/import-publication-to-notion.mjs",
     "logs:webhook": "node scripts/watch-vercel-webhook-logs.mjs",
     "sync:notion": "node scripts/sync-notion.mjs",
     "test": "node --test",
+    "validate:lockfile": "node scripts/validate-lockfile.mjs",
     "validate:snapshots": "node scripts/validate-snapshots.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "^3.1.2",
     "@notionhq/client": "^3.1.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
   }
 }

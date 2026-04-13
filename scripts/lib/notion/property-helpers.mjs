@@ -1,3 +1,4 @@
+import { normalizeExternalUrl } from '../../../lib/shared/urlSafety.js';
 import { ensureArray, normalizeKey, splitListText } from '../utils.mjs';
 
 function buildNormalizedPropertyMap(page) {
@@ -71,8 +72,9 @@ export function notionRichTextToHtml(richText = []) {
       if (annotations.underline) {
         content = `<u>${content}</u>`;
       }
-      if (href) {
-        content = `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${content}</a>`;
+      const safeHref = normalizeExternalUrl(href);
+      if (safeHref) {
+        content = `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer">${content}</a>`;
       }
 
       return content;

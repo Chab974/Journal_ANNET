@@ -10,6 +10,7 @@ import {
 } from '../scripts/lib/content-reconcile-state.mjs';
 
 test('serializeProductionReconcileState et parseProductionReconcileState font un round-trip stable', () => {
+  const recentSeenAt = new Date().toISOString();
   const state = {
     ...createDefaultProductionReconcileState(),
     dirty: true,
@@ -17,6 +18,12 @@ test('serializeProductionReconcileState et parseProductionReconcileState font un
     last_event_at: '2026-04-08T08:00:00.000Z',
     last_public_hash_sent: 'hash-1',
     pending_since: '2026-04-08T08:00:00.000Z',
+    recent_event_ids: [
+      {
+        id: 'event-0',
+        seen_at: recentSeenAt,
+      },
+    ],
   };
 
   const body = serializeProductionReconcileState(state);
@@ -52,6 +59,12 @@ test('mergeProductionReconcileEvent conserve le dernier événement connu', () =
   assert.equal(merged.last_event_action, 'suppression');
   assert.equal(merged.last_event_at, '2026-04-08T08:05:00.000Z');
   assert.equal(merged.last_event_type, 'page.deleted');
+  assert.deepEqual(merged.recent_event_ids, [
+    {
+      id: 'event-2',
+      seen_at: merged.recent_event_ids[0].seen_at,
+    },
+  ]);
 });
 
 test('isDuplicateProductionReconcileEvent détecte un event_id déjà traité', () => {
@@ -74,5 +87,27 @@ test('isDuplicateProductionReconcileEvent détecte un event_id déjà traité', 
       event_timestamp: '2026-04-08T08:05:00.000Z',
     }),
     false,
+  );
+});
+
+test('isDuplicateProductionReconcileEvent détecte aussi un event_id déjà vu dans recent_event_ids', () => {
+  const recentSeenAt = new Date().toISOString();
+  const current = {
+    ...createDefaultProductionReconcileState(),
+    last_event_id: 'event-latest',
+    recent_event_ids: [
+      {
+        id: 'event-older',
+        seen_at: recentSeenAt,
+      },
+    ],
+  };
+
+  assert.equal(
+    isDuplicateProductionReconcileEvent(current, {
+      event_id: 'event-older',
+      event_timestamp: '2026-04-08T08:15:00.000Z',
+    }),
+    true,
   );
 });

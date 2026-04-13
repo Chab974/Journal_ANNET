@@ -1,8 +1,9 @@
 import {
   getNotionEventActionLabel,
+  isFreshNotionEvent,
   isNotionVerificationPayload,
   isRelevantNotionEvent,
-  isRelevantNotionEventWithResolver,
+  isValidNotionEventPayload,
   toDispatchMetadata,
   verifyNotionSignature,
 } from '../../scripts/lib/notion/webhook.mjs';
@@ -69,6 +70,19 @@ function sendJson(response, statusCode, body) {
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
   response.end(JSON.stringify(body));
+}
+
+function isAllowedPageParent(page, allowedIds = []) {
+  const parent = page?.parent ?? {};
+  return [
+    parent.id,
+    parent.data_source_id,
+    parent.database_id,
+    parent.type === 'data_source_id' ? parent.data_source_id : null,
+    parent.type === 'database_id' ? parent.database_id : null,
+  ]
+    .filter(Boolean)
+    .some((id) => allowedIds.includes(id));
 }
 
 async function triggerGitHubPagesDemo(metadata) {
@@ -185,16 +199,22 @@ export default async function notionWebhook(request, response) {
     rawBody = await readRawRequestBody(request);
     payload = rawBody ? JSON.parse(rawBody) : {};
   } catch (error) {
-    sendJson(response, 400, { error: `JSON invalide: ${error.message}` });
+    sendJson(response, error.statusCode === 413 ? 413 : 400, {
+      error: error.statusCode === 413 ? error.message : `JSON invalide: ${error.message}`,
+    });
     return;
   }
 
   if (isNotionVerificationPayload(payload)) {
-    console.info('Notion webhook verification_token:', payload.verification_token);
     sendJson(response, 200, {
       ok: true,
       verification_token: payload.verification_token,
     });
+    return;
+  }
+
+  if (!isValidNotionEventPayload(payload)) {
+    sendJson(response, 400, { error: 'Payload Notion invalide.' });
     return;
   }
 
@@ -211,6 +231,20 @@ export default async function notionWebhook(request, response) {
       request_id: request.headers['x-vercel-id'] ?? null,
     });
     sendJson(response, 401, { error: 'Signature Notion invalide.' });
+    return;
+  }
+
+  if (!isFreshNotionEvent(payload)) {
+    console.info('Notion webhook stale event ignored', {
+      entity_id: payload.entity.id,
+      event_id: payload.id,
+      event_type: payload.type,
+    });
+    sendJson(response, 202, {
+      ignored: true,
+      ok: true,
+      reason: 'replay_or_stale_event',
+    });
     return;
   }
 
@@ -247,7 +281,12 @@ export default async function notionWebhook(request, response) {
     return getTrackedPageSource(await trackedPageIndexPromise, payload?.entity?.id);
   };
   const trackedPageSource = await resolveTrackedPageSource();
-  const allowUnresolvedCreatedPage = payload?.type === 'page.created';
+  const payloadDirectlyRelevant = isRelevantNotionEvent(payload, allowedDataSourceIds);
+  const resolvedEventPage =
+    !trackedPageSource && !payloadDirectlyRelevant && payload?.type?.startsWith('page.')
+      ? await resolveEventPage()
+      : null;
+  const resolvedPageRelevant = isAllowedPageParent(resolvedEventPage, allowedDataSourceIds);
 
   console.info('Notion webhook event received', {
     event_action: getNotionEventActionLabel(payload?.type),
@@ -255,40 +294,39 @@ export default async function notionWebhook(request, response) {
     entity_id: payload?.entity?.id ?? null,
     event_type: payload?.type ?? null,
     tracked_page_source: trackedPageSource || null,
-    unresolved_page_created_fallback: allowUnresolvedCreatedPage,
+    unresolved_page_created_fallback: false,
     parent_data_source_id: payload?.data?.parent?.data_source_id ?? null,
     parent_id: payload?.data?.parent?.id ?? null,
     parent_type: payload?.data?.parent?.type ?? null,
   });
   const isRelevantEvent =
     Boolean(trackedPageSource) ||
-    isRelevantNotionEvent(payload, allowedDataSourceIds) ||
-    (await isRelevantNotionEventWithResolver(
-      payload,
-      allowedDataSourceIds,
-      async () => resolveEventPage(),
-    )) ||
-    allowUnresolvedCreatedPage;
+    payloadDirectlyRelevant ||
+    resolvedPageRelevant;
 
   if (!isRelevantEvent) {
+    const ignoreReason =
+      payload?.type === 'page.created' && !resolvedEventPage
+        ? 'page_parent_unresolved'
+        : 'event_out_of_scope';
     console.info('Notion webhook ignored', {
       event_action: getNotionEventActionLabel(payload?.type),
       entity_id: payload?.entity?.id ?? null,
       event_type: payload?.type ?? null,
       tracked_page_source: trackedPageSource || null,
-      reason: 'event_out_of_scope',
+      reason: ignoreReason,
     });
     sendJson(response, 202, {
       ignored: true,
       ok: true,
-      reason: 'Event Notion hors périmètre éditorial.',
+      reason: ignoreReason,
     });
     return;
   }
 
   try {
     const metadata = toDispatchMetadata(payload);
-    const eventPage = await resolveEventPage();
+    const eventPage = resolvedEventPage ?? await resolveEventPage();
     const runMode = isImmediatePublicationPage(eventPage) ? 'immediate' : 'webhook';
     console.info('Notion webhook evaluating production reconcile', metadata);
     let reconcile = null;

@@ -57,6 +57,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate lockfile policy
+        run: npm run validate:lockfile
+
       - name: Reconcile production deploy
         env:
           CONTENT_RECONCILE_DEBOUNCE_MINUTES: ${{ vars.CONTENT_RECONCILE_DEBOUNCE_MINUTES }}

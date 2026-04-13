@@ -22,19 +22,15 @@ async function renderImageBlock(block, options) {
   const alt = caption || `Illustration de ${options.pageTitle || 'la publication'}`;
 
   try {
-    const source =
-      image.type === 'external'
-        ? image.external?.url
-        : await options.mediaResolver?.({
-            file: {
-              name: block.id,
-              type: 'file',
-              file: {
-                url: image.file?.url,
-              },
-            },
-            pageId: options.pageId,
-          });
+    const source = await options.mediaResolver?.({
+      file: {
+        external: image.external,
+        file: image.file,
+        name: block.id,
+        type: image.type,
+      },
+      pageId: options.pageId,
+    });
 
     if (!source) {
       return { html: '', plainText: '', warnings: ['Bloc image ignoré faute de source exploitable.'], imageSources: [] };

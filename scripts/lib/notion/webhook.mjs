@@ -1,5 +1,8 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
+const notionEventTimestampTolerancePastMs = 15 * 60 * 1000;
+const notionEventTimestampToleranceFutureMs = 2 * 60 * 1000;
+
 export function computeNotionSignature(rawBody, verificationToken) {
   return `sha256=${createHmac('sha256', verificationToken).update(rawBody).digest('hex')}`;
 }
@@ -46,6 +49,43 @@ const eventActionLabels = new Map([
   ['data_source.content_updated', 'modification'],
   ['data_source.schema_updated', 'modification'],
 ]);
+
+export function isSupportedNotionEventType(eventType) {
+  return relevantEventTypes.has(String(eventType ?? '').trim());
+}
+
+export function isValidNotionEventPayload(payload) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return false;
+  }
+
+  if (!isSupportedNotionEventType(payload.type)) {
+    return false;
+  }
+
+  const eventId = String(payload.id ?? '').trim();
+  const entityId = String(payload.entity?.id ?? '').trim();
+  const timestamp = Date.parse(String(payload.timestamp ?? '').trim());
+
+  return Boolean(eventId && entityId && Number.isFinite(timestamp));
+}
+
+export function isFreshNotionEvent(
+  event,
+  {
+    futureMs = notionEventTimestampToleranceFutureMs,
+    now = Date.now(),
+    pastMs = notionEventTimestampTolerancePastMs,
+  } = {},
+) {
+  const eventTimestamp = Date.parse(String(event?.timestamp ?? '').trim());
+  if (!Number.isFinite(eventTimestamp)) {
+    return false;
+  }
+
+  const ageMs = now - eventTimestamp;
+  return ageMs <= pastMs && ageMs >= -futureMs;
+}
 
 function collectEventCandidateIds(event) {
   return [

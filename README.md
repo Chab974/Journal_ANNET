@@ -102,7 +102,7 @@ Validation locale déjà faite dans ce dépôt :
 ### Étape 1 - Installer les dépendances
 
 ```bash
-npm install
+npm ci
 ```
 
 ### Étape 2 - Vérifier le build sans Notion
@@ -498,7 +498,7 @@ Choisir les événements de contenu éditorial utiles.
 Au moment de la vérification :
 
 - l’endpoint renvoie le `verification_token`
-- il est aussi visible dans les logs Vercel
+- ne pas le récupérer depuis les logs Vercel ni l’y journaliser
 
 Le stocker ensuite dans :
 
@@ -509,6 +509,7 @@ NOTION_WEBHOOK_VERIFICATION_TOKEN=...
 ### Étape 3 - Redéployer Vercel
 
 Après ajout du token, relancer un déploiement.
+Si un ancien token a déjà été exposé dans des logs, le faire tourner avant de réactiver le webhook.
 
 ### Étape 4 - Suivre les logs webhook en local
 
@@ -600,7 +601,13 @@ Valeurs utilisées :
 Installer :
 
 ```bash
-npm install
+npm ci
+```
+
+Valider le lockfile :
+
+```bash
+npm run validate:lockfile
 ```
 
 Synchroniser Notion :

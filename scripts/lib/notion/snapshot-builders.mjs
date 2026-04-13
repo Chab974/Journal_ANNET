@@ -1,4 +1,5 @@
 import { normalizePublication } from '../../../lib/shared/publicationSchema.js';
+import { normalizeExternalUrl, normalizePublicHref } from '../../../lib/shared/urlSafety.js';
 import { defaultSiteSections } from '../default-site-sections.mjs';
 import { sectionScalarFieldDefinitions } from '../site-section-schema.mjs';
 import {
@@ -269,6 +270,34 @@ function normalizeSectionScalarField(value) {
   return slugify(value).replaceAll('-', '_');
 }
 
+function sanitizeExternalUrl(value, warnings, label) {
+  const rawValue = String(value ?? '').trim();
+  if (!rawValue) {
+    return '';
+  }
+
+  const normalized = normalizeExternalUrl(rawValue);
+  if (!normalized) {
+    warnings.push(`${label} ignoré: URL externe non autorisée.`);
+  }
+
+  return normalized;
+}
+
+function sanitizePublicHref(value, warnings, label) {
+  const rawValue = String(value ?? '').trim();
+  if (!rawValue) {
+    return '';
+  }
+
+  const normalized = normalizePublicHref(rawValue);
+  if (!normalized) {
+    warnings.push(`${label} ignoré: href non autorisé.`);
+  }
+
+  return normalized;
+}
+
 function sortStructuredSectionItems(items) {
   return ensureArray(items).slice().sort((left, right) => {
     const order = compareOptionalNumbers(left.order, right.order);
@@ -300,13 +329,10 @@ async function resolveFiles(files, { mediaResolver, pageId, title, warnings }) {
 
   for (const file of files) {
     try {
-      const src =
-        file.type === 'external'
-          ? file.external?.url
-          : await mediaResolver({
-              file,
-              pageId,
-            });
+      const src = await mediaResolver({
+        file,
+        pageId,
+      });
 
       if (!src) {
         continue;
@@ -481,7 +507,11 @@ function buildSectionItemsMap(sectionItemPages, sectionKeyById, warnings) {
       emoji: readFirstText(page, sectionItemFieldCandidates.emoji),
       eyebrow: readFirstText(page, sectionItemFieldCandidates.eyebrow),
       group,
-      href: readFirstText(page, sectionItemFieldCandidates.href),
+      href: sanitizePublicHref(
+        readFirstText(page, sectionItemFieldCandidates.href),
+        warnings,
+        `Élément de section ${page.id}`,
+      ),
       id: page.id,
       kicker: readFirstText(page, sectionItemFieldCandidates.kicker),
       name: readTitle(page, sectionItemFieldCandidates.name),
@@ -527,7 +557,7 @@ function applyScalarSectionItems(sectionKey, baseSection, sectionItems, warnings
 
   const section = { ...baseSection };
 
-  for (const { field: fieldKey, property: propertyName } of sectionScalarFieldDefinitions) {
+  for (const { field: fieldKey, property: propertyName, valueType } of sectionScalarFieldDefinitions) {
     const matches = scalarItems.filter((item) =>
       normalizeSectionScalarField(item.name || item.title || item.text) === fieldKey,
     );
@@ -540,7 +570,10 @@ function applyScalarSectionItems(sectionKey, baseSection, sectionItems, warnings
       warnings.push(`Section ${sectionKey}: champ scalaire "${fieldKey}" multiple, première entrée conservée.`);
     }
 
-    section[propertyName] = readSectionScalarItemValue(matches[0]);
+    const scalarValue = readSectionScalarItemValue(matches[0]);
+    section[propertyName] = valueType === 'href'
+      ? sanitizePublicHref(scalarValue, warnings, `Section ${sectionKey}: ${propertyName}`)
+      : scalarValue;
   }
 
   return section;
@@ -971,6 +1004,9 @@ async function buildPublicationSnapshot(page, context) {
   };
 
   const normalized = normalizePublication(rawPublication, { fallbackId: page.id });
+  if (rawPublication.lien_externe && !normalized.lien_externe) {
+    warnings.push(`Lien externe ignoré pour ${page.id}: protocole non autorisé ou URL invalide.`);
+  }
   const sortDate = readDateValue(page, publicationFieldCandidates.startDate) || page.last_edited_time;
 
   return {
@@ -989,7 +1025,11 @@ async function buildPublicationSnapshot(page, context) {
       ordre_manuel: propertyToNumber(findProperty(page, publicationFieldCandidates.manualOrder)),
       rubrique,
       seo_description: readFirstText(page, publicationFieldCandidates.seoDescription),
-      seo_image: readFirstText(page, publicationFieldCandidates.seoImage),
+      seo_image: sanitizePublicHref(
+        readFirstText(page, publicationFieldCandidates.seoImage),
+        warnings,
+        `SEO image ${page.id}`,
+      ),
       seo_title: readFirstText(page, publicationFieldCandidates.seoTitle),
       slug,
       sort_date: sortDate,
@@ -1134,7 +1174,11 @@ async function buildSiteSections(sectionPages, sectionItemPages, context) {
       ...existingSection,
       ...payload,
       content_html: readFirstText(page, sectionFieldCandidates.contentHtml) || content.html || sections[key]?.content_html || '',
-      cta_href: readFirstText(page, sectionFieldCandidates.ctaHref) || payload.cta_href || sections[key]?.cta_href || '',
+      cta_href: sanitizePublicHref(
+        readFirstText(page, sectionFieldCandidates.ctaHref) || payload.cta_href || sections[key]?.cta_href || '',
+        context.warnings,
+        `Section ${key}: cta_href`,
+      ),
       cta_label: readFirstText(page, sectionFieldCandidates.ctaLabel) || payload.cta_label || sections[key]?.cta_label || '',
       description:
         readFirstText(page, sectionFieldCandidates.description) ||

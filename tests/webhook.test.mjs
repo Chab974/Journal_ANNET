@@ -5,8 +5,11 @@ import {
   computeNotionSignature,
   extractPageParentIds,
   getNotionEventActionLabel,
+  isFreshNotionEvent,
   isRelevantNotionEvent,
   isRelevantNotionEventWithResolver,
+  isSupportedNotionEventType,
+  isValidNotionEventPayload,
   toDispatchMetadata,
   verifyNotionSignature,
 } from '../scripts/lib/notion/webhook.mjs';
@@ -132,6 +135,69 @@ test('isRelevantNotionEventWithResolver ignore un page.deleted irrésolvable au 
   );
 
   assert.equal(result, false);
+});
+
+test('isSupportedNotionEventType et isValidNotionEventPayload valident la structure minimale attendue', () => {
+  assert.equal(isSupportedNotionEventType('page.content_updated'), true);
+  assert.equal(isSupportedNotionEventType('comment.created'), false);
+
+  assert.equal(
+    isValidNotionEventPayload({
+      entity: { id: 'page-1', type: 'page' },
+      id: 'event-1',
+      timestamp: '2026-04-05T10:00:00.000Z',
+      type: 'page.content_updated',
+    }),
+    true,
+  );
+
+  assert.equal(
+    isValidNotionEventPayload({
+      entity: { id: '', type: 'page' },
+      id: 'event-1',
+      timestamp: '2026-04-05T10:00:00.000Z',
+      type: 'page.content_updated',
+    }),
+    false,
+  );
+
+  assert.equal(
+    isValidNotionEventPayload({
+      entity: { id: 'page-1', type: 'page' },
+      id: 'event-1',
+      timestamp: 'not-a-date',
+      type: 'page.content_updated',
+    }),
+    false,
+  );
+});
+
+test('isFreshNotionEvent rejette les événements trop anciens ou trop futurs', () => {
+  const now = Date.parse('2026-04-13T10:00:00.000Z');
+
+  assert.equal(
+    isFreshNotionEvent(
+      { timestamp: '2026-04-13T09:50:00.000Z' },
+      { now },
+    ),
+    true,
+  );
+
+  assert.equal(
+    isFreshNotionEvent(
+      { timestamp: '2026-04-13T09:40:00.000Z' },
+      { now },
+    ),
+    false,
+  );
+
+  assert.equal(
+    isFreshNotionEvent(
+      { timestamp: '2026-04-13T10:03:00.000Z' },
+      { now },
+    ),
+    false,
+  );
 });
 
 test('getNotionEventActionLabel catégorise les événements pour les logs', () => {

@@ -37,11 +37,9 @@ export async function resolveNotionFileAsset({
     return null;
   }
 
-  if (file.type === 'external') {
-    return file.external?.url ?? null;
-  }
-
-  const sourceUrl = file.file?.url ?? null;
+  const sourceUrl = file.type === 'external'
+    ? file.external?.url ?? null
+    : file.file?.url ?? null;
   if (!sourceUrl) {
     return null;
   }

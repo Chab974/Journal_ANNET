@@ -58,6 +58,18 @@ function createResponse() {
   };
 }
 
+function offsetTimestamp(offsetMs) {
+  return new Date(Date.now() + offsetMs).toISOString();
+}
+
+function freshTimestamp() {
+  return offsetTimestamp(-60 * 1000);
+}
+
+function staleTimestamp() {
+  return offsetTimestamp(-(16 * 60 * 1000));
+}
+
 async function withEnv(overrides, run) {
   const previousEntries = new Map(
     Object.keys(overrides).map((key) => [key, process.env[key]]),
@@ -122,6 +134,7 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
     async () => {
       const notionWebhook = await importWebhookHandler(`reconcile-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
@@ -177,7 +190,7 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
           },
           entity: { id: 'page-1', type: 'page' },
           id: 'event-1',
-          timestamp: '2026-04-08T08:00:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.properties_updated',
         });
 
@@ -189,7 +202,7 @@ test('notionWebhook enregistre l’état durable et déclenche le workflow de r�
 
         const persistedState = parseProductionReconcileState(patchedIssueBody);
         assert.equal(persistedState.dirty, true);
-        assert.equal(persistedState.last_event_at, '2026-04-08T08:00:00.000Z');
+        assert.equal(persistedState.last_event_at, eventTimestamp);
         assert.equal(persistedState.last_entity_id, 'page-1');
         assert.equal(dispatchBody.inputs.run_mode, 'immediate');
 
@@ -230,6 +243,7 @@ test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', {
     async () => {
       const notionWebhook = await importWebhookHandler(`blocked-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
@@ -261,7 +275,7 @@ test('notionWebhook saute le dispatch prod immédiat si Vercel reste bloqué', {
           },
           entity: { id: 'page-2', type: 'page' },
           id: 'event-2',
-          timestamp: '2026-04-08T08:30:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.deleted',
         });
 
@@ -310,6 +324,7 @@ test('notionWebhook ignore un event_id déjà traité sans redispatcher la prod'
     async () => {
       const notionWebhook = await importWebhookHandler(`duplicate-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
@@ -352,7 +367,7 @@ test('notionWebhook ignore un event_id déjà traité sans redispatcher la prod'
           },
           entity: { id: 'page-duplicate', type: 'page' },
           id: 'event-duplicate',
-          timestamp: '2026-04-08T08:00:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.properties_updated',
         });
 
@@ -406,6 +421,7 @@ test('notionWebhook traite un page.deleted via l’index local quand Notion ne p
         async () => {
           const notionWebhook = await importWebhookHandler(`deleted-fallback-${Date.now()}`);
           const originalFetch = global.fetch;
+          const eventTimestamp = freshTimestamp();
 
           global.fetch = async (url, options = {}) => {
             calls.push({ method: options.method || 'GET', url });
@@ -443,7 +459,7 @@ test('notionWebhook traite un page.deleted via l’index local quand Notion ne p
               },
               entity: { id: 'page-deleted', type: 'page' },
               id: 'event-deleted-fallback',
-              timestamp: '2026-04-08T18:00:00.000Z',
+              timestamp: eventTimestamp,
               type: 'page.deleted',
             });
 
@@ -502,6 +518,7 @@ test('notionWebhook traite une page existante via l’index local quand la lectu
         async () => {
           const notionWebhook = await importWebhookHandler(`tracked-page-fallback-${Date.now()}`);
           const originalFetch = global.fetch;
+          const eventTimestamp = freshTimestamp();
 
           global.fetch = async (url, options = {}) => {
             calls.push({ method: options.method || 'GET', url });
@@ -550,7 +567,7 @@ test('notionWebhook traite une page existante via l’index local quand la lectu
               },
               entity: { id: 'page-existing', type: 'page' },
               id: 'event-existing-fallback',
-              timestamp: '2026-04-08T18:07:00.000Z',
+              timestamp: eventTimestamp,
               type: 'page.properties_updated',
             });
 
@@ -600,6 +617,7 @@ test('notionWebhook réessaie la lecture d’une page créée avant de la classe
     async () => {
       const notionWebhook = await importWebhookHandler(`page-created-retry-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
@@ -667,7 +685,7 @@ test('notionWebhook réessaie la lecture d’une page créée avant de la classe
           },
           entity: { id: 'page-created', type: 'page' },
           id: 'event-created-retry',
-          timestamp: '2026-04-08T18:15:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.created',
         });
 
@@ -693,16 +711,13 @@ test('notionWebhook réessaie la lecture d’une page créée avant de la classe
   );
 });
 
-test('notionWebhook réconcilie un page.created même si la page reste irrésolvable après retry', { concurrency: false }, async () => {
-  const issueNumber = 26;
-  let patchedIssueBody = '';
+test('notionWebhook ignore un page.created irrésolvable après retry', { concurrency: false }, async () => {
   let pageReadAttempts = 0;
   const calls = [];
-  let dispatchBody = null;
 
   await withEnv(
     {
-      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: String(issueNumber),
+      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: '26',
       GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
       GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
       GITHUB_REPOSITORY_NAME: 'Journal_ANNET',
@@ -713,18 +728,12 @@ test('notionWebhook réconcilie un page.created même si la page reste irrésolv
       NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
     },
     async () => {
-      const notionWebhook = await importWebhookHandler(`page-created-fail-open-${Date.now()}`);
+      const notionWebhook = await importWebhookHandler(`page-created-fail-closed-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
-
-        if (url.endsWith(`/issues/${issueNumber}`) && (options.method || 'GET') === 'GET') {
-          return jsonResponse({
-            body: '',
-            number: issueNumber,
-          });
-        }
 
         if (url.endsWith('/pages/page-created-unresolved') && (options.method || 'GET') === 'GET') {
           pageReadAttempts += 1;
@@ -735,19 +744,6 @@ test('notionWebhook réconcilie un page.created même si la page reste irrésolv
             status: 404,
             text: async () => JSON.stringify({ code: 'object_not_found' }),
           };
-        }
-
-        if (url.endsWith(`/issues/${issueNumber}`) && options.method === 'PATCH') {
-          patchedIssueBody = JSON.parse(options.body).body;
-          return jsonResponse({
-            body: patchedIssueBody,
-            number: issueNumber,
-          });
-        }
-
-        if (url.endsWith('/actions/workflows/reconcile-prod-deploy.yml/dispatches') && options.method === 'POST') {
-          dispatchBody = JSON.parse(options.body);
-          return emptyResponse(204);
         }
 
         throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
@@ -763,7 +759,7 @@ test('notionWebhook réconcilie un page.created même si la page reste irrésolv
           },
           entity: { id: 'page-created-unresolved', type: 'page' },
           id: 'event-created-fail-open',
-          timestamp: '2026-04-08T18:20:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.created',
         });
 
@@ -772,21 +768,222 @@ test('notionWebhook réconcilie un page.created même si la page reste irrésolv
 
         assert.equal(response.statusCode, 202);
         assert.equal(pageReadAttempts, 3);
-
-        const persistedState = parseProductionReconcileState(patchedIssueBody);
-        assert.equal(persistedState.dirty, true);
-        assert.equal(persistedState.last_event_type, 'page.created');
-        assert.equal(dispatchBody.inputs.run_mode, 'webhook');
+        assert.equal(calls.length, 3);
 
         const payload = JSON.parse(response.body);
         assert.equal(payload.ok, true);
-        assert.equal(payload.productionReconcile.issue_number, issueNumber);
-        assert.equal(payload.productionReconcile.workflow.dispatched, true);
+        assert.equal(payload.ignored, true);
+        assert.equal(payload.reason, 'page_parent_unresolved');
       } finally {
         global.fetch = originalFetch;
       }
     },
   );
+});
+
+test('notionWebhook ignore un event_id déjà vu dans recent_event_ids sans redispatcher la prod', { concurrency: false }, async () => {
+  const issueNumber = 27;
+  const existingStateBody = serializeProductionReconcileState({
+    blocked_until: null,
+    dirty: false,
+    last_event_action: 'modification',
+    last_event_at: '2026-04-08T08:00:00.000Z',
+    last_event_id: 'event-current',
+    last_event_type: 'page.properties_updated',
+    pending_since: null,
+    recent_event_ids: [
+      {
+        id: 'event-replayed',
+        seen_at: new Date().toISOString(),
+      },
+    ],
+  });
+  const calls = [];
+
+  await withEnv(
+    {
+      CONTENT_RECONCILE_STATE_ISSUE_NUMBER: String(issueNumber),
+      GITHUB_PAGES_AUTO_DEPLOY_ENABLED: 'false',
+      GITHUB_PRODUCTION_WORKFLOW_FILE: 'reconcile-prod-deploy.yml',
+      GITHUB_REPOSITORY_NAME: 'Journal_ANNET',
+      GITHUB_REPOSITORY_OWNER: 'Chab974',
+      GITHUB_WEBHOOK_TOKEN: 'gh_secret',
+      NOTION_PUBLICATIONS_DATA_SOURCE_ID: 'ds-publications',
+      NOTION_TOKEN: 'secret_notion',
+      NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+    },
+    async () => {
+      const notionWebhook = await importWebhookHandler(`duplicate-recent-${Date.now()}`);
+      const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
+
+      global.fetch = async (url, options = {}) => {
+        calls.push({ method: options.method || 'GET', url });
+
+        if (url.endsWith(`/issues/${issueNumber}`) && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            body: existingStateBody,
+            number: issueNumber,
+          });
+        }
+
+        if (url.endsWith('/pages/page-replayed') && (options.method || 'GET') === 'GET') {
+          return jsonResponse({
+            id: 'page-replayed',
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'data_source_id',
+            },
+            properties: {},
+          });
+        }
+
+        throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+      };
+
+      try {
+        const rawBody = JSON.stringify({
+          data: {
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'workspace',
+            },
+          },
+          entity: { id: 'page-replayed', type: 'page' },
+          id: 'event-replayed',
+          timestamp: eventTimestamp,
+          type: 'page.properties_updated',
+        });
+
+        const response = createResponse();
+        await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+        assert.equal(response.statusCode, 202);
+        assert.equal(calls.length, 2);
+
+        const payload = JSON.parse(response.body);
+        assert.equal(payload.ignored, true);
+        assert.equal(payload.queued, false);
+        assert.equal(payload.productionReconcile.duplicate_event_id, true);
+        assert.equal(payload.productionReconcile.workflow.dispatched, false);
+        assert.equal(payload.productionReconcile.workflow.reason, 'duplicate_event_id');
+      } finally {
+        global.fetch = originalFetch;
+      }
+    },
+  );
+});
+
+test('notionWebhook ignore un événement signé mais périmé', { concurrency: false }, async () => {
+  await withEnv(
+    {
+      NOTION_WEBHOOK_VERIFICATION_TOKEN: 'secret_verify',
+    },
+    async () => {
+      const notionWebhook = await importWebhookHandler(`stale-event-${Date.now()}`);
+      const originalFetch = global.fetch;
+      const calls = [];
+
+      global.fetch = async (url, options = {}) => {
+        calls.push({ method: options.method || 'GET', url });
+        throw new Error(`Appel fetch inattendu: ${options.method || 'GET'} ${url}`);
+      };
+
+      try {
+        const rawBody = JSON.stringify({
+          data: {
+            parent: {
+              data_source_id: 'ds-publications',
+              type: 'workspace',
+            },
+          },
+          entity: { id: 'page-stale', type: 'page' },
+          id: 'event-stale',
+          timestamp: staleTimestamp(),
+          type: 'page.properties_updated',
+        });
+
+        const response = createResponse();
+        await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+        assert.equal(response.statusCode, 202);
+        assert.equal(calls.length, 0);
+
+        const payload = JSON.parse(response.body);
+        assert.equal(payload.ignored, true);
+        assert.equal(payload.reason, 'replay_or_stale_event');
+      } finally {
+        global.fetch = originalFetch;
+      }
+    },
+  );
+});
+
+test('notionWebhook répond 400 sur un payload structurellement invalide', { concurrency: false }, async () => {
+  const notionWebhook = await importWebhookHandler(`invalid-payload-${Date.now()}`);
+  const rawBody = JSON.stringify({
+    entity: { id: '', type: 'page' },
+    id: 'event-invalid',
+    timestamp: freshTimestamp(),
+    type: 'page.properties_updated',
+  });
+  const response = createResponse();
+
+  await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+  assert.equal(response.statusCode, 400);
+  assert.deepEqual(JSON.parse(response.body), {
+    error: 'Payload Notion invalide.',
+  });
+});
+
+test('notionWebhook répond 413 quand le payload dépasse la limite autorisée', { concurrency: false }, async () => {
+  const notionWebhook = await importWebhookHandler(`oversized-payload-${Date.now()}`);
+  const rawBody = JSON.stringify({
+    data: {
+      padding: 'x'.repeat(70 * 1024),
+    },
+    entity: { id: 'page-big', type: 'page' },
+    id: 'event-big',
+    timestamp: freshTimestamp(),
+    type: 'page.properties_updated',
+  });
+  const response = createResponse();
+
+  await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+  assert.equal(response.statusCode, 413);
+  assert.deepEqual(JSON.parse(response.body), {
+    error: 'Payload trop volumineux.',
+  });
+});
+
+test('notionWebhook ne journalise pas le verification_token du challenge Notion', { concurrency: false }, async () => {
+  const notionWebhook = await importWebhookHandler(`verification-challenge-${Date.now()}`);
+  const logs = [];
+  const originalInfo = console.info;
+
+  console.info = (...args) => {
+    logs.push(args);
+  };
+
+  try {
+    const rawBody = JSON.stringify({
+      verification_token: 'secret_verification_token_from_notion',
+    });
+    const response = createResponse();
+
+    await notionWebhook(createRequest(rawBody, 'secret_verify'), response);
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(logs.length, 0);
+    assert.deepEqual(JSON.parse(response.body), {
+      ok: true,
+      verification_token: 'secret_verification_token_from_notion',
+    });
+  } finally {
+    console.info = originalInfo;
+  }
 });
 
 test('notionWebhook utilise les variables de dépôt fournies par Vercel quand les variables GitHub explicites sont absentes', { concurrency: false }, async () => {
@@ -811,6 +1008,7 @@ test('notionWebhook utilise les variables de dépôt fournies par Vercel quand l
     async () => {
       const notionWebhook = await importWebhookHandler(`vercel-fallback-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
@@ -858,7 +1056,7 @@ test('notionWebhook utilise les variables de dépôt fournies par Vercel quand l
           },
           entity: { id: 'page-3', type: 'page' },
           id: 'event-3',
-          timestamp: '2026-04-08T09:00:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.properties_updated',
         });
 
@@ -897,6 +1095,7 @@ test('notionWebhook répond 202 même si l’état durable GitHub ne peut pas ê
     async () => {
       const notionWebhook = await importWebhookHandler(`degraded-state-${Date.now()}`);
       const originalFetch = global.fetch;
+      const eventTimestamp = freshTimestamp();
 
       global.fetch = async (url, options = {}) => {
         calls.push({ method: options.method || 'GET', url });
@@ -930,7 +1129,7 @@ test('notionWebhook répond 202 même si l’état durable GitHub ne peut pas ê
           },
           entity: { id: 'page-4', type: 'page' },
           id: 'event-4',
-          timestamp: '2026-04-08T09:30:00.000Z',
+          timestamp: eventTimestamp,
           type: 'page.properties_updated',
         });
 

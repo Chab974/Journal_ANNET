@@ -31,3 +31,19 @@ test('readRawRequestBody lit une requête Web via text()', async () => {
 
   assert.equal(rawBody, '{"a":1}');
 });
+
+test('readRawRequestBody rejette un payload trop volumineux', async () => {
+  const request = Readable.from(['x'.repeat(12)]);
+  request.method = 'POST';
+  request.headers = {
+    'content-length': '12',
+  };
+
+  await assert.rejects(
+    readRawRequestBody(request, { maxBytes: 8 }),
+    {
+      message: 'Payload trop volumineux.',
+      statusCode: 413,
+    },
+  );
+});

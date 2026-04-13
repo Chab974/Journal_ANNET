@@ -1,6 +1,9 @@
 export const productionReconcileIssueTitle = 'Journal ANNET production reconcile state';
 export const productionReconcileScope = 'production';
-export const productionReconcileSchemaVersion = 1;
+export const productionReconcileSchemaVersion = 2;
+
+const recentEventIdsTtlMs = 24 * 60 * 60 * 1000;
+const recentEventIdsLimit = 100;
 
 const stateMarkerStart = '<!-- journal-annet-production-reconcile-state:start -->';
 const stateMarkerEnd = '<!-- journal-annet-production-reconcile-state:end -->';
@@ -22,6 +25,45 @@ function normalizeHash(value) {
 function normalizeEventId(value) {
   const normalized = String(value ?? '').trim();
   return normalized || null;
+}
+
+function normalizeRecentEventEntry(value = {}) {
+  const id = normalizeEventId(value?.id);
+  const seenAt = toIsoTimestamp(value?.seen_at ?? value?.seenAt);
+
+  if (!id || !seenAt) {
+    return null;
+  }
+
+  return {
+    id,
+    seen_at: seenAt,
+  };
+}
+
+function trimRecentEventEntries(entries = [], { now = Date.now() } = {}) {
+  const deduped = new Map();
+
+  for (const entry of entries) {
+    const normalized = normalizeRecentEventEntry(entry);
+    if (!normalized) {
+      continue;
+    }
+
+    const seenAtMs = Date.parse(normalized.seen_at);
+    if (!Number.isFinite(seenAtMs) || now - seenAtMs > recentEventIdsTtlMs) {
+      continue;
+    }
+
+    const existing = deduped.get(normalized.id);
+    if (!existing || Date.parse(existing.seen_at) < seenAtMs) {
+      deduped.set(normalized.id, normalized);
+    }
+  }
+
+  return [...deduped.values()]
+    .sort((left, right) => Date.parse(right.seen_at) - Date.parse(left.seen_at))
+    .slice(0, recentEventIdsLimit);
 }
 
 function compareIsoTimestamp(left, right) {
@@ -57,6 +99,7 @@ export function createDefaultProductionReconcileState() {
     last_public_hash_computed: null,
     last_public_hash_sent: null,
     pending_since: null,
+    recent_event_ids: [],
     schema_version: productionReconcileSchemaVersion,
     scope: productionReconcileScope,
   };
@@ -64,6 +107,7 @@ export function createDefaultProductionReconcileState() {
 
 export function normalizeProductionReconcileState(value = {}) {
   const defaults = createDefaultProductionReconcileState();
+  const now = Date.now();
 
   return {
     ...defaults,
@@ -79,6 +123,7 @@ export function normalizeProductionReconcileState(value = {}) {
     last_public_hash_computed: normalizeHash(value.last_public_hash_computed),
     last_public_hash_sent: normalizeHash(value.last_public_hash_sent),
     pending_since: toIsoTimestamp(value.pending_since),
+    recent_event_ids: trimRecentEventEntries(value.recent_event_ids, { now }),
     schema_version: productionReconcileSchemaVersion,
     scope: productionReconcileScope,
   };
@@ -134,7 +179,14 @@ export function isDuplicateProductionReconcileEvent(state, event) {
   const normalized = normalizeProductionReconcileState(state);
   const eventId = normalizeEventId(event?.event_id);
 
-  return Boolean(eventId && normalized.last_event_id && eventId === normalized.last_event_id);
+  if (!eventId) {
+    return false;
+  }
+
+  return (
+    normalized.last_event_id === eventId ||
+    normalized.recent_event_ids.some((entry) => entry.id === eventId)
+  );
 }
 
 export function mergeProductionReconcileEvent(state, event, now = new Date()) {
@@ -142,8 +194,15 @@ export function mergeProductionReconcileEvent(state, event, now = new Date()) {
   const eventId = normalizeEventId(event?.event_id);
   const nowIso = toIsoTimestamp(now) || new Date().toISOString();
   const eventTimestamp = toIsoTimestamp(event?.event_timestamp) || nowIso;
+  const nextRecentEventIds = trimRecentEventEntries(
+    [
+      ...(eventId ? [{ id: eventId, seen_at: nowIso }] : []),
+      ...normalized.recent_event_ids,
+    ],
+    { now: Date.parse(nowIso) },
+  );
 
-  if (eventId && normalized.last_event_id && eventId === normalized.last_event_id) {
+  if (isDuplicateProductionReconcileEvent(normalized, event)) {
     return normalized;
   }
 
@@ -151,6 +210,7 @@ export function mergeProductionReconcileEvent(state, event, now = new Date()) {
     ...normalized,
     dirty: true,
     pending_since: normalized.pending_since || eventTimestamp,
+    recent_event_ids: nextRecentEventIds,
   };
 
   if (!normalized.last_event_at || compareIsoTimestamp(eventTimestamp, normalized.last_event_at) >= 0) {

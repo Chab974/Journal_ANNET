@@ -12,7 +12,7 @@
                 <div class="space-y-4">
                     <div class="flex flex-wrap gap-2">
                         {% for item in journal.site.navigation %}
-                        <a href="{{ item.href }}" class="inline-flex items-center rounded-full border border-ink/10 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors{% if activePage == item.key %} text-white border-transparent{% endif %}" {% if activePage == item.key %}style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-blue));"{% endif %}>
+                        <a href="{{ item.href }}" class="site-footer-nav-link inline-flex items-center rounded-full border border-ink/10 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] hover:bg-paper transition-colors{% if activePage == item.key %} is-active text-white border-transparent{% endif %}">
                             {{ item.label }}
                         </a>
                         {% endfor %}

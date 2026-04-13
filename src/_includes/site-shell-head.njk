@@ -1,34 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr" class="scroll-smooth">
+<html lang="fr" class="scroll-smooth" data-browser-title-suffix="{{ (navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne") | escape }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{ journal.site.pathPrefix }}">
     <title>{{ pageTitle }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            {% if tailwindSafelist and tailwindSafelist.length %}
-            safelist: [
-                {% for item in tailwindSafelist %}
-                '{{ item }}'{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ],
-            {% endif %}
-            theme: {
-                extend: {
-                    fontFamily: {
-                        body: ['Manrope', 'sans-serif'],
-                        heading: ['Sora', 'sans-serif'],
-                    },
-                    colors: {
-                        ink: '#16314a',
-                        'vintage-red': '#f6a318',
-                        'vintage-green': '#7fbf25',
-                        'vintage-blue': '#2894e3'
-                    }
-                }
-            }
-        };
-    </script>
+    <link rel="stylesheet" href="assets/styles/tailwind.css">
+    <link rel="stylesheet" href="assets/styles/site-shared.css">
+    {% if pageCssHref %}
+    <link rel="stylesheet" href="{{ pageCssHref }}">
+    {% endif %}

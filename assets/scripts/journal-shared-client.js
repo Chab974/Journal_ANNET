@@ -1,5 +1,8 @@
 (() => {
   const DEFAULT_CALENDAR_LOCATION = 'Annet-sur-Marne';
+  const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F]/;
+  const URL_SCHEME_PATTERN = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function escapeHtml(value = '') {
     return String(value ?? '')
@@ -91,6 +94,84 @@
     return String(value ?? '').trim().toLowerCase();
   }
 
+  function sanitizeUrlValue(value = '', { maxLength = 2048 } = {}) {
+    return String(value ?? '').trim().slice(0, maxLength);
+  }
+
+  function normalizeExternalUrl(value = '') {
+    const normalized = sanitizeUrlValue(value);
+    if (!normalized || CONTROL_CHARACTER_PATTERN.test(normalized)) {
+      return '';
+    }
+
+    try {
+      const parsed = new URL(normalized);
+      return ['http:', 'https:'].includes(parsed.protocol) ? parsed.toString() : '';
+    } catch {
+      return '';
+    }
+  }
+
+  function normalizePublicHref(value = '') {
+    const normalized = sanitizeUrlValue(value);
+    if (!normalized || CONTROL_CHARACTER_PATTERN.test(normalized)) {
+      return '';
+    }
+
+    if (normalized.startsWith('#') || normalized.startsWith('?')) {
+      return normalized;
+    }
+
+    if (URL_SCHEME_PATTERN.test(normalized)) {
+      return normalizeExternalUrl(normalized);
+    }
+
+    if (normalized.startsWith('//')) {
+      return '';
+    }
+
+    return normalized;
+  }
+
+  function buildMailtoHref(value = '') {
+    const normalized = sanitizeUrlValue(value, { maxLength: 320 }).replace(/\s+/g, '');
+    return EMAIL_PATTERN.test(normalized) ? `mailto:${normalized}` : '';
+  }
+
+  function buildTelHref(value = '') {
+    const normalized = sanitizeUrlValue(value, { maxLength: 64 });
+    if (!normalized || CONTROL_CHARACTER_PATTERN.test(normalized)) {
+      return '';
+    }
+
+    const compact = normalized.replace(/[\s().-]+/g, '');
+    const hasLeadingPlus = compact.startsWith('+');
+    const digits = compact.replace(/\D+/g, '');
+    if (digits.length < 3) {
+      return '';
+    }
+
+    return hasLeadingPlus ? `tel:+${digits}` : `tel:${digits}`;
+  }
+
+  async function loadJson(url, { fallback = null } = {}) {
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      if (fallback !== null) {
+        return fallback;
+      }
+
+      throw new Error(`Chargement impossible (${response.status}).`);
+    }
+
+    return response.json();
+  }
+
   function buildSearchText(parts = []) {
     return parts
       .flat(Infinity)
@@ -119,7 +200,7 @@
       return;
     }
 
-    container.innerHTML = '';
+    container.replaceChildren();
     options.forEach((option) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -147,11 +228,16 @@
   }
 
   window.JournalAnnetShared = Object.freeze({
+    buildMailtoHref,
+    buildTelHref,
     buildGoogleCalendarUrl,
     buildReadableExcerpt,
     escapeHtml,
+    loadJson,
     matchesSearchText,
+    normalizeExternalUrl,
     normalizeEditorialText,
+    normalizePublicHref,
     normalizeSearchTerm,
     renderFilterButtons,
     splitEditorialSegments,

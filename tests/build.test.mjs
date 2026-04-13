@@ -8,7 +8,27 @@ import { fromRepo } from '../scripts/lib/utils.mjs';
 
 const execFileAsync = promisify(execFile);
 
-test('npm run build génère les pages Eleventy avec snapshots injectés', async () => {
+function assertBuiltPageUsesLocalAssets(html, { pageCssHref, pageScriptHref }) {
+  assert.match(html, /<link rel="stylesheet" href="assets\/styles\/tailwind\.css">/);
+  assert.match(html, /<link rel="stylesheet" href="assets\/styles\/site-shared\.css">/);
+  assert.match(html, new RegExp(`<link rel="stylesheet" href="${pageCssHref.replaceAll('.', '\\.')}">`));
+  assert.match(html, /<script src="assets\/scripts\/journal-shared-client\.js"><\/script>/);
+  assert.match(html, /<script src="assets\/scripts\/site-nav\.js"><\/script>/);
+  assert.match(html, new RegExp(`<script src="${pageScriptHref.replaceAll('.', '\\.')}"><\\/script>`));
+
+  assert.doesNotMatch(html, /cdn\.tailwindcss\.com/);
+  assert.doesNotMatch(html, /fonts\.googleapis\.com/);
+  assert.doesNotMatch(html, /fonts\.gstatic\.com/);
+  assert.doesNotMatch(html, /tailwindSafelist/);
+  assert.doesNotMatch(html, /<style\b/i);
+  assert.doesNotMatch(html, /\sstyle=/i);
+  assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>/i);
+  assert.doesNotMatch(html, /application\/json/i);
+  assert.doesNotMatch(html, /<link\b[^>]+rel="stylesheet"[^>]+href="https?:\/\//i);
+  assert.doesNotMatch(html, /<(?:script|img)\b[^>]+src="https?:\/\//i);
+}
+
+test('npm run build génère le site avec assets first-party et JSON UI same-origin', async () => {
   await execFileAsync('npm', ['run', 'build'], {
     cwd: fromRepo(),
   });
@@ -25,58 +45,70 @@ test('npm run build génère les pages Eleventy avec snapshots injectés', async
     readFile(fromRepo('_site', 'agenda.html'), 'utf8'),
     readFile(fromRepo('_site', 'a-propos.html'), 'utf8'),
   ]);
-  const agendaDataMatch = agendaHtml.match(/<script id="agenda-events-data" type="application\/json">([\s\S]*?)<\/script>/);
-  assert.ok(agendaDataMatch, 'Le snapshot agenda embarqué doit être présent dans agenda.html');
-  const embeddedAgenda = JSON.parse(agendaDataMatch[1]);
+
+  const [portalPosts, portalPage, agendaEvents, agendaPage, aboutPage] = await Promise.all([
+    readFile(fromRepo('_site', 'data', 'ui', 'portal-posts.json'), 'utf8').then((raw) => JSON.parse(raw)),
+    readFile(fromRepo('_site', 'data', 'ui', 'portal-page.json'), 'utf8').then((raw) => JSON.parse(raw)),
+    readFile(fromRepo('_site', 'data', 'ui', 'agenda-events.json'), 'utf8').then((raw) => JSON.parse(raw)),
+    readFile(fromRepo('_site', 'data', 'ui', 'agenda-page.json'), 'utf8').then((raw) => JSON.parse(raw)),
+    readFile(fromRepo('_site', 'data', 'ui', 'about-page.json'), 'utf8').then((raw) => JSON.parse(raw)),
+  ]);
+
+  assertBuiltPageUsesLocalAssets(indexHtml, {
+    pageCssHref: 'assets/styles/page-home.css',
+    pageScriptHref: 'assets/scripts/page-home.js',
+  });
+  assertBuiltPageUsesLocalAssets(portalHtml, {
+    pageCssHref: 'assets/styles/page-portal.css',
+    pageScriptHref: 'assets/scripts/page-portal.js',
+  });
+  assertBuiltPageUsesLocalAssets(agendaHtml, {
+    pageCssHref: 'assets/styles/page-agenda.css',
+    pageScriptHref: 'assets/scripts/page-agenda.js',
+  });
+  assertBuiltPageUsesLocalAssets(aboutHtml, {
+    pageCssHref: 'assets/styles/page-about.css',
+    pageScriptHref: 'assets/scripts/page-about.js',
+  });
 
   assert.match(indexHtml, /En ce moment/);
   assert.match(indexHtml, /Cette semaine/);
-  assert.match(indexHtml, /Cantine (?:&|&amp;) familles/);
   assert.match(indexHtml, /Coup de cœur/);
-  assert.match(indexHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
-  assert.match(indexHtml, /Rechercher un titre, une rubrique, un lieu/);
   assert.match(indexHtml, /action="portail\.html"/);
-  assert.match(indexHtml, />Actualités</);
-  assert.doesNotMatch(indexHtml, /Stratégie de Diffusion/);
-  assert.match(portalHtml, /portal-posts-data/);
-  assert.match(portalHtml, /portal-copy-data/);
-  assert.match(portalHtml, /<script src="assets\/scripts\/journal-shared-client\.js"><\/script>/);
-  assert.match(portalHtml, /initialSearchParams\.get\('q'\)/);
-  assert.match(portalHtml, /<h1[^>]*>Actualités</);
-  assert.match(portalHtml, /Résumé rapide/);
-  assert.doesNotMatch(portalHtml, /<div class="portal-lead-card">/);
-  assert.match(portalHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
-  assert.match(portalHtml, /grid-template-columns:\s*minmax\(0,\s*2\.35fr\)\s*minmax\(15rem,\s*18rem\)/);
-  assert.match(portalHtml, /portal-article-main/);
-  assert.match(portalHtml, /portal-meta-stack/);
-  assert.match(portalHtml, /portal-inline-facts/);
-  assert.match(portalHtml, /portal-cantine-board/);
-  assert.match(portalHtml, /portal-cantine-rail-label/);
-  assert.match(portalHtml, /portal-cantine-note/);
-  assert.match(portalHtml, /aria-label="Repères liés à cette publication"/);
+  assert.match(indexHtml, /Rechercher un titre, une rubrique, un lieu/);
+
+  assert.match(portalHtml, /id="portal-search"/);
+  assert.match(portalHtml, /id="portal-posts"/);
+  assert.match(portalHtml, /Actualités/);
+  assert.doesNotMatch(portalHtml, /portal-posts-data/);
+  assert.doesNotMatch(portalHtml, /portal-copy-data/);
   assert.doesNotMatch(portalHtml, /const portalIntroConfig = \{/);
-  assert.doesNotMatch(portalHtml, /function normalizeEditorialText\(/);
-  assert.doesNotMatch(portalHtml, /function buildReadableExcerpt\(/);
-  assert.doesNotMatch(portalHtml, /max-w-\[96rem\]/);
-  assert.match(agendaHtml, /agenda-events-data/);
-  assert.match(agendaHtml, /agenda-copy-data/);
-  assert.match(agendaHtml, /<script src="assets\/scripts\/journal-shared-client\.js"><\/script>/);
+
+  assert.match(agendaHtml, /id="agenda-search"/);
+  assert.match(agendaHtml, /id="agenda-results"/);
   assert.match(agendaHtml, /Vue calendrier/);
-  assert.match(agendaHtml, /Prochainement/);
-  assert.match(agendaHtml, /Passés récemment/);
-  assert.match(agendaHtml, /Résumé rapide/);
-  assert.match(agendaHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
+  assert.doesNotMatch(agendaHtml, /agenda-events-data/);
+  assert.doesNotMatch(agendaHtml, /agenda-copy-data/);
   assert.doesNotMatch(agendaHtml, /const weekDayLabels = \['Lun', 'Mar', 'Mer'/);
-  assert.doesNotMatch(agendaHtml, /function normalizeEditorialText\(/);
-  assert.doesNotMatch(agendaHtml, /function buildReadableExcerpt\(/);
-  assert.ok(!embeddedAgenda.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
+
   assert.match(aboutHtml, /7 piliers éditoriaux/i);
   assert.match(aboutHtml, /Stratégie de Diffusion/);
-  assert.match(aboutHtml, /site-shell px-4 sm:px-6 lg:px-8 py-10 md:py-12/);
-  assert.match(aboutHtml, /about-copy-data/);
+  assert.doesNotMatch(aboutHtml, /about-copy-data/);
   assert.doesNotMatch(aboutHtml, /const pillarsData = \[/);
-  assert.doesNotMatch(portalHtml, /fetch\('\.\/data\/citizen-posts\.json'/);
-  assert.doesNotMatch(agendaHtml, /fetch\('\.\/data\/calendar-events\.json'/);
+
+  assert.ok(Array.isArray(portalPosts));
+  assert.ok(portalPosts.length > 0);
+  assert.ok(portalPosts.every((post) => !post?.cover_image || !/^https?:\/\//i.test(post.cover_image)));
+  assert.ok(portalPosts.every((post) => !post?.image || !/^https?:\/\//i.test(post.image)));
+
+  assert.equal(typeof portalPage, 'object');
+  assert.equal(typeof agendaPage, 'object');
+  assert.equal(typeof aboutPage, 'object');
+  assert.ok(Array.isArray(aboutPage.pillars));
+  assert.ok(aboutPage.pillars.length > 0);
+
+  assert.ok(Array.isArray(agendaEvents));
+  assert.ok(!agendaEvents.some((entry) => entry?.rubrique === 'Coup de cœur littéraire'));
 });
 
 test('le build GitHub Pages injecte un base href compatible sous-répertoire', async () => {

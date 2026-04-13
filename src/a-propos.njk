@@ -9,35 +9,8 @@ permalink: a-propos.html
 {% set footerSection = journal.siteSections['footer'] %}
 {% set firstPillar = aboutPage.pillars[0] %}
 {% set pageTitle = (aboutPage.pageTitle or 'À propos') + ' - ' + (navSection.browserTitleSuffix or "Le Journal d'Annet-sur-Marne") %}
+{% set pageCssHref = 'assets/styles/page-about.css' %}
 {% include "site-shell-head.njk" %}
-    <script id="about-copy-data" type="application/json">{{ aboutPage | inlineJson | safe }}</script>
-    <style>
-{% include "site-shared-styles.njk" %}
-        .hero-shell {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--line);
-            border-radius: 28px;
-            background:
-                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,244,239,0.98)),
-                radial-gradient(circle at 88% 16%, rgba(246,163,24,0.14), transparent 20%),
-                radial-gradient(circle at 18% 82%, rgba(40,148,227,0.16), transparent 20%);
-            box-shadow: var(--shadow-soft);
-        }
-        .fade-in {
-            animation: fadeIn 0.45s ease-out;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
 {% include "site-shell-open.njk" %}
         <section class="hero-shell px-6 py-8 md:px-10 md:py-10">
             <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
@@ -99,7 +72,7 @@ permalink: a-propos.html
                 </p>
             </div>
             <div class="flex flex-wrap justify-center gap-2 mb-8" id="pillar-buttons">
-                <button type="button" class="px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all border-ink/20 shadow-lg shadow-black/10 backdrop-blur-sm" style="background: rgba(22, 49, 74, 0.88); color: rgba(255, 255, 255, 0.96);" aria-pressed="true">
+                <button type="button" class="about-pillar-button about-pillar-button--active px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all border-ink/20 shadow-lg shadow-black/10 backdrop-blur-sm" aria-pressed="true">
                     {{ firstPillar.title or 'Info & Politique Locale' }}
                 </button>
             </div>
@@ -159,75 +132,6 @@ permalink: a-propos.html
             </div>
         </section>
 {% include "site-shell-close.njk" %}
-
-    <script>
-        const aboutCopy = JSON.parse(document.getElementById('about-copy-data')?.textContent || '{}');
-        const pillarsData = aboutCopy.pillars || [];
-        const pillarVisuals = {
-            p1: { icon: '⚖️', theme: 'vintage-red' },
-            p2: { icon: '🤝', theme: 'vintage-red' },
-            p3: { icon: '🛡️', theme: 'vintage-red' },
-            p4: { icon: '☕', theme: 'vintage-red' },
-            p5: { icon: '🌱', theme: 'vintage-green' },
-            p6: { icon: '🎗️', theme: 'vintage-blue' },
-            p7: { icon: '🛍️', theme: 'vintage-blue' }
-        };
-
-        const btnContainer = document.getElementById('pillar-buttons');
-        const contentContainer = document.getElementById('pillar-content');
-        let currentPillarId = pillarsData[0]?.id || 'p1';
-
-        function renderPillars() {
-            btnContainer.innerHTML = '';
-            pillarsData.forEach((pillar) => {
-                const isActive = pillar.id === currentPillarId;
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = `px-4 py-3 mx-1 font-heading font-bold uppercase text-sm tracking-wider border rounded-full transition-all ${isActive ? 'border-ink/20 shadow-lg shadow-black/10 backdrop-blur-sm' : 'border-ink/10 bg-white/70 text-ink hover:bg-white hover:-translate-y-0.5'}`;
-                button.style.background = isActive ? 'rgba(22, 49, 74, 0.88)' : '';
-                button.style.color = isActive ? 'rgba(255, 255, 255, 0.96)' : '';
-                button.textContent = pillar.title;
-                button.setAttribute('aria-pressed', String(isActive));
-                button.onclick = () => {
-                    currentPillarId = pillar.id;
-                    renderPillars();
-                    renderPillarContent();
-                };
-                btnContainer.appendChild(button);
-            });
-        }
-
-        function renderPillarContent() {
-            const pillar = pillarsData.find((item) => item.id === currentPillarId);
-            if (!pillar) {
-                return;
-            }
-            const visuals = pillarVisuals[pillar.id] || { icon: '✦', theme: 'vintage-red' };
-            const titleColor = visuals.theme === 'vintage-red' ? 'text-ink' : `text-${visuals.theme}`;
-            const accentLine = `border-${visuals.theme}`;
-
-            contentContainer.innerHTML = `
-                <div class="w-full max-w-4xl fade-in flex flex-col md:flex-row gap-8 items-center">
-                    <div class="text-6xl md:text-8xl grayscale opacity-80">${visuals.icon}</div>
-                    <div class="flex-1 space-y-4">
-                        <h3 class="text-3xl font-heading font-black uppercase ${titleColor} mb-2 border-b-2 ${accentLine} pb-2 inline-block">${pillar.title}</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                            <div>
-                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">${aboutCopy.principleLabel || 'Le Principe'}</h4>
-                                <p class="text-sm leading-relaxed text-justify">${pillar.principle}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-heading font-bold uppercase tracking-widest text-xs mb-1">${aboutCopy.objectiveLabel || "L'Objectif"}</h4>
-                                <p class="text-sm leading-relaxed text-justify font-bold">${pillar.objective}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        renderPillars();
-        renderPillarContent();
-    </script>
+    <script src="assets/scripts/page-about.js"></script>
 </body>
 </html>
