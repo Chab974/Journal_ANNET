@@ -192,7 +192,6 @@ permalink: portail.html
         }
         .portal-excerpt-card {
             width: 100%;
-            margin-top: 1rem;
             padding: 0.95rem 1rem;
             border: 1px solid rgba(22, 49, 74, 0.08);
             border-radius: 18px;
@@ -1131,6 +1130,19 @@ permalink: portail.html
                 </div>
             ` : '';
 
+            const summaryExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
+                maxLength: 220,
+                minBoundary: 120
+            });
+            const fullSummary = normalizeEditorialText(post.resume || post.contenu_texte || '');
+            const summaryIsTruncated = Boolean(fullSummary && summaryExcerpt && fullSummary !== summaryExcerpt);
+            const summaryCard = summaryExcerpt ? `
+                <div class="portal-excerpt-card">
+                    <p class="portal-excerpt-label">${escapeHtml(portalCopy.summaryLabel || 'Résumé rapide')}</p>
+                    <p class="portal-excerpt-text">${escapeHtml(summaryExcerpt)}</p>
+                    ${summaryIsTruncated ? `<p class="portal-excerpt-note">${escapeHtml(portalCopy.summaryNote || 'Le détail complet est visible dans l’article ci-dessous.')}</p>` : ''}
+                </div>
+            ` : '';
             const fullTextSource = post.contenu_texte || post.resume || '';
             const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
             const agendaCard = agendaEntries.length ? `
@@ -1154,6 +1166,7 @@ permalink: portail.html
             ` : '';
             const textBlock = `
                 <div class="space-y-5">
+                    ${summaryCard}
                     ${agendaCard ? `
                         <div class="portal-inline-facts">
                             ${agendaCard}
@@ -1340,12 +1353,6 @@ permalink: portail.html
 
             portalPostsContainer.innerHTML = posts.map((post) => {
                 const config = portalTypeConfig[post.type] || portalTypeConfig.info;
-                const cardExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
-                    maxLength: 220,
-                    minBoundary: 120
-                });
-                const fullSummary = normalizeEditorialText(post.resume || post.contenu_texte || '');
-                const summaryIsTruncated = Boolean(fullSummary && cardExcerpt && fullSummary !== cardExcerpt);
                 return `
                     <article class="portal-card p-6 md:p-8 ${config.theme}" data-post-id="${escapeHtml(post.id || '')}" data-post-slug="${escapeHtml(post.slug || '')}">
                         <div class="portal-stamp">${escapeHtml(config.stamp)}</div>
@@ -1359,13 +1366,6 @@ permalink: portail.html
                                     <div class="portal-ribbon ${config.accent}">${escapeHtml(post.rubrique || config.label)}</div>
                                 </div>
                                 <h3 class="text-3xl font-heading font-black leading-tight mt-4">${escapeHtml(post.titre || '')}</h3>
-                                ${cardExcerpt ? `
-                                    <div class="portal-excerpt-card">
-                                        <p class="portal-excerpt-label">${escapeHtml(portalCopy.summaryLabel || 'Résumé rapide')}</p>
-                                        <p class="portal-excerpt-text">${escapeHtml(cardExcerpt)}</p>
-                                        ${summaryIsTruncated ? `<p class="portal-excerpt-note">${escapeHtml(portalCopy.summaryNote || 'Le détail complet est visible dans l’article ci-dessous.')}</p>` : ''}
-                                    </div>
-                                ` : ''}
                             </div>
                             <div class="portal-date-pill">
                                 <span aria-hidden="true">🕒</span>
