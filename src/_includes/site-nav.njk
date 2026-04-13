@@ -1,8 +1,8 @@
 {% set navSection = journal.siteSections['site-nav'] %}
 <nav class="sticky top-0 z-50 glass-nav border-b border-ink/10" data-site-nav>
     <div class="site-shell px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between min-h-20 items-center gap-4 py-3">
-            <a href="index.html" class="flex-shrink-0 flex items-center gap-3 font-heading font-bold text-2xl tracking-tight">
+        <div class="nav-topbar flex justify-between min-h-20 items-center gap-4 py-3">
+            <a href="index.html" class="flex-shrink-0 flex items-center gap-3 font-heading font-bold text-2xl tracking-tight lg:row-span-2 lg:self-center">
                 <span class="flex items-center justify-center w-11 h-11 rounded-xl text-white text-lg shadow-lg shadow-sky-200/70" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-green) 48%, var(--vintage-blue));">✦</span>
                 <div>
                     <div>{{ navSection.brandTitle or 'Le Bulletin' }}</div>
@@ -10,30 +10,31 @@
                 </div>
             </a>
 
-            <form action="portail.html" method="get" class="nav-search hidden lg:flex" role="search" aria-label="{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}">
-                <span class="nav-search-label">{{ navSection.searchKicker or 'Recherche rapide' }}</span>
-                <label for="site-search-desktop" class="sr-only">{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}</label>
-                <input
-                    id="site-search-desktop"
-                    data-site-search-input
-                    name="q"
-                    type="search"
-                    class="nav-search-input"
-                    placeholder="{{ navSection.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu...' }}"
-                >
-                <button type="submit" class="nav-search-button">{{ navSection.searchButtonLabel or 'Rechercher' }}</button>
-            </form>
-
-            <div class="hidden lg:flex items-center gap-4 xl:gap-6 font-heading font-bold uppercase tracking-widest text-xs">
-                {% for item in journal.site.navigation %}
-                <a
-                    href="{{ item.href }}"
-                    class="nav-link nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}"
-                    data-nav-key="{{ item.key }}"
-                    {% if item.rubrique %}data-nav-rubrique="{{ item.rubrique }}"{% endif %}
-                    {% if activePage == item.key %}aria-current="page"{% endif %}
-                >{{ item.label }}</a>
-                {% endfor %}
+            <div class="nav-desktop-shell hidden lg:block">
+                <div class="nav-desktop-links font-heading font-bold uppercase tracking-widest text-xs">
+                    {% for item in journal.site.navigation %}
+                    <a
+                        href="{{ item.href }}"
+                        class="nav-link nav-link--{{ item.key }}{% if activePage == item.key %} is-active{% endif %}"
+                        data-nav-key="{{ item.key }}"
+                        {% if item.rubrique %}data-nav-rubrique="{{ item.rubrique }}"{% endif %}
+                        {% if activePage == item.key %}aria-current="page"{% endif %}
+                    >{{ item.label }}</a>
+                    {% endfor %}
+                </div>
+                <form action="portail.html" method="get" class="nav-search nav-search--desktop" role="search" aria-label="{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}">
+                    <span class="nav-search-label">{{ navSection.searchKicker or 'Recherche rapide' }}</span>
+                    <label for="site-search-desktop" class="sr-only">{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}</label>
+                    <input
+                        id="site-search-desktop"
+                        data-site-search-input
+                        name="q"
+                        type="search"
+                        class="nav-search-input"
+                        placeholder="{{ navSection.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu...' }}"
+                    >
+                    <button type="submit" class="nav-search-button">{{ navSection.searchButtonLabel or 'Rechercher' }}</button>
+                </form>
             </div>
 
             <button
