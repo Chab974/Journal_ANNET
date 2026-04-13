@@ -1,7 +1,7 @@
 {% set navSection = journal.siteSections['site-nav'] %}
 <nav class="sticky top-0 z-50 glass-nav border-b border-ink/10" data-site-nav>
     <div class="site-shell px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-20 items-center gap-4">
+        <div class="flex justify-between min-h-20 items-center gap-4 py-3">
             <a href="index.html" class="flex-shrink-0 flex items-center gap-3 font-heading font-bold text-2xl tracking-tight">
                 <span class="flex items-center justify-center w-11 h-11 rounded-xl text-white text-lg shadow-lg shadow-sky-200/70" style="background: linear-gradient(135deg, var(--vintage-red), var(--vintage-green) 48%, var(--vintage-blue));">✦</span>
                 <div>
@@ -10,7 +10,21 @@
                 </div>
             </a>
 
-            <div class="hidden md:flex items-center gap-8 font-heading font-bold uppercase tracking-widest text-xs">
+            <form action="portail.html" method="get" class="nav-search hidden lg:flex" role="search" aria-label="{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}">
+                <span class="nav-search-label">{{ navSection.searchKicker or 'Recherche rapide' }}</span>
+                <label for="site-search-desktop" class="sr-only">{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}</label>
+                <input
+                    id="site-search-desktop"
+                    data-site-search-input
+                    name="q"
+                    type="search"
+                    class="nav-search-input"
+                    placeholder="{{ navSection.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu...' }}"
+                >
+                <button type="submit" class="nav-search-button">{{ navSection.searchButtonLabel or 'Rechercher' }}</button>
+            </form>
+
+            <div class="hidden lg:flex items-center gap-4 xl:gap-6 font-heading font-bold uppercase tracking-widest text-xs">
                 {% for item in journal.site.navigation %}
                 <a
                     href="{{ item.href }}"
@@ -24,7 +38,7 @@
 
             <button
                 type="button"
-                class="nav-toggle md:hidden"
+                class="nav-toggle lg:hidden"
                 data-nav-toggle
                 aria-expanded="false"
                 aria-controls="site-mobile-nav"
@@ -33,7 +47,22 @@
             </button>
         </div>
 
-        <div id="site-mobile-nav" class="mobile-nav-panel hidden md:hidden" data-nav-panel>
+        <div id="site-mobile-nav" class="mobile-nav-panel hidden lg:hidden" data-nav-panel>
+            <form action="portail.html" method="get" class="mobile-nav-search" role="search" aria-label="{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}">
+                <span class="nav-search-label">{{ navSection.searchKicker or 'Recherche rapide' }}</span>
+                <div class="mobile-nav-search-row">
+                    <label for="site-search-mobile" class="sr-only">{{ navSection.searchAriaLabel or 'Rechercher dans les actualités locales' }}</label>
+                    <input
+                        id="site-search-mobile"
+                        data-site-search-input
+                        name="q"
+                        type="search"
+                        class="mobile-nav-search-input"
+                        placeholder="{{ navSection.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu...' }}"
+                    >
+                    <button type="submit" class="mobile-nav-search-button">{{ navSection.searchButtonLabel or 'Rechercher' }}</button>
+                </div>
+            </form>
             {% for item in journal.site.navigation %}
             <a
                 href="{{ item.href }}"
@@ -76,8 +105,14 @@
 
         const currentUrl = new URL(window.location.href);
         const rubrique = currentUrl.searchParams.get('rubrique');
+        const currentQuery = currentUrl.searchParams.get('q') || '';
         const lectureLinks = navRoot.querySelectorAll('[data-nav-key="lecture"]');
         const actualitesLinks = navRoot.querySelectorAll('[data-nav-key="actualites"]');
+        const searchInputs = navRoot.querySelectorAll('[data-site-search-input]');
+
+        searchInputs.forEach((input) => {
+            input.value = currentQuery;
+        });
 
         if (rubrique === 'Coup de cœur littéraire' && /portail\.html$/.test(currentUrl.pathname)) {
             actualitesLinks.forEach((link) => {

@@ -170,67 +170,6 @@ permalink: index.html
         .quick-link-chip--blue {
             color: #1f78d1;
         }
-        .home-search-shell {
-            display: grid;
-            gap: 1rem;
-            align-items: center;
-        }
-        @media (min-width: 1024px) {
-            .home-search-shell {
-                grid-template-columns: minmax(0, 1fr) auto;
-            }
-        }
-        .home-search-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.85rem;
-            align-items: center;
-        }
-        .home-search-input {
-            flex: 1 1 22rem;
-            min-height: 56px;
-            padding: 0.95rem 1.1rem;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255,255,255,0.98);
-            color: var(--ink);
-            font-size: 1rem;
-            outline: none;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
-        }
-        .home-search-input::placeholder {
-            color: #7b8a9a;
-        }
-        .home-search-input:focus {
-            border-color: rgba(127,191,37,0.42);
-            box-shadow: 0 0 0 4px rgba(127,191,37,0.12);
-        }
-        .home-search-button {
-            min-height: 56px;
-            padding: 0.95rem 1.4rem;
-            border-radius: 18px;
-            border: none;
-            background: linear-gradient(135deg, var(--vintage-green), #5ea51a);
-            color: #fff;
-            font-size: 0.78rem;
-            font-weight: 800;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            box-shadow: 0 14px 24px rgba(127, 191, 37, 0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .home-search-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 18px 30px rgba(127, 191, 37, 0.24);
-        }
-        .home-search-caption {
-            max-width: 20rem;
-            font-size: 0.76rem;
-            font-weight: 800;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
     </style>
 {% include "site-shell-open.njk" %}
         <section class="hero-shell px-6 py-8 md:px-10 md:py-10">
@@ -255,6 +194,7 @@ permalink: index.html
                         <a href="portail.html" class="action-pill bg-vintage-red text-white shadow-lg shadow-orange-200/70">{{ homePage.heroPrimaryLabel or 'Actualités' }}</a>
                         <a href="agenda.html" class="action-pill bg-vintage-blue text-white shadow-lg shadow-sky-200/70">{{ homePage.heroAgendaLabel or 'Agenda' }}</a>
                         <a href="{{ cantineEntry.href if cantineEntry else 'portail.html?rubrique=Scolaire' }}" class="action-pill bg-vintage-green text-white shadow-lg shadow-lime-200/70">{{ homePage.heroCantineLabel or 'Cantine & familles' }}</a>
+                        <a href="portail.html?rubrique=Coup%20de%20c%C5%93ur%20litt%C3%A9raire" class="action-pill text-white shadow-lg shadow-amber-200/70" style="background: linear-gradient(135deg, #7c3f2c, #b66b4c);">{{ homePage.heroLectureLabel or 'Coup de cœur' }}</a>
                     </div>
                     <p class="text-sm font-semibold tracking-[0.08em] uppercase text-[color:var(--muted)]">
                         {{ homePage.heroHelper or 'Trois parcours immédiats pour trouver une info utile en moins de cinq secondes.' }}
@@ -300,27 +240,6 @@ permalink: index.html
                     {% endif %}
                 </div>
             </div>
-        </section>
-
-        <section class="section-shell">
-            <div class="home-search-shell">
-                <div>
-                    <span class="section-kicker text-vintage-green">{{ homePage.searchKicker or 'Recherche rapide' }}</span>
-                    <h2 class="mt-3 text-2xl md:text-3xl font-heading font-black uppercase tracking-tight">{{ homePage.searchTitle or 'Trouver un titre, une rubrique ou un lieu' }}</h2>
-                </div>
-                <p class="home-search-caption">{{ homePage.searchCaption or 'La recherche ouvre le portail avec la requête déjà appliquée.' }}</p>
-            </div>
-            <form action="portail.html" method="get" class="home-search-form mt-6" role="search" aria-label="{{ homePage.searchAriaLabel or 'Rechercher dans les actualités locales' }}">
-                <label for="home-search" class="sr-only">{{ homePage.searchAriaLabel or 'Rechercher dans les actualités locales' }}</label>
-                <input
-                    id="home-search"
-                    name="q"
-                    type="search"
-                    class="home-search-input"
-                    placeholder="{{ homePage.searchPlaceholder or 'Rechercher un titre, une rubrique, un lieu, un auteur...' }}"
-                />
-                <button type="submit" class="home-search-button">{{ homePage.searchButtonLabel or 'Rechercher' }}</button>
-            </form>
         </section>
 
         <section class="section-shell">

@@ -1019,6 +1019,38 @@ permalink: portail.html
             });
         }
 
+        function parsePortalIsoDate(value = '') {
+            if (!value) {
+                return null;
+            }
+
+            const normalized = String(value).replace(
+                /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
+                '$1-$2-$3T$4:$5:$6Z'
+            );
+            const parsed = new Date(normalized);
+            return Number.isNaN(parsed.getTime()) ? null : parsed;
+        }
+
+        function getStartOfToday(referenceDate = new Date()) {
+            return new Date(
+                referenceDate.getFullYear(),
+                referenceDate.getMonth(),
+                referenceDate.getDate()
+            );
+        }
+
+        function getUpcomingAgendaEntries(entries = [], referenceDate = new Date()) {
+            const startOfToday = getStartOfToday(referenceDate);
+
+            return entries
+                .filter((entry) => {
+                    const entryDate = parsePortalIsoDate(entry?.date_debut_iso);
+                    return entryDate && entryDate >= startOfToday;
+                })
+                .sort((left, right) => String(left?.date_debut_iso || '').localeCompare(String(right?.date_debut_iso || '')));
+        }
+
         function renderCantineDays(post) {
             const days = post.cantine_jours || [];
             return `
@@ -1145,7 +1177,9 @@ permalink: portail.html
                 </div>
             ` : '';
             const fullTextSource = post.contenu_texte || post.resume || '';
-            const agendaEntries = Array.isArray(post.event_dates) ? post.event_dates.filter((entry) => entry?.date_debut_iso) : [];
+            const agendaEntries = getUpcomingAgendaEntries(
+                Array.isArray(post.event_dates) ? post.event_dates : []
+            );
             const agendaCard = agendaEntries.length ? `
                 <div class="portal-fact-card">
                     <p class="portal-fact-title">🗓️ ${escapeHtml(portalCopy.agendaDatesTitle || "Dates à l'agenda")}</p>
