@@ -206,10 +206,6 @@ export default async function notionWebhook(request, response) {
   }
 
   if (isNotionVerificationPayload(payload)) {
-  console.log('TOKEN_NOTION_A_COPIER_START');
-  console.log(payload.verification_token);
-  console.log('TOKEN_NOTION_A_COPIER_END');
-
   sendJson(response, 200, {
     ok: true,
   });
