@@ -206,12 +206,15 @@ export default async function notionWebhook(request, response) {
   }
 
   if (isNotionVerificationPayload(payload)) {
-    sendJson(response, 200, {
-      ok: true,
-      verification_token: payload.verification_token,
-    });
-    return;
-  }
+  console.log('TOKEN_NOTION_A_COPIER_START');
+  console.log(payload.verification_token);
+  console.log('TOKEN_NOTION_A_COPIER_END');
+
+  sendJson(response, 200, {
+    ok: true,
+  });
+  return;
+}
 
   if (!isValidNotionEventPayload(payload)) {
     sendJson(response, 400, { error: 'Payload Notion invalide.' });
