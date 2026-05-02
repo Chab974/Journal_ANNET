@@ -414,8 +414,12 @@
                 `;
             }
 
+            const carouselClass = post.type === 'coup_de_coeur'
+                ? 'portal-image-carousel--cover'
+                : 'portal-image-carousel--wide';
+
             return `
-                <div class="portal-book-cover-card portal-image-carousel" data-portal-image-carousel>
+                <div class="portal-book-cover-card portal-image-carousel ${carouselClass}" data-portal-image-carousel>
                     <div class="portal-image-carousel-viewport">
                         <div class="portal-image-carousel-track" data-carousel-track>
                             ${images.map((image, index) => `
@@ -452,7 +456,11 @@
                 return renderCantineDays(post);
             }
 
+            const postImages = getPostImages(post);
+            const hasMultipleImages = postImages.length > 1;
             const visualCard = renderVisualCard(post);
+            const primaryVisualCard = hasMultipleImages ? visualCard : '';
+            const supportVisualCard = hasMultipleImages ? '' : visualCard;
             const hasVisualCard = Boolean(visualCard);
             const visualMainClass = hasVisualCard ? 'portal-article-main--has-visual' : '';
 
@@ -494,6 +502,7 @@
             ` : '';
             const textBlock = `
                 <div class="space-y-5">
+                    ${primaryVisualCard}
                     ${summaryCard}
                     ${agendaCard ? `
                         <div class="portal-inline-facts">
@@ -532,7 +541,7 @@
                     </div>
                 ` : '';
 
-                return renderArticleLayout(textBlock, [visualCard, locationCard, calendarCard], visualMainClass);
+                return renderArticleLayout(textBlock, [supportVisualCard, locationCard, calendarCard], visualMainClass);
             }
 
             if (post.type === 'coup_de_coeur') {
@@ -569,10 +578,10 @@
                         ${metadataBlock}
                         ${textBlock}
                     </div>
-                `, [visualCard, externalLinkCard, mediathequeCard], visualMainClass);
+                `, [supportVisualCard, externalLinkCard, mediathequeCard], visualMainClass);
             }
 
-            return renderArticleLayout(textBlock, [visualCard, locationCard, highlightsCard], visualMainClass);
+            return renderArticleLayout(textBlock, [supportVisualCard, locationCard, highlightsCard], visualMainClass);
         }
 
         function getPortalSearchableParts(post) {

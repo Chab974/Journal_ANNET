@@ -648,6 +648,9 @@
             display: grid;
             gap: 0.85rem;
         }
+        .portal-article-main > .space-y-5 > .portal-image-carousel {
+            margin-bottom: 1.15rem;
+        }
         .portal-image-carousel-viewport {
             position: relative;
             overflow: hidden;
@@ -665,6 +668,12 @@
         .portal-image-carousel-slide .portal-book-cover {
             animation: none;
             box-shadow: 0 18px 30px rgba(22, 49, 74, 0.16);
+        }
+        .portal-image-carousel--wide .portal-book-cover {
+            aspect-ratio: 16 / 10;
+        }
+        .portal-image-carousel--cover .portal-book-cover {
+            aspect-ratio: 2 / 3;
         }
         .portal-image-carousel-controls {
             position: relative;
