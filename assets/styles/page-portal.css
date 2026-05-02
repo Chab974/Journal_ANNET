@@ -649,9 +649,9 @@
             gap: 0.85rem;
         }
         .portal-image-carousel--inline {
-            width: min(100%, 34rem);
-            margin: 0.3rem 0 1rem;
-            padding: 1rem;
+            width: min(100%, 40rem);
+            margin: 1rem 0 1.15rem;
+            padding: 0.85rem;
         }
         .portal-image-carousel-viewport {
             position: relative;
@@ -664,21 +664,33 @@
             will-change: transform;
         }
         .portal-image-carousel-slide {
+            display: flex;
+            min-height: 18rem;
             min-width: 100%;
             margin: 0;
+            align-items: center;
+            justify-content: center;
         }
         .portal-image-carousel-slide .portal-book-cover {
             animation: none;
-            box-shadow: 0 18px 30px rgba(22, 49, 74, 0.16);
+            width: auto;
+            max-width: 100%;
+            max-height: min(62vh, 30rem);
+            height: auto;
+            box-shadow: 0 14px 24px rgba(22, 49, 74, 0.14);
+            object-fit: contain;
         }
         .portal-image-carousel--wide .portal-book-cover {
             aspect-ratio: auto;
-            max-height: min(44vh, 20rem);
-            object-fit: contain;
-            background: rgba(255,255,255,0.88);
+            background: transparent;
         }
-        .portal-image-carousel--inline .portal-book-cover {
-            max-height: min(42vh, 18rem);
+        .portal-image-carousel--inline .portal-image-carousel-slide.is-portrait .portal-book-cover {
+            max-width: min(100%, 22rem);
+            max-height: min(70vh, 36rem);
+        }
+        .portal-image-carousel--inline .portal-image-carousel-slide.is-landscape .portal-book-cover {
+            width: 100%;
+            max-height: min(52vh, 24rem);
         }
         .portal-image-carousel--cover .portal-book-cover {
             aspect-ratio: 2 / 3;

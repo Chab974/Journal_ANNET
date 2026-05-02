@@ -503,15 +503,15 @@
             const textBlock = `
                 <div class="space-y-5">
                     ${summaryCard}
+                    <div class="portal-note text-sm md:text-base leading-relaxed">
+                        ${post.contenu_html || renderPlainTextBody(fullTextSource)}
+                    </div>
                     ${articleCarouselCard}
                     ${agendaCard ? `
                         <div class="portal-inline-facts">
                             ${agendaCard}
                         </div>
                     ` : ''}
-                    <div class="portal-note text-sm md:text-base leading-relaxed">
-                        ${post.contenu_html || renderPlainTextBody(fullTextSource)}
-                    </div>
                 </div>
             `;
             const locationCard = post.lieu ? `
@@ -730,6 +730,23 @@
             });
 
             portalPostsContainer.querySelectorAll('.portal-visual-image').forEach((image) => {
+                const markImageOrientation = () => {
+                    if (!image.naturalWidth || !image.naturalHeight) {
+                        return;
+                    }
+                    const orientationClass = image.naturalWidth >= image.naturalHeight
+                        ? 'is-landscape'
+                        : 'is-portrait';
+                    image.classList.add(orientationClass);
+                    image.closest('.portal-image-carousel-slide')?.classList.add(orientationClass);
+                };
+
+                if (image.complete) {
+                    markImageOrientation();
+                } else {
+                    image.addEventListener('load', markImageOrientation, { once: true });
+                }
+
                 image.addEventListener('error', () => {
                     image.removeAttribute('src');
                     image.classList.add('is-fallback');
