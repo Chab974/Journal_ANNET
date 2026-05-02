@@ -356,28 +356,105 @@
             `;
         }
 
+        function getPostImages(post) {
+            const rawImages = Array.isArray(post.images) ? post.images : [];
+            const images = rawImages
+                .map((image) => ({
+                    alt: image?.alt || `Visuel de ${post.titre || 'la publication'}`,
+                    caption: image?.caption || '',
+                    src: image?.src || ''
+                }))
+                .filter((image) => image.src);
+
+            if (!images.length && (post.image || post.cover_image)) {
+                images.push({
+                    alt: post.type === 'coup_de_coeur'
+                        ? `Couverture du livre ${post.titre || ''}`
+                        : `Visuel de ${post.titre || 'la publication'}`,
+                    caption: post.image_caption || '',
+                    src: post.image || post.cover_image
+                });
+            }
+
+            const seen = new Set();
+            return images.filter((image) => {
+                const key = image.src;
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function renderVisualCard(post) {
+            const images = getPostImages(post);
+            if (!images.length) {
+                return '';
+            }
+
+            const defaultCaption = post.type === 'coup_de_coeur'
+                ? 'Sélection de la semaine'
+                : '';
+
+            if (images.length === 1) {
+                const image = images[0];
+                return `
+                    <div class="portal-book-cover-card">
+                        <img
+                            src="${escapeHtml(resolveAssetUrl(image.src))}"
+                            alt="${escapeHtml(image.alt)}"
+                            class="portal-book-cover portal-visual-image"
+                            loading="eager"
+                            decoding="async"
+                            fetchpriority="high"
+                        >
+                        ${(post.image_caption || image.caption || defaultCaption) ? `<p class="portal-book-cover-caption">${escapeHtml(post.image_caption || image.caption || defaultCaption)}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="portal-book-cover-card portal-image-carousel" data-portal-image-carousel>
+                    <div class="portal-image-carousel-viewport">
+                        <div class="portal-image-carousel-track" data-carousel-track>
+                            ${images.map((image, index) => `
+                                <figure class="portal-image-carousel-slide">
+                                    <img
+                                        src="${escapeHtml(resolveAssetUrl(image.src))}"
+                                        alt="${escapeHtml(image.alt)}"
+                                        class="portal-book-cover portal-visual-image"
+                                        loading="${index === 0 ? 'eager' : 'lazy'}"
+                                        decoding="async"
+                                        ${index === 0 ? 'fetchpriority="high"' : ''}
+                                    >
+                                    ${(image.caption || (index === 0 ? post.image_caption : '')) ? `<figcaption class="portal-book-cover-caption">${escapeHtml(image.caption || post.image_caption)}</figcaption>` : ''}
+                                </figure>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="portal-image-carousel-controls">
+                        <button type="button" class="portal-image-carousel-button" data-carousel-prev aria-label="${escapeHtml(portalCopy.previousImageLabel || 'Image précédente')}">‹</button>
+                        <div class="portal-image-carousel-dots">
+                            ${images.map((_, index) => `
+                                <button type="button" class="portal-image-carousel-dot" data-carousel-dot aria-label="${escapeHtml(formatTemplate(portalCopy.imageDotLabel || 'Voir l’image {index}', { index: index + 1 }))}" aria-pressed="${index === 0 ? 'true' : 'false'}"></button>
+                            `).join('')}
+                        </div>
+                        <button type="button" class="portal-image-carousel-button" data-carousel-next aria-label="${escapeHtml(portalCopy.nextImageLabel || 'Image suivante')}">›</button>
+                    </div>
+                    <p class="portal-image-carousel-counter" data-carousel-counter>1 / ${images.length}</p>
+                </div>
+            `;
+        }
+
         function renderPostBody(post) {
             if (post.type === 'cantine') {
                 return renderCantineDays(post);
             }
 
-            const postVisual = post.image || post.cover_image;
-            const visualLabel = post.type === 'coup_de_coeur'
-                ? `Couverture du livre ${post.titre || ''}`
-                : `Visuel de ${post.titre || 'la publication'}`;
-            const visualCard = postVisual ? `
-                <div class="portal-book-cover-card">
-                    <img
-                        src="${escapeHtml(resolveAssetUrl(postVisual))}"
-                        alt="${escapeHtml(visualLabel)}"
-                        class="portal-book-cover"
-                        loading="eager"
-                        decoding="async"
-                        fetchpriority="high"
-                    >
-                    ${(post.image_caption || post.type === 'coup_de_coeur') ? `<p class="portal-book-cover-caption">${escapeHtml(post.image_caption || 'Sélection de la semaine')}</p>` : ''}
-                </div>
-            ` : '';
+            const visualCard = renderVisualCard(post);
+            const hasVisualCard = Boolean(visualCard);
+            const visualMainClass = hasVisualCard ? 'portal-article-main--has-visual' : '';
 
             const summaryExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
                 maxLength: 220,
@@ -455,7 +532,7 @@
                     </div>
                 ` : '';
 
-                return renderArticleLayout(textBlock, [visualCard, locationCard, calendarCard]);
+                return renderArticleLayout(textBlock, [visualCard, locationCard, calendarCard], visualMainClass);
             }
 
             if (post.type === 'coup_de_coeur') {
@@ -492,10 +569,10 @@
                         ${metadataBlock}
                         ${textBlock}
                     </div>
-                `, [visualCard, externalLinkCard, mediathequeCard]);
+                `, [visualCard, externalLinkCard, mediathequeCard], visualMainClass);
             }
 
-            return renderArticleLayout(textBlock, [visualCard, locationCard, highlightsCard]);
+            return renderArticleLayout(textBlock, [visualCard, locationCard, highlightsCard], visualMainClass);
         }
 
         function getPortalSearchableParts(post) {
@@ -643,7 +720,7 @@
                 });
             });
 
-            portalPostsContainer.querySelectorAll('.portal-book-cover').forEach((image) => {
+            portalPostsContainer.querySelectorAll('.portal-visual-image').forEach((image) => {
                 image.addEventListener('error', () => {
                     image.removeAttribute('src');
                     image.classList.add('is-fallback');
@@ -653,6 +730,38 @@
                         textContent: portalCopy.missingCoverLabel || 'Couverture indisponible'
                     }));
                 }, { once: true });
+            });
+
+            portalPostsContainer.querySelectorAll('[data-portal-image-carousel]').forEach((carousel) => {
+                const track = carousel.querySelector('[data-carousel-track]');
+                const slides = Array.from(carousel.querySelectorAll('.portal-image-carousel-slide'));
+                const dots = Array.from(carousel.querySelectorAll('[data-carousel-dot]'));
+                const previousButton = carousel.querySelector('[data-carousel-prev]');
+                const nextButton = carousel.querySelector('[data-carousel-next]');
+                const counter = carousel.querySelector('[data-carousel-counter]');
+                let activeIndex = 0;
+
+                if (!track || slides.length <= 1) {
+                    return;
+                }
+
+                const updateCarousel = (nextIndex) => {
+                    activeIndex = (nextIndex + slides.length) % slides.length;
+                    track.style.transform = `translateX(-${activeIndex * 100}%)`;
+                    dots.forEach((dot, index) => {
+                        dot.setAttribute('aria-pressed', index === activeIndex ? 'true' : 'false');
+                    });
+                    if (counter) {
+                        counter.textContent = `${activeIndex + 1} / ${slides.length}`;
+                    }
+                };
+
+                previousButton?.addEventListener('click', () => updateCarousel(activeIndex - 1));
+                nextButton?.addEventListener('click', () => updateCarousel(activeIndex + 1));
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => updateCarousel(index));
+                });
+                updateCarousel(0);
             });
 
             if (portalState.targetSlug || portalState.targetPostId) {
