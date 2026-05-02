@@ -648,8 +648,10 @@
             display: grid;
             gap: 0.85rem;
         }
-        .portal-article-main > .space-y-5 > .portal-image-carousel {
-            margin-bottom: 1.15rem;
+        .portal-image-carousel--inline {
+            width: min(100%, 34rem);
+            margin: 0.3rem 0 1rem;
+            padding: 1rem;
         }
         .portal-image-carousel-viewport {
             position: relative;
@@ -671,9 +673,12 @@
         }
         .portal-image-carousel--wide .portal-book-cover {
             aspect-ratio: auto;
-            max-height: min(72vh, 42rem);
+            max-height: min(44vh, 20rem);
             object-fit: contain;
             background: rgba(255,255,255,0.88);
+        }
+        .portal-image-carousel--inline .portal-book-cover {
+            max-height: min(42vh, 18rem);
         }
         .portal-image-carousel--cover .portal-book-cover {
             aspect-ratio: 2 / 3;

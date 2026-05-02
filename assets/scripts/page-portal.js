@@ -387,7 +387,7 @@
             });
         }
 
-        function renderVisualCard(post) {
+        function renderVisualCard(post, options = {}) {
             const images = getPostImages(post);
             if (!images.length) {
                 return '';
@@ -397,7 +397,7 @@
                 ? 'Sélection de la semaine'
                 : '';
 
-            if (images.length === 1) {
+            if (images.length === 1 || options.mode === 'single') {
                 const image = images[0];
                 return `
                     <div class="portal-book-cover-card">
@@ -417,9 +417,10 @@
             const carouselClass = post.type === 'coup_de_coeur'
                 ? 'portal-image-carousel--cover'
                 : 'portal-image-carousel--wide';
+            const inlineClass = options.mode === 'inline' ? ' portal-image-carousel--inline' : '';
 
             return `
-                <div class="portal-book-cover-card portal-image-carousel ${carouselClass}" data-portal-image-carousel>
+                <div class="portal-book-cover-card portal-image-carousel ${carouselClass}${inlineClass}" data-portal-image-carousel>
                     <div class="portal-image-carousel-viewport">
                         <div class="portal-image-carousel-track" data-carousel-track>
                             ${images.map((image, index) => `
@@ -458,10 +459,9 @@
 
             const postImages = getPostImages(post);
             const hasMultipleImages = postImages.length > 1;
-            const visualCard = renderVisualCard(post);
-            const primaryVisualCard = hasMultipleImages ? visualCard : '';
-            const supportVisualCard = hasMultipleImages ? '' : visualCard;
-            const hasVisualCard = Boolean(visualCard);
+            const articleCarouselCard = hasMultipleImages ? renderVisualCard(post, { mode: 'inline' }) : '';
+            const supportVisualCard = renderVisualCard(post, { mode: 'single' });
+            const hasVisualCard = Boolean(articleCarouselCard || supportVisualCard);
             const visualMainClass = hasVisualCard ? 'portal-article-main--has-visual' : '';
 
             const summaryExcerpt = buildReadableExcerpt(post.resume || post.contenu_texte || '', post.titre, {
@@ -502,8 +502,8 @@
             ` : '';
             const textBlock = `
                 <div class="space-y-5">
-                    ${primaryVisualCard}
                     ${summaryCard}
+                    ${articleCarouselCard}
                     ${agendaCard ? `
                         <div class="portal-inline-facts">
                             ${agendaCard}

@@ -43,8 +43,9 @@
                 data-nav-toggle
                 aria-expanded="false"
                 aria-controls="site-mobile-nav"
+                aria-label="{{ navSection.mobileToggleLabel or 'Menu' }}"
             >
-                {{ navSection.mobileToggleLabel or 'Menu' }}
+                <span aria-hidden="true"></span>
             </button>
         </div>
 
