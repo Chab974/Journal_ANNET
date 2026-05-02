@@ -8,6 +8,14 @@ import { fromRepo } from '../utils.mjs';
 const optimizedImageMaxWidth = 1600;
 const optimizedImageQuality = 78;
 const optimizableImageExtensions = new Set(['.avif', '.jpeg', '.jpg', '.png', '.tif', '.tiff', '.webp']);
+const extensionByContentType = new Map([
+  ['image/avif', '.avif'],
+  ['image/jpeg', '.jpg'],
+  ['image/jpg', '.jpg'],
+  ['image/png', '.png'],
+  ['image/tiff', '.tiff'],
+  ['image/webp', '.webp'],
+]);
 
 function extensionFromUrl(url, fallback = '.bin') {
   try {
@@ -31,6 +39,25 @@ async function fileExists(filePath) {
 
     throw error;
   }
+}
+
+function extensionFromContentType(contentType, fallback = '.bin') {
+  const normalized = String(contentType || '').split(';')[0].trim().toLowerCase();
+  return extensionByContentType.get(normalized) || fallback;
+}
+
+function resolveSourceExtension({ contentType, fileName, sourceUrl }) {
+  const nameExtension = extensionFromUrl(fileName, '');
+  if (nameExtension) {
+    return nameExtension;
+  }
+
+  const urlExtension = extensionFromUrl(sourceUrl, '');
+  if (urlExtension) {
+    return urlExtension;
+  }
+
+  return extensionFromContentType(contentType);
 }
 
 function isOptimizableImage(extension) {
@@ -83,8 +110,13 @@ export async function resolveNotionFileAsset({
     throw new Error(`Téléchargement média en échec (${response.status})`);
   }
 
+  const contentType = response.headers?.get?.('content-type') || '';
   const buffer = Buffer.from(await response.arrayBuffer());
-  const extension = extensionFromUrl(file.name || sourceUrl, '.bin');
+  const extension = resolveSourceExtension({
+    contentType,
+    fileName: file.name,
+    sourceUrl,
+  });
   const shouldOptimize = isOptimizableImage(extension);
   const outputBuffer = shouldOptimize ? await optimizeImageBuffer(buffer) : buffer;
   const outputExtension = shouldOptimize ? '.webp' : extension.toLowerCase();
