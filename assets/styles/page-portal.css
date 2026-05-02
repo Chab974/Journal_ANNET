@@ -670,7 +670,10 @@
             box-shadow: 0 18px 30px rgba(22, 49, 74, 0.16);
         }
         .portal-image-carousel--wide .portal-book-cover {
-            aspect-ratio: 16 / 10;
+            aspect-ratio: auto;
+            max-height: min(72vh, 42rem);
+            object-fit: contain;
+            background: rgba(255,255,255,0.88);
         }
         .portal-image-carousel--cover .portal-book-cover {
             aspect-ratio: 2 / 3;
