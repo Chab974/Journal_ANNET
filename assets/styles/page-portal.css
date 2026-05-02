@@ -665,11 +665,13 @@
         }
         .portal-image-carousel-slide {
             display: flex;
+            flex-direction: column;
             min-height: 18rem;
             min-width: 100%;
             margin: 0;
             align-items: center;
             justify-content: center;
+            gap: 0.55rem;
         }
         .portal-image-carousel-slide .portal-book-cover {
             animation: none;
@@ -751,12 +753,13 @@
         }
         .portal-book-cover-caption {
             position: relative;
-            margin-top: 0.9rem;
+            margin-top: 0;
             font-size: 0.7rem;
             font-weight: 800;
             letter-spacing: 0.18em;
             text-transform: uppercase;
             color: var(--vintage-red);
+            text-align: center;
         }
         .portal-status-box {
             margin-bottom: 1.2rem;
